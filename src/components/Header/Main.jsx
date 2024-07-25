@@ -1,6 +1,6 @@
 import { Disclosure, DisclosureButton } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import { Header, MobileMenu, Navigation, UserMenu } from './Components' 
+import { Header, MobileMenu, Navigation, UserMenu } from './components' 
 
 const Main = () => {
 
