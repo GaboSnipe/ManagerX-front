@@ -1,338 +1,389 @@
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import React, { useState, useRef, useEffect } from "react";
+import { Paginations, Table } from "../components";
 
-import { Header } from '../components';
+const headers = [
+  { accessor: 'id', label: '#', sortable: true, sortbyOrder: "desc"  },
+  { accessor: 'customer', label: 'დამკვეთი', sortable: true, sortbyOrder: "desc"  },
+  { accessor: 'momsaxureba', label: 'მომსახურება', sortable: true, sortbyOrder: "desc"  },
+  { accessor: 'status', label: 'სტატუსი', sortable: true, sortbyOrder: "desc"  },
+  { accessor: 'daskvnis_tipi', label: 'დასკვნის ტიპი', sortable: true, sortbyOrder: "desc"  },
+  { accessor: 'expert', label: 'ექსპერტი', sortable: true, sortbyOrder: "desc"  },
+  { accessor: 'expert_cost', label: 'ექსპერტის ანაზღაურება-გადასახადების ჩათვლით ლ', sortable: true, sortbyOrder: "desc"  },
+  { accessor: 'gd', label: 'ასკვნის ღირებულების გადახდის თარიღი', sortable: true, sortbyOrder: "desc"  },
+  { accessor: 'commission', label: 'საკომისიო', sortable: true, sortbyOrder: "desc"  },
+  { accessor: 'commission_receiver', label: 'საკომისიოს მიმღები', sortable: true, sortbyOrder: "desc"  }
+];
 
-const headers = ['#', 'დამკვეთი', 'მომსახურება', 'სტატუსი', 'დასკვნის ტიპი', 'ექსპერტი', 'ექსპერტის ანაზღაურება-გადასახადების ჩათვლით ლ', 'დასკვნის ღირებულების გადახდის თარიღი', 'საკომისიო', 'საკომისიოს მიმღები']
+const adata = [
+  {
+    id: 'ERP-TA2-01',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9300,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-02',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-03',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-04',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-05',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-06',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-07',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-08',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-09',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-10',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-11',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-12',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-13',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-14',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-15',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-16',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-17',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-18',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-19',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-20',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-21',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-22',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
+  {
+    id: 'ERP-TA2-23',
+    customer: 'Lorem Ipsum',
+    momsaxureba: 'Lorem Ipsum',
+    status: 'Done',
+    daskvnis_tipi: 'Lorem Ipsum',
+    expert: 'Lorem Ipsum',
+    expert_cost: 9304,
+    gd: '12/03/2024',
+    commission: 124,
+    commission_receiver: 'Lorem Ipsum'
+  },
 
-const data = [
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  
 ]
 
-
 const Projects = () => {
+  const [seeFiles, setSeeFiles] = useState(true);
+  const [data, setData] = useState(adata);
+
+  const [size, setSize] = useState({ width: 200 });
+  const resizableRef = useRef(null);
+  const startX = useRef(0);
+  const startWidth = useRef(0);
+
+  const handleMouseDown = (e) => {
+    startX.current = e.clientX;
+    startWidth.current = size.width;
+
+    const handleMouseMove = (e) => {
+      const newWidth = Math.max(startWidth.current - (e.clientX - startX.current), 100); // 100 пикселей - минимальная ширина
+      setSize({ width: newWidth });
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  useEffect(() => {
+    const resizableDiv = resizableRef.current;
+    if (resizableDiv) {
+      const resizeHandle = document.createElement("div");
+      resizeHandle.style.width = "10px";
+      resizeHandle.style.height = "100%";
+      resizeHandle.style.position = "absolute";
+      resizeHandle.style.left = "0";
+      resizeHandle.style.top = "0";
+      resizeHandle.style.cursor = "col-resize";
+      resizeHandle.addEventListener("mousedown", handleMouseDown);
+      resizableDiv.appendChild(resizeHandle);
+      return () => {
+        resizeHandle.removeEventListener("mousedown", handleMouseDown);
+      };
+    }
+  }, [size]);
+
   return (
-    <>
-      <div className="min-h-full">
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-
-                {/* my content */}
-                
-
-                {/* <a href="https://tailwindcomponents.com/component/responsive-table-5">goto</a> <br/>
-                <a href="https://tailwindflex.com/@rp-ketan/datatable">goto</a> */}
-                {/* https://flowbite.com/blocks/application/advanced-tables/ */}
-
-              <section class="overflow-x-auto mx-auto p-6 font-mono">
-                <div class="w-full mb-8 overflow-hidden rounded-lg shadow-lg">
-                  <div class="w-full overflow-x-auto">
-                    <table class="w-full whitespace-nowrap text-right">
-
-                      <thead>
-                        <tr class="text-sm font-semibold tracking-wide text-center text-gray-900 bg-gray-100 uppercase border-b border-gray-600">
-                          {
-                            headers.map((item) => (
-                              <th class="px-4 py-3">{item}</th>
-                            ))
-                          }
-                        </tr>
-                      </thead>
-
-                      <tbody class="bg-white">
-                        {
-                          data.map((item) => (
-                            <tr class="text-gray-700 odd:bg-white even:bg-gray-200">
-                              {Object.keys(item).map((value) => 
-                                <td class="px-4 py-3 text-sm border">{item[value]}</td>
-                              )}
-                            </tr>
-                          ))
-                        }
-                      </tbody>
-                    </table>
-                  </div>
+    <div className="min-h-full">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <section className="overflow-x-auto mx-auto p-6 font-mono">
+          <div className="w-full mb-8 overflow-hidden rounded-lg shadow-lg">
+            <div className="flex">
+              <div className="w-full flex-1 overflow-x-auto">
+                <Table columns={headers} data={data} setData={setData} />
+              </div>
+              {seeFiles && (
+                <div
+                  ref={resizableRef}
+                  className="rounded-lg bg-green-700 relative"
+                  style={{ width: `${size.width}px`, height: '100px', minWidth: '200px' }}
+                >
+                  <button
+                    className="absolute top-2 right-2 bg-white p-1 rounded-full hover:bg-gray-200"
+                    onClick={() => setSeeFiles(false)}
+                  >
+                    <svg
+                      className="h-6 w-6 text-black"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
                 </div>
-              </section>
+              )}
+            </div>
+            <div className="flex justify-center h-24">
+              <Paginations items={data} />
+            </div>
           </div>
+        </section>
       </div>
-    </>
+    </div>
   );
-}
+};
 
 export default Projects;
