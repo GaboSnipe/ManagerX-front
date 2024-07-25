@@ -308,7 +308,7 @@ const Projects = () => {
     startWidth.current = size.width;
 
     const handleMouseMove = (e) => {
-      const newWidth = Math.max(startWidth.current - (e.clientX - startX.current), 100);
+      const newWidth = Math.max(startWidth.current - (e.clientX - startX.current), 100); // 100 пикселей - минимальная ширина
       setSize({ width: newWidth });
     };
 
@@ -341,29 +341,46 @@ const Projects = () => {
 
   return (
     <div className="min-h-full">
-      <div className="mx-auto">
+      <div className="mx-auto max-w-full px-4 py-6 sm:px-6 lg:px-8">
         <section className="overflow-x-auto mx-auto font-mono">
-          <div className="flex">
-              <div className="w-full flex-1 overflow-x-auto mb-8 overflow-hidden rounded-lg shadow-lg max-w-7xl sm:px-6 lg:px-8 mt-5">
-                
-                <div className="w-full">
-                  <Table columns={headers} data={data} setData={setData} />
-                </div>
-                
-                <div className="flex justify-center h-24">
-                  <Paginations items={data} />
-                </div>
+        <div className="flex">
+          <div className="w-full flex-1 overflow-x-auto mb-8 overflow-hidden rounded-lg shadow-lg sm:px-6 lg:px-8 mt-5">
+              <div className="w-full flex-1 overflow-x-auto">
+                <Table columns={headers} data={data} setData={setData} />
               </div>
+            <div className="flex justify-center h-24">
+              <Paginations items={data} />
+            </div>
+          </div>
 
-              {seeFiles && (
+          {seeFiles && (
                 <div
-                  ref={resizableRef}
-                  className="bg-gray-700 relative rounded-lg shadow-lg sm:px-6 lg:px-8 mt-5 mx-5"
-                  style={{ width: `${size.width}px`, minWidth: '200px' }}
-                >
+                ref={resizableRef}
+                className="bg-gray-700 relative rounded-lg shadow-lg sm:px-6 lg:px-8 mt-5 mx-5"
+                style={{ width: `${size.width}px`, minWidth: '200px' }}
+              >
+                  <button
+                    className="absolute top-2 right-2 bg-white p-1 rounded-full hover:bg-gray-200"
+                    onClick={() => setSeeFiles(false)}
+                  >
+                    <svg
+                      className="h-6 w-6 text-black"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
                 </div>
               )}
-          </div>
+              </div>
         </section>
       </div>
     </div>
