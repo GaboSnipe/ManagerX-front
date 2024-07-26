@@ -1,17 +1,21 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Paginations, Table } from "../components";
+import React, { useState, useEffect } from "react";
+import { Paginations, Table, ResizableDiv } from "../components";
+import { useSelector, useDispatch } from 'react-redux';
+
+
+
 
 const headers = [
-  { accessor: 'id', label: '#', sortable: true, sortbyOrder: "desc"  },
-  { accessor: 'customer', label: 'დამკვეთი', sortable: true, sortbyOrder: "desc"  },
-  { accessor: 'momsaxureba', label: 'მომსახურება', sortable: true, sortbyOrder: "desc"  },
-  { accessor: 'status', label: 'სტატუსი', sortable: true, sortbyOrder: "desc"  },
-  { accessor: 'daskvnis_tipi', label: 'დასკვნის ტიპი', sortable: true, sortbyOrder: "desc"  },
-  { accessor: 'expert', label: 'ექსპერტი', sortable: true, sortbyOrder: "desc"  },
-  { accessor: 'expert_cost', label: 'ექსპერტის ანაზღაურება-გადასახადების ჩათვლით ლ', sortable: true, sortbyOrder: "desc"  },
-  { accessor: 'gd', label: 'ასკვნის ღირებულების გადახდის თარიღი', sortable: true, sortbyOrder: "desc"  },
-  { accessor: 'commission', label: 'საკომისიო', sortable: true, sortbyOrder: "desc"  },
-  { accessor: 'commission_receiver', label: 'საკომისიოს მიმღები', sortable: true, sortbyOrder: "desc"  }
+  { accessor: 'id', label: '#', sortable: true, sortbyOrder: "desc" },
+  { accessor: 'customer', label: 'დამკვეთი', sortable: true, sortbyOrder: "desc" },
+  { accessor: 'momsaxureba', label: 'მომსახურება', sortable: true, sortbyOrder: "desc" },
+  { accessor: 'status', label: 'სტატუსი', sortable: true, sortbyOrder: "desc" },
+  { accessor: 'daskvnis_tipi', label: 'დასკვნის ტიპი', sortable: true, sortbyOrder: "desc" },
+  { accessor: 'expert', label: 'ექსპერტი', sortable: true, sortbyOrder: "desc" },
+  { accessor: 'expert_cost', label: 'ექსპერტის ანაზღაურება-გადასახადების ჩათვლით ლ', sortable: true, sortbyOrder: "desc" },
+  { accessor: 'gd', label: 'ასკვნის ღირებულების გადახდის თარიღი', sortable: true, sortbyOrder: "desc" },
+  { accessor: 'commission', label: 'საკომისიო', sortable: true, sortbyOrder: "desc" },
+  { accessor: 'commission_receiver', label: 'საკომისიოს მიმღები', sortable: true, sortbyOrder: "desc" }
 ];
 
 const adata = [
@@ -294,93 +298,48 @@ const adata = [
 
 ]
 
+
+const setSelectedRowId = (id) => ({
+  type: 'SET_SELECTED_ROW_ID',
+  payload: id,
+});
+const setSeeResizebleDiv = (value) => ({
+  type: 'SET_PROJECT_SEE_RESIZEBLEDIV',
+  payload: value,
+});
+
 const Projects = () => {
-  const [seeFiles, setSeeFiles] = useState(true);
+  const dispatch = useDispatch();
+  const seeResizebleDiv = useSelector((state) => state.project.seeResizebleDiv);
+  const selectedProject = useSelector((state) => state.project.projectInfo);
   const [data, setData] = useState(adata);
 
-  const [size, setSize] = useState({ width: 200 });
-  const resizableRef = useRef(null);
-  const startX = useRef(0);
-  const startWidth = useRef(0);
 
-  const handleMouseDown = (e) => {
-    startX.current = e.clientX;
-    startWidth.current = size.width;
-
-    const handleMouseMove = (e) => {
-      const newWidth = Math.max(startWidth.current - (e.clientX - startX.current), 100); // 100 пикселей - минимальная ширина
-      setSize({ width: newWidth });
-    };
-
-    const handleMouseUp = () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-  };
-
-  useEffect(() => {
-    const resizableDiv = resizableRef.current;
-    if (resizableDiv) {
-      const resizeHandle = document.createElement("div");
-      resizeHandle.style.width = "10px";
-      resizeHandle.style.height = "100%";
-      resizeHandle.style.position = "absolute";
-      resizeHandle.style.left = "0";
-      resizeHandle.style.top = "0";
-      resizeHandle.style.cursor = "col-resize";
-      resizeHandle.addEventListener("mousedown", handleMouseDown);
-      resizableDiv.appendChild(resizeHandle);
-      return () => {
-        resizeHandle.removeEventListener("mousedown", handleMouseDown);
-      };
-    }
-  }, [size]);
+  const resizebleDivFunc = () => {
+    dispatch(setSeeResizebleDiv(false));
+    dispatch(setSelectedRowId(false));
+  }
 
   return (
     <div className="min-h-full">
-      <div className="mx-auto max-w-full px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-full">
         <section className="overflow-x-auto mx-auto font-mono">
-        <div className="flex">
-          <div className="w-full flex-1 overflow-x-auto mb-8 overflow-hidden rounded-lg shadow-lg sm:px-6 lg:px-8 mt-5">
+          <div className="flex">
+            <div className="w-full flex-1 overflow-x-auto mb-8 overflow-hidden rounded-lg shadow-lg sm:px-6 lg:px-8 mt-5">
               <div className="w-full flex-1 overflow-x-auto">
                 <Table columns={headers} data={data} setData={setData} />
               </div>
-            <div className="flex justify-center h-24">
-              <Paginations items={data} />
-            </div>
-          </div>
-
-          {seeFiles && (
-                <div
-                ref={resizableRef}
-                className="bg-gray-700 relative rounded-lg shadow-lg sm:px-6 lg:px-8 mt-5 mx-5"
-                style={{ width: `${size.width}px`, minWidth: '200px' }}
-              >
-                  <button
-                    className="absolute top-2 right-2 bg-white p-1 rounded-full hover:bg-gray-200"
-                    onClick={() => setSeeFiles(false)}
-                  >
-                    <svg
-                      className="h-6 w-6 text-black"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              )}
+              <div className="flex justify-center h-24">
+                <Paginations items={data} />
               </div>
+            </div>
+
+            {seeResizebleDiv && (
+              <ResizableDiv setSeeResizebleDiv={resizebleDivFunc}>
+                <p className="text-purple-800 text-5xl tex">{selectedProject.id}</p>
+              </ResizableDiv>
+            )}
+          </div>
         </section>
       </div>
     </div>
