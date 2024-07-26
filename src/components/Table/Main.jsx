@@ -6,7 +6,7 @@ const Table = ({columns, data, setData}) => {
 
     return (
         <>
-            <table className="w-full whitespace-nowrap">
+            <table className="whitespace-nowrap">
                 <TableHead columns={columns} handleSorting={handleSorting} />
                 <TableBody columns={columns} tableData={tableData} />
             </table>
