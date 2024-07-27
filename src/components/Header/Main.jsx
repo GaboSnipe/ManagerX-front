@@ -56,7 +56,7 @@ const Main = () => {
         </div>
         <MobileMenu navigation={navigation} user={user} userNavigation={userNavigation} classNames={classNames} />
       </Disclosure>
-      <Header />
+      {/* <Header /> */}
     </>
   );
 }
