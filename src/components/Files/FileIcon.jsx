@@ -92,12 +92,10 @@ const FileIcon = () => {
     return (
         <div className="flex flex-wrap gap-4">
             {files.files.map(file => (
-                <div key={file.uuid} className="flex flex-col items-center justify-center h-36">
-                    <button onClick={() => handleClick(file)} className={`relative flex items-center justify-center ${selectedFile.uuid === file.uuid ? 'text-blue-500 bg-gray-300 w-full h-full content-center rounded-lg' : ''}`}>
-                        <FaFile className={`${selectedFile.uuid === file.uuid ? 'text-blue-500' : 'text-gray-500'} text-6xl`} />
-                    </button>
-                    <span className={`${selectedFile.uuid === file.uuid ? 'text-white bg-blue-500 rounded-lg font-bold ' : ''}mt-2 text-sm p-2 rounded-lg whitespace-normal break-words w-24 h-12 flex items-center justify-center text-center`}>{file.title}</span>
-                </div>
+                <button key={file.uuid} onClick={() => handleClick(file)} className={`relative flex flex-col items-center justify-center h-36 items-center ${selectedFile.uuid === file.uuid ? 'bg-gray-300 p-1 content-center rounded-lg' : ''}`}>
+                    <FaFile className="text-yellow-400 text-6xl" />
+                    <span className={`mt-2 text-sm p-2 rounded-lg whitespace-normal break-words w-24 h-12 flex items-center justify-center text-center`}>{file.title}</span>
+                </button>
             ))}
         </div>
     );

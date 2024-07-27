@@ -67,25 +67,30 @@ const ResizableDiv = ({ children, setSeeResizebleDiv }) => {
       className="bg-gray-700 relative rounded-l-lg shadow-lg"
       style={{ width: `${size.width}px`, minWidth: '200px' }}
     >
-      <button
-        className="absolute top-2 right-2 bg-white p-1 rounded-full hover:bg-gray-200"
-        onClick={() => setSeeResizebleDiv(false)}
-      >
-        <svg
-          className="h-6 w-6 text-black"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
+      <div className='flex'>
+        <h2 className="text-white text-xl p-3">
+          Content: 
+        </h2>
+        <button
+          className="m-2 bg-white p-1 rounded-full hover:bg-gray-200 ml-auto"
+          onClick={() => setSeeResizebleDiv(false)}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
+          <svg
+            className="h-6 w-6 text-black"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
       {children}
     </div>
   );

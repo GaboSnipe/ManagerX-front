@@ -359,18 +359,19 @@ const FolderIcon = ({ onDoubleClick }) => {
   return (
     <div className="flex flex-wrap gap-4">
       {folders.map((folder) => (
-        <div key={folder.uuid} className="flex flex-col items-center justify-center h-36">
-          <button
-            onContextMenu={handleContextMenu}
-            onClick={() => handleClick(folder)}
-            className={`relative flex items-center justify-center ${selectedFolder.uuid === folder.uuid ? 'text-blue-500 bg-gray-300 w-full h-full content-center rounded-lg' : ''}`}
-          >
-            <FaFolder className={`${selectedFolder.uuid === folder.uuid ? 'text-blue-500' : 'text-yellow-500'} text-6xl`} />
-          </button>
-          <span className={`${selectedFolder.uuid === folder.uuid ? 'text-white bg-blue-500 rounded-lg font-bold ' : ''}mt-2 text-sm p-2 rounded-lg whitespace-normal break-words w-24 h-12 flex items-center justify-center text-center`}>
-            {folder.title}
+        
+        <button
+          key={folder.uuid}
+          onContextMenu={handleContextMenu}
+          onClick={() => handleClick(folder)}
+          className={`relative flex flex-col items-center justify-center h-36 ${selectedFolder.uuid === folder.uuid ? 'bg-gray-300 p-1 content-center rounded-lg' : ''}`}
+        >
+          <FaFolder className="text-yellow-400 text-6xl" />
+          <span className={`mt-1 text-sm p-1 rounded-lg whitespace-normal break-words w-24 h-12 flex items-center justify-center text-center`}>
+          {folder.title}
           </span>
-        </div>
+        </button>
+        
       ))}
       {contextMenu && <CustomContextMenu x={contextMenu.mouseX} y={contextMenu.mouseY} onClose={handleClose} />}
     </div>

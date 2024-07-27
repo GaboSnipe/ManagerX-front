@@ -64,7 +64,7 @@ const WorkPlace = () => {
                 <FileIcon />
               ) : (
                 <FolderIcon
-                  onDoubleClick={() => setShowFileIcon(true)} // Передайте обработчик двойного клика
+                  onDoubleClick={() => setShowFileIcon(true)}
                 />
               )}
             </div>

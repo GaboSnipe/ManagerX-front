@@ -33,7 +33,7 @@ const TableBody = ({ tableData, columns }) => {
                 <tr
                     key={data.id}
                     onClick={() => handleClick(data)}
-                    className={`text-gray-700 odd:bg-white even:bg-gray-200 ${selectedRowId === data.id ? 'odd:bg-blue-300 even:bg-blue-300' : ''}`}
+                    className={`text-gray-700 ${selectedRowId === data.id ? 'odd:bg-blue-300 even:bg-blue-300' : 'odd:bg-white even:bg-gray-200'}`}
                 >
 
                     {columns.map(({ accessor }) => {
