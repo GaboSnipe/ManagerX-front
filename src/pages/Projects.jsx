@@ -326,7 +326,7 @@ const Projects = () => {
         <section className="mx-auto font-mono">
           <div className="flex">
             <div className="w-full flex-1 mb-8 overflow-hidden rounded-lg shadow-lg sm:px-6 lg:px-8 mt-5">
-              
+
               <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
                 <div className="w-full md:w-1/2">
                   <form className="flex items-center">
@@ -561,7 +561,7 @@ const Projects = () => {
               <ResizableDiv setSeeResizebleDiv={resizebleDivFunc}>
 
                 <div className="text-white p-4">
-                  <FileIcon/>
+                  <FileIcon />
                 </div>
 
                 <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
@@ -592,7 +592,7 @@ const Projects = () => {
 
                       {
                         headers.map((item) => (
-                          <tr className="w-full border-b">
+                          <tr key={item.accessor} className="w-full border-b">
                             <th scope="row" className="px-6 py-4 font-medium text-white">
                               {item.label}
                             </th>
