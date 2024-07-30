@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
+import { v4 as uuidv4 } from 'uuid';
 
 const TableBody = ({ tableData, columns }) => {
     const dispatch = useDispatch();
@@ -11,42 +12,45 @@ const TableBody = ({ tableData, columns }) => {
         payload: true,
     });
 
-    const setSelectedRowId = (id) => ({
+    const setSelectedRowId = (index) => ({
         type: 'SET_SELECTED_ROW_ID',
-        payload: id,
+        payload: index,
     });
 
-    const setProject = (project) => ({
+    const setProject = (index) => ({
         type: 'SET_PROJECT',
-        payload: project,
+        payload: tableData[index],
     });
 
-    const handleClick = (data) => {
+    const handleClick = (index) => {
         dispatch(setSeeResizebleDiv());
-        dispatch(setProject(data));
-        dispatch(setSelectedRowId(data.id)); // Исправлено: `dispatch` вместо `useDispatch`
+        dispatch(setProject(index));
+        dispatch(setSelectedRowId(index));
     };
 
     return (
         <tbody className="bg-white">
-            {tableData.map((data) => (
-                <tr
-                    key={data.id}
-                    onClick={() => handleClick(data)}
-                    className={`text-gray-700 ${selectedRowId === data.id ? 'odd:bg-blue-300 even:bg-blue-300' : 'odd:bg-white even:bg-gray-200'}`}
+            {tableData.map((data, index) => (
+                
+                <tr key={index}
+                    onClick={() => handleClick(index)}
+                    className={`text-gray-700 ${selectedRowId === index ? 'odd:bg-blue-300 even:bg-blue-300' : 'odd:bg-white even:bg-gray-200'}`}
                 >
-
-                    {columns.map(({ accessor }) => {
-                        const tData = data[accessor] ?? "——";
+                    {data.map((item) => {
+                        if (!item['visible'])
+                            return;
+                        
+                        const tData = item['value'] ?? "——";
                         return (
-                            <td
-                                key={accessor}
+                            <td 
+                                key={uuidv4()}
                                 className="px-4 py-3 text-sm border"
                             >
                                 {tData}
                             </td>
                         );
                     })}
+
                 </tr>
             ))}
         </tbody>
