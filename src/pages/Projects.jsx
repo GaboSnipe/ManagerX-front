@@ -457,7 +457,7 @@ const Projects = () => {
                       Comment
                       <p className="mt-1 text-sm font-normal text-gray-400">
                         {
-                          selectedProject.filter(obj => obj.accessor == 'comment')[0].value
+                          // selectedProject?.filter(obj => obj.accessor == 'comment')[0].value
                         }
                       </p>
                     </caption>
@@ -476,7 +476,7 @@ const Projects = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {
+                      {/* {
                         selectedProject.map ((item) => {
                           if (!item.visible) return;
                           return (
@@ -498,15 +498,8 @@ const Projects = () => {
                           )
                         })
                         
-                      }
+                      } */}
 
-                          <td className="px-6 py-4 text-right">
-                            <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                              Edit
-                            </a>
-                          </td>
-                        </tr>
-                      ))}
                     </tbody>
                   </table>
                 </div>
