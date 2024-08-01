@@ -1,34 +1,19 @@
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
+import { setProject, setProjectSeeResizebleDiv, setSelectedRowId } from '../../../features/project/projectSlice';
 
 const TableBody = ({ tableData, columns }) => {
-    const dispatch = useDispatch();
-    const selectedRowId = useSelector((state) => state.project.selectedRowId);
+  const dispatch = useDispatch();
+  const selectedRowId = useSelector((state) => state.project.selectedRowId);
 
+  const handleClick = (data) => {
+    dispatch(setProjectSeeResizebleDiv(true));
+    dispatch(setProject(data));
+    dispatch(setSelectedRowId(data.id));
+  };
 
-
-    const setSeeResizebleDiv = () => ({
-        type: 'SET_PROJECT_SEE_RESIZEBLEDIV',
-        payload: true,
-    });
-
-    const setSelectedRowId = (index) => ({
-        type: 'SET_SELECTED_ROW_ID',
-        payload: index,
-    });
-
-    const setProject = (index) => ({
-        type: 'SET_PROJECT',
-        payload: tableData[index],
-    });
-
-    const handleClick = (index) => {
-        dispatch(setSeeResizebleDiv());
-        dispatch(setProject(index));
-        dispatch(setSelectedRowId(index));
-    };
-
-    return (
+  return (
         <tbody className="bg-white">
             {tableData.map((data, index) => (
                 
@@ -55,6 +40,5 @@ const TableBody = ({ tableData, columns }) => {
             ))}
         </tbody>
     );
-};
 
 export default TableBody;

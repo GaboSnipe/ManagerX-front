@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { FaFolder } from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
+import { setFolder } from '../../features/workplace/workplaceSlice';
 
 const folders = [
   {
@@ -283,25 +284,13 @@ const folders = [
 
 
 
-const setFolder = (project) => ({
-  type: 'SET_FOLDER',
-  payload: project,
-});
-
-const setSeeResizebleDiv = (value) => ({
-  type: 'SET_WORKPLACE_FOLDER_SEE_RESIZEBLEDIV',
-  payload: value,
-});
-
-
-
 const CustomContextMenu = ({ x, y, onClose }) => {
   return (
     <div 
-    className='bg-zinc-800 p-4 rounded-lg'
-    style={{ position: 'absolute', top: y, left: x, zIndex: 1000 }}>
+      className='bg-zinc-800 p-4 rounded-lg'
+      style={{ position: 'absolute', top: y, left: x, zIndex: 1000 }}>
       <ul>
-        <li className='text-yellow-600 font-bold'  onClick={onClose}>Rename</li>
+        <li className='text-yellow-600 font-bold' onClick={onClose}>Rename</li>
         <li className='text-red-600 font-bold' onClick={onClose}>Delete</li>
         <li className='text-green-600 font-bold' onClick={onClose}>kide ragac</li>
       </ul>
@@ -309,20 +298,13 @@ const CustomContextMenu = ({ x, y, onClose }) => {
   );
 };
 
-const FolderIcon = ({ onDoubleClick }) => {
+const FolderIcon = ({ onDoubleClick, handleSingleClick }) => {
   const dispatch = useDispatch();
-  const selectedFolder = useSelector((state) => state.WorkPlace.folderInfo);
-  const seeResizebleDiv = useSelector((state) => state.WorkPlace.seeResizebleDiv);
+  const selectedFolder = useSelector((state) => state.workplace.folderInfo);
   const [contextMenu, setContextMenu] = useState(null);
 
-  const [clickTimeout, setClickTimeout] = useState(null);
-  const doubleClickThreshold = 250;
   const timerRef = useRef(null);
-
-  const handleSingleClick = (folder) => {
-    dispatch(setFolder(folder));
-    dispatch(setSeeResizebleDiv(true));
-  };
+  const doubleClickThreshold = 250;
 
   const handleClick = (folder) => {
     if (timerRef.current) {
@@ -341,7 +323,6 @@ const FolderIcon = ({ onDoubleClick }) => {
     if (onDoubleClick) {
       onDoubleClick();
       dispatch(setFolder(folder));
-      dispatch(setSeeResizebleDiv(false));
     }
   };
 
@@ -352,14 +333,14 @@ const FolderIcon = ({ onDoubleClick }) => {
       mouseY: event.clientY - 4,
     });
   };
+
   const handleClose = () => {
     setContextMenu(null);
-  };  
+  };
 
   return (
     <div className="flex flex-wrap gap-4">
       {folders.map((folder) => (
-        
         <button
           key={folder.uuid}
           onContextMenu={handleContextMenu}
@@ -368,10 +349,9 @@ const FolderIcon = ({ onDoubleClick }) => {
         >
           <FaFolder className="text-yellow-400 text-6xl" />
           <span className={`mt-1 text-sm p-1 rounded-lg whitespace-normal break-words w-24 h-12 flex items-center justify-center text-center`}>
-          {folder.title}
+            {folder.title}
           </span>
         </button>
-        
       ))}
       {contextMenu && <CustomContextMenu x={contextMenu.mouseX} y={contextMenu.mouseY} onClose={handleClose} />}
     </div>

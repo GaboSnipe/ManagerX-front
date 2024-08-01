@@ -1,6 +1,5 @@
 import React from 'react';
 import { FaFile } from 'react-icons/fa';
-import { useDispatch, useSelector } from 'react-redux';
 
 const files = {
     "uuid": "566e53c6-b9f2-41c3-8c20-a504695d1d5a",
@@ -71,34 +70,25 @@ const files = {
     "tags": []
 };
 
-const setFile = (project) => ({
-    type: 'SET_FILE',
-    payload: project,
-  });
+
+const FileIcon = ({handleClick, selectedFile}) => {
   
-  const setSeeResizebleDiv = (value) => ({
-    type: 'SET_WORKPLACE_FILE_SEE_RESIZEBLEDIV',
-    payload: value,
-  });
-
-const FileIcon = () => {
-  const selectedFile = useSelector((state) => state.WorkPlace.fileInfo);
-    const dispatch = useDispatch();
-    const handleClick = (file) => {
-            dispatch(setFile(file));
-            dispatch(setSeeResizebleDiv(true));
-    };
-
     return (
-        <div className="flex flex-wrap gap-4">
-            {files.files.map(file => (
-                <button key={file.uuid} onClick={() => handleClick(file)} className={`relative flex flex-col items-center justify-center h-36 items-center ${selectedFile.uuid === file.uuid ? 'bg-gray-300 p-1 content-center rounded-lg' : ''}`}>
-                    <FaFile className="text-yellow-400 text-6xl" />
-                    <span className={`mt-2 text-sm p-2 rounded-lg whitespace-normal break-words w-24 h-12 flex items-center justify-center text-center`}>{file.title}</span>
-                </button>
-            ))}
-        </div>
+      <div className="flex flex-wrap gap-4">
+        {files.files.map(file => (
+          <button
+            key={file.uuid}
+            onClick={() => handleClick(file)}
+            className={`relative flex flex-col justify-center h-36 items-center ${selectedFile.uuid === file.uuid ? 'bg-gray-300 p-1 content-center rounded-lg' : ''}`}
+          >
+            <FaFile className="text-yellow-400 text-6xl" />
+            <span className={`mt-2 text-sm p-2 rounded-lg whitespace-normal break-words w-24 h-12 flex items-center justify-center text-center`}>
+              {file.title}
+            </span>
+          </button>
+        ))}
+      </div>
     );
-};
-
-export default FileIcon;
+  };
+  
+  export default FileIcon;

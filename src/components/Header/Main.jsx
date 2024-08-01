@@ -1,6 +1,8 @@
 import { Disclosure, DisclosureButton } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Header, MobileMenu, Navigation, UserMenu } from './components' 
+import { navigation } from "../../globalEnv"
+
 
 const Main = () => {
 
@@ -10,12 +12,7 @@ const Main = () => {
     imageUrl:
       'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
   }
-  const navigation = [
-    { name: 'Dashboard', href: '/', current: true },
-    { name: 'Projects', href: '/projects', current: false },
-    { name: 'Work Place', href: '/workplace', current: false },
-    { name: 'Tasks', href: '/tasks', current: false },
-  ]
+
   
   const userNavigation = [
     { name: 'Your Profile', href: '#' },

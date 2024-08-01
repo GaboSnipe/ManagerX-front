@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { Paginations, Table, ResizableDiv, FileIcon } from "../components";
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { setProjectSeeResizebleDiv, setFile } from '../features/project/projectSlice';
+import { Paginations, Table, ResizableDiv, FileIcon } from '../components';
 import { select } from "@material-tailwind/react";
 import { v4 as uuidv4 } from 'uuid';
-
 
 const response_adata = [
   {
@@ -191,28 +191,22 @@ const formatedData = (formattedHeaders, response) => {
 }
 
 
-const setSelectedRowId = (id) => ({
-  type: 'SET_SELECTED_ROW_ID',
-  payload: id,
-});
- 
-const setSeeResizebleDiv = (value) => ({
-  type: 'SET_PROJECT_SEE_RESIZEBLEDIV',
-  payload: value,
-});
 
 const Projects = () => {
   const dispatch = useDispatch();
   const seeResizebleDiv = useSelector((state) => state.project.seeResizebleDiv);
   const selectedProject = useSelector((state) => state.project.projectInfo);
+  const selectedFile = useSelector((state) => state.project.fileInfo);
   const headers = formatedHeaders(mandatoryHeaders, response_headers)
   const [data, setData] = useState(formatedData(headers, response_adata));
 
+  const handleResizebleDivToggle = () => {
+    dispatch(setProjectSeeResizebleDiv(!seeResizebleDiv));
+  };
 
-  const resizebleDivFunc = () => {
-    dispatch(setSeeResizebleDiv(false));
-    dispatch(setSelectedRowId(false));
-  }
+  const handleClick = (file) => {
+    dispatch(setFile(file));
+  };
 
   return (
     <div className="min-h-full">
@@ -248,7 +242,7 @@ const Projects = () => {
                         id="simple-search"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2"
                         placeholder="Search"
-                        required=""
+                        required
                       />
                     </div>
                   </form>
@@ -452,10 +446,9 @@ const Projects = () => {
             </div>
 
             {seeResizebleDiv && (
-              <ResizableDiv setSeeResizebleDiv={resizebleDivFunc}>
-
+              <ResizableDiv setSeeResizebleDiv={handleResizebleDivToggle}>
                 <div className="text-white p-4">
-                  <FileIcon />
+                  <FileIcon handleClick={handleClick} selectedFile={selectedFile} />
                 </div>
 
                 <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
@@ -507,11 +500,16 @@ const Projects = () => {
                         
                       }
 
-
+                          <td className="px-6 py-4 text-right">
+                            <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                              Edit
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
-
               </ResizableDiv>
             )}
           </div>
