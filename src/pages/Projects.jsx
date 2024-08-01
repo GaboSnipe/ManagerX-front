@@ -2,308 +2,203 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setProjectSeeResizebleDiv, setFile } from '../features/project/projectSlice';
 import { Paginations, Table, ResizableDiv, FileIcon } from '../components';
+import { select } from "@material-tailwind/react";
+import { v4 as uuidv4 } from 'uuid';
 
-
-
-const headers = [
-  { accessor: 'id', label: '#', sortable: true, sortbyOrder: "desc" },
-  { accessor: 'customer', label: 'დამკვეთი', sortable: true, sortbyOrder: "desc" },
-  { accessor: 'momsaxureba', label: 'მომსახურება', sortable: true, sortbyOrder: "desc" },
-  { accessor: 'status', label: 'სტატუსი', sortable: true, sortbyOrder: "desc" },
-  { accessor: 'daskvnis_tipi', label: 'დასკვნის ტიპი', sortable: true, sortbyOrder: "desc" },
-  { accessor: 'expert', label: 'ექსპერტი', sortable: true, sortbyOrder: "desc" },
-  { accessor: 'expert_cost', label: 'ექსპერტის ანაზღაურება-გადასახადების ჩათვლით ლ', sortable: true, sortbyOrder: "desc" },
-  { accessor: 'gd', label: 'ასკვნის ღირებულების გადახდის თარიღი', sortable: true, sortbyOrder: "desc" },
-  { accessor: 'commission', label: 'საკომისიო', sortable: true, sortbyOrder: "desc" },
-  { accessor: 'commission_receiver', label: 'საკომისიოს მიმღები', sortable: true, sortbyOrder: "desc" }
-];
-
-const adata = [
+const response_adata = [
   {
-    id: 'ERP-TA2-01',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9300,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
+      "uuid": "6a2ff5ec-24f5-49a0-8923-c1babfadbcd5",
+      "custom_fields": [
+          {
+              "field": {
+                  "id": 1,
+                  "name": "test",
+                  "data_type": "string"
+              },
+              "value": "oasdn ajda. dddd"
+          },
+          {
+              "field": {
+                  "id": 2,
+                  "name": "test1",
+                  "data_type": "integer"
+              },
+              "value": 342023
+          },
+          {
+              "field": {
+                  "id": 3,
+                  "name": "test2",
+                  "data_type": "integer"
+              },
+              "value": 34232193
+          }
+      ],
+      "title": "nino, fanjrebi",
+      "customer": "nino",
+      "case": "fanjrebi",
+      "status": "TODO",
+      "path": null,
+      "comment": "aksndajksd ajksnd asdaskjdnas dasjdnaks dnaskj dnaksd aksjnd asdnaksdnakjsnd adka snd adkasn da sdkajnsd kajn dasn dkajdan sdkjasn d",
+      "created_at": "2024-07-13T06:45:13.331747Z",
+      "updated_at": "2024-07-13T06:45:13.331760Z",
+      "tags": []
   },
   {
-    id: 'ERP-TA2-02',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
+      "uuid": "95e4e06d-5c1f-4c5d-907b-c430e925d7c6",
+      "custom_fields": [],
+      "title": "test, karebi",
+      "customer": "test",
+      "case": "karebi",
+      "status": "TODO",
+      "path": "media/uploads/test/karebi/",
+      "comment": "aksndajksd ajksnd asdaskjdnas dasjdnaks dnaskj dnaksd aksjnd asdnaksdnakjsnd adka snd adkasn da sdkajnsd kajn dasn dkajdan sdkjasn d",
+      "created_at": "2024-07-13T10:05:37.328549Z",
+      "updated_at": "2024-07-13T10:05:37.328558Z",
+      "tags": []
   },
   {
-    id: 'ERP-TA2-03',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
+      "uuid": "693768d9-1cff-4b55-a46e-4b08ac5db5f1",
+      "custom_fields": [],
+      "title": "test7, skamebi",
+      "customer": "test7",
+      "case": "skamebi",
+      "status": "DONE",
+      "path": "media/uploads/test7/skamebi/",
+      "comment": "aksndajksd ajksnd asdaskjdnas dasjdnaks dnaskj dnaksd aksjnd asdnaksdnakjsnd adka snd adkasn da sdkajnsd kajn dasn dkajdan sdkjasn d sadaskjd akshdnka sdkasdk ajsdjna skdjan dkjnas kdjna sdkjnas kdasn kdjan skdna",
+      "created_at": "2024-07-14T20:37:21.757392Z",
+      "updated_at": "2024-07-14T20:37:21.757419Z",
+      "tags": []
   },
   {
-    id: 'ERP-TA2-04',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
+      "uuid": "32748e83-7ecb-4076-8931-1819e5fcffb5",
+      "custom_fields": [],
+      "title": "test2, test1",
+      "customer": "test2",
+      "case": "test1",
+      "status": "TODO",
+      "path": "media/uploads/test2/test1/",
+      "comment": "ajdsknasjdnaksd",
+      "created_at": "2024-07-15T14:35:11.891291Z",
+      "updated_at": "2024-07-15T14:35:11.891321Z",
+      "tags": []
   },
   {
-    id: 'ERP-TA2-05',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-06',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-07',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-08',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-09',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-10',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-11',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-12',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-13',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-14',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-15',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-16',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-17',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-18',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-19',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-20',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-21',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-22',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-  {
-    id: 'ERP-TA2-23',
-    customer: 'Lorem Ipsum',
-    momsaxureba: 'Lorem Ipsum',
-    status: 'Done',
-    daskvnis_tipi: 'Lorem Ipsum',
-    expert: 'Lorem Ipsum',
-    expert_cost: 9304,
-    gd: '12/03/2024',
-    commission: 124,
-    commission_receiver: 'Lorem Ipsum'
-  },
-
+      "uuid": "e1ee31a4-9968-4101-a858-ff2a17a48d6d",
+      "custom_fields": [],
+      "title": "nino, fanjrebu",
+      "customer": "nino",
+      "case": "fanjrebu",
+      "status": "TODO",
+      "path": "media/uploads/nino/fanjrebu/",
+      "comment": "shdnahjd",
+      "created_at": "2024-07-15T15:47:25.228285Z",
+      "updated_at": "2024-07-15T15:47:25.228304Z",
+      "tags": []
+  }
 ]
+const response_headers = [
+  {
+      "id": 1,
+      "name": "test",
+      "label": "test",
+      "data_type": "string"
+  },
+  {
+      "id": 3,
+      "name": "test2",
+      "label": "test2",
+      "data_type": "integer"
+  },
+  {
+      "id": 2,
+      "name": "test1",
+      "label": "test1",
+      "data_type": "integer"
+  }
+]
+
+const mandatoryHeaders = [
+  { accessor: 'id', type: "integer", label: '#', sortable: true, sortbyOrder: "desc", order: 0, visible: true},
+  { accessor: 'title', type: "string", label: 'სახელი', sortable: true, sortbyOrder: "desc", order: 1, visible: true },
+  { accessor: 'customer', type: "string", label: 'დამკვეთი', sortable: true, sortbyOrder: "desc", order: 2, visible: true },
+  { accessor: 'case', type: "string",label: 'ქეისი', sortable: true, sortbyOrder: "desc", order: 3, visible: true },
+  { accessor: 'status', type: "string", label: 'სტატუსი', sortable: true, sortbyOrder: "desc", order: 4, visible: true },
+  { accessor: 'created_at', type: "date", label: 'შექმნის თარიღი', sortable: true, sortbyOrder: "desc", order: 998, visible: true },
+  { accessor: 'updated_at', type: "date", label: 'განახლების თარიღი', sortable: true, sortbyOrder: "desc", order: 999, visible: true },
+  { accessor: 'uuid', type: "string", label: 'uuid', sortable: true, sortbyOrder: "desc", order: 1000, visible: false}, 
+  { accessor: 'comment', type: "string", label: 'comment', sortable: true, sortbyOrder: "desc", order: 1001, visible: false}, 
+]
+
+const formatedHeaders = (mandatoryHeaders, response) => {
+  var formated = [...mandatoryHeaders]
+
+  var i = 5;
+  response.forEach(item => {
+    formated.push({
+      accessor: item['name'],
+      type: item['data_type'],
+      label: item['label'],
+      sortable: true,
+      sortbyOrder: "desc",
+      order: i,
+      visible: true,
+    });
+    i+=1;
+  })
+
+  return formated.sort((a, b) => a.order - b.order);;
+}
+
+const formatedData = (formattedHeaders, response) => {
+  var formated = [];
+  var tmp = [];
+  let headers = [...formattedHeaders].sort((a, b) => a.order - b.order);
+
+  var i = 1;
+  response.map(folder => {
+    tmp = [];
+    headers.map(header => {
+      
+      tmp.push({
+        accessor: header['accessor'],
+        type: header['type'],
+        value: null,
+        order: header['order'],
+        visible: true
+      })
+
+      if (header['accessor'] in folder) {
+        tmp.at(-1)['value'] = folder[header['accessor']]
+        tmp.at(-1)['visible'] = header['visible']
+      } else {
+          if (folder['custom_fields']) {
+            folder['custom_fields'].forEach(field => {
+              if (field['field']['name'] == header['accessor']) {
+                tmp.at(-1)['value'] = field['value']
+              }
+            })
+          }
+      }
+    })
+    
+    tmp[0].value = i;
+    i+=1;
+    formated.push(tmp);
+  })
+
+  return formated.sort((a, b) => a.order - b.order);
+}
+
+
 
 const Projects = () => {
   const dispatch = useDispatch();
   const seeResizebleDiv = useSelector((state) => state.project.seeResizebleDiv);
   const selectedProject = useSelector((state) => state.project.projectInfo);
   const selectedFile = useSelector((state) => state.project.fileInfo);
-  const [data, setData] = useState(adata);
+  const headers = formatedHeaders(mandatoryHeaders, response_headers)
+  const [data, setData] = useState(formatedData(headers, response_adata));
 
   const handleResizebleDivToggle = () => {
     dispatch(setProjectSeeResizebleDiv(!seeResizebleDiv));
@@ -559,11 +454,11 @@ const Projects = () => {
                 <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
                   <table className="w-full text-sm text-left rtl:text-right text-white">
                     <caption className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-white bg-gray-800">
-                      Our products
+                      Comment
                       <p className="mt-1 text-sm font-normal text-gray-400">
-                        Browse a list of Flowbite products designed to help you work and play,
-                        stay organized, get answers, keep in touch, grow your business, and
-                        more.
+                        {
+                          selectedProject.filter(obj => obj.accessor == 'comment')[0].value
+                        }
                       </p>
                     </caption>
 
@@ -581,15 +476,29 @@ const Projects = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {headers.map((item) => (
-                        <tr key={item.accessor} className="w-full border-b">
-                          <th scope="row" className="px-6 py-4 font-medium text-white">
-                            {item.label}
-                          </th>
+                      {
+                        selectedProject.map ((item) => {
+                          if (!item.visible) return;
+                          return (
+                            <tr key={uuidv4()} className="w-full border-b">
+                              <th scope="row" className="px-6 py-4 font-medium text-white">
+                                {item.accessor}
+                              </th>
+                              
+                              <td className="px-6 py-4">
+                                {item.value}
+                              </td>
 
-                          <td className="px-6 py-4">
-                            {selectedProject[item.accessor]}
-                          </td>
+                              <td className="px-6 py-4 text-right">
+                                <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                                  Edit
+                                </a>
+                              </td>
+                            </tr>
+                          )
+                        })
+                        
+                      }
 
                           <td className="px-6 py-4 text-right">
                             <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
