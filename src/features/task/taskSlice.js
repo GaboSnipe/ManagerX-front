@@ -3,6 +3,7 @@ import { getTaskListThunk, addTaskThunk } from './taskThunk';
 
 const initialState = {
   taskList: [],
+  selectTask: {},
 };
 
 const taskSlice = createSlice({
@@ -11,6 +12,9 @@ const taskSlice = createSlice({
   reducers: {
     setTaskList(state, action) {
       state.taskList = action.payload;
+    },
+    setSelectTask(state, action) {
+      state.selectTask = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -31,5 +35,5 @@ const taskSlice = createSlice({
   },
 });
 
-export const { setTaskList } = taskSlice.actions;
+export const { setTaskList, setSelectTask } = taskSlice.actions;
 export default taskSlice.reducer;
