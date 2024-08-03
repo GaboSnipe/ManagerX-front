@@ -35,12 +35,12 @@ const authSlice = createSlice({
         console.error(action.payload);
       })
       .addCase(logoutThunk.fulfilled, (state) => {
-        state.isAuth = false;
         state.userInfo = {};
         state.userToken = null;
+        state.isAuth = false;
       })
       .addCase(logoutThunk.rejected, (state, action) => {
-        console.error(action.payload);
+        console.error(action);
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.isAuth = true;

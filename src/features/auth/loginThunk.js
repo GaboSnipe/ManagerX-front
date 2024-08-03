@@ -9,6 +9,7 @@ export const loginThunk = createAsyncThunk(
     try {
       const response = await AuthService.login(email, password);
       localStorage.setItem('token', response.data.access);
+      localStorage.setItem('refresh', response.data.refresh);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
@@ -20,8 +21,9 @@ export const logoutThunk = createAsyncThunk(
   'auth/logout',
   async (thunkAPI) => {
     try {
-      const response = await AuthService.logout();
       localStorage.removeItem('token');
+      localStorage.removeItem('refresh');
+      await AuthService.logout();
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
@@ -33,11 +35,17 @@ export const checkAuth = createAsyncThunk(
   'auth/checkAuth',
   async (_, thunkAPI) => {
     try {
-      const response = await axios.get(`${API_URL}/api/accounts/auth/jwt/refresh/`, { withCredentials: true });
+      const refresh = localStorage.getItem('refresh');
+      const response = await axios.post(
+        `${API_URL}/api/accounts/auth/jwt/refresh/`,
+        { refresh },
+        { withCredentials: true }
+      );
+
       localStorage.setItem('token', response.data.access);
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return thunkAPI.rejectWithValue(error.response?.data || 'Unknown error');
     }
   }
 );

@@ -1,50 +1,86 @@
-import React from "react";
+import React, { useEffect, useState } from 'react';
+import useAuthCheck from '../utils/hooks/useAuthCheck';
+import { addTaskThunk, getTaskListThunk } from '../features/task/taskThunk';
+import { useDispatch, useSelector } from 'react-redux';
 
-function dropdownFunction(element) {
-  var dropdowns = document.getElementsByClassName("dropdown-content");
-  var i;
-  let list =
-    element.parentElement.parentElement.getElementsByClassName(
-      "dropdown-content"
-    )[0];
-  list.classList.toggle("hidden");
-  for (i = 0; i < dropdowns.length; i++) {
-    if (dropdowns[i] !== list) {
-      dropdowns[i].classList.add("hidden");
-    }
-  }
-}
+const formatDeadline = (deadline) => {
+  const now = new Date();
+  const deadlineDate = new Date(deadline);
 
-const statuses = ["To Do", "In Progress", "Done", "Blocked"];
+  const diffTime = deadlineDate - now;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-const tasks = [
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Tomorrow';
+  if (diffDays < 0) return 'Overdue';
+  return deadlineDate.toLocaleDateString();
+};
+const statuses = ["TODO", "INPROGRESS", "DONE", "REJECTED", "UNCERTAIN"];
+
+const usersList = [
   {
-    title: 'Marketing Keynote Presentation',
-    due: 'Today',
+    email: "test@gmail.com",
+    id: 2,
+    userName: 'test'
   },
   {
-    title: 'Marketing Keynote Presentation',
-    due: 'Today',
+    email: "test2@gmail.com",
+    id: 2,
+    userName: 'test2'
   },
   {
-    title: 'Marketing Keynote Presentation',
-    due: 'Today',
+    email: "test3@gmail.com",
+    id: 2,
+    userName: 'test3'
   },
   {
-    title: 'Marketing Keynote Presentation',
-    due: 'Today',
-  },
-  {
-    title: 'Marketing Keynote Presentation',
-    due: 'Today',
-  },
-  {
-    title: 'Marketing Keynote Presentation',
-    due: 'Today',
+    email: "test4@gmail.com",
+    id: 2,
+    userName: 'test4'
   },
 ];
 
 const Tasks = () => {
+  const dispatch = useDispatch();
+  const loading = useAuthCheck();
+  const [seeAddDiv, setSeeAddDiv] = useState(false);
+  const [formState, setFormState] = useState({
+    title: "",
+    status: "",
+    comment: "",
+    deadline: "",
+    assign_to: ""
+  });
+  const tasks = useSelector((state) => state.task.taskList);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        await dispatch(getTaskListThunk()).unwrap();
+      } catch (err) {
+        console.error('Failed to get task list:', err);
+      }
+    };
+    getData();
+  }, [dispatch]);
+
+  const closeAddDiv = () => {
+    setSeeAddDiv(false);
+  };
+
+  const showAddDiv = () => {
+    setSeeAddDiv(true);
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormState({ ...formState, [name]: value });
+  };
+
+  const confirmAddFile = () => {
+    dispatch(addTaskThunk(formState));
+    closeAddDiv();
+  };
   return (
     <>
       <div className="min-h-full">
@@ -72,7 +108,7 @@ const Tasks = () => {
                   {statuses.map((item, index) => (
                     <a
                       key={index}
-                      className="rounded-full focus:outline-none focus:ring-2  focus:bg-indigo-50 focus:ring-indigo-800 ml-4"
+                      className="rounded-full focus:outline-none focus:ring-2 focus:bg-indigo-50 focus:ring-indigo-800 ml-4"
                       href="#"
                     >
                       <div className="py-2 px-8 bg-indigo-100 text-indigo-700 rounded-full">
@@ -82,7 +118,7 @@ const Tasks = () => {
                   ))}
                 </div>
                 <button
-                  onClick={() => popuphandler(true)}
+                  onClick={showAddDiv}
                   className="focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600 mt-4 sm:mt-0 inline-flex items-start justify-start px-6 py-3 bg-indigo-700 hover:bg-indigo-600 focus:outline-none rounded"
                 >
                   <p className="text-sm font-medium leading-none text-white">
@@ -94,7 +130,7 @@ const Tasks = () => {
               <div className="mt-7 overflow-x-auto">
                 <table className="w-full whitespace-nowrap">
                   <tbody>
-                    {tasks.map((task, index) => (
+                    {tasks?.map((task, index) => (
                       <tr
                         key={index}
                         tabIndex="0"
@@ -121,8 +157,8 @@ const Tasks = () => {
                         </td>
 
                         <td className="pl-5">
-                          <button className="py-3 px-3 text-sm focus:outline-none leading-none text-red-700 bg-red-100 rounded">
-                            Due {task.due}
+                          <button className="py-3 px-3 text-sm focus:outline-none leading-none bg-green-300 rounded">
+                            Due {formatDeadline(task.deadline)}
                           </button>
                         </td>
 
@@ -190,6 +226,69 @@ const Tasks = () => {
                 </table>
               </div>
             </div>
+            {seeAddDiv &&
+
+              <>
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={closeAddDiv}></div>
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                  <div className="bg-gray-900 p-6 rounded-lg shadow-lg">
+                  <input
+                type="text"
+                name="title"
+                value={formState.title}
+                onChange={handleFormChange}
+                placeholder="Enter task title"
+                className="p-2 rounded mb-4 w-full"
+              />
+              <select
+                name="status"
+                value={formState.status}
+                onChange={handleFormChange}
+                className="p-2 rounded mb-4 w-full"
+              >
+                {statuses.map((status, index) => (
+                  <option key={index} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+              <textarea
+                name="comment"
+                value={formState.comment}
+                onChange={handleFormChange}
+                placeholder="Enter comments"
+                className="p-2 rounded mb-4 w-full"
+              ></textarea>
+              <input
+                type="date"
+                name="deadline"
+                value={formState.deadline}
+                onChange={handleFormChange}
+                className="p-2 rounded mb-4 w-full"
+              />
+              <select
+                name="assign_to"
+                value={formState.assign_to}
+                onChange={handleFormChange}
+                className="p-2 rounded mb-4 w-full"
+              >
+                {usersList.map((user) => (
+                  <option key={user.userName} value={user.id}>
+                    {user.email}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={confirmAddFile}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2"
+              >
+                Add Task
+              </button>
+                  </div>
+                </div>
+              </>
+
+            }
           </div>
         </div>
       </div>

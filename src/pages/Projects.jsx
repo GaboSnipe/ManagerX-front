@@ -1,134 +1,221 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setProjectSeeResizebleDiv, setFile } from '../features/project/projectSlice';
+import { setProjectSeeResizebleDiv, setFileInfo, setProjectList, setProjectHeaders } from '../features/project/projectSlice';
 import { Paginations, Table, ResizableDiv, FileIcon } from '../components';
-import { select } from "@material-tailwind/react";
 import { v4 as uuidv4 } from 'uuid';
+import { getProjectListThunk, getProjectHeadersThunk } from '../features/project/projectThunk';
+import useAuthCheck from '../utils/hooks/useAuthCheck';
 
-const response_adata = [
-  {
-      "uuid": "6a2ff5ec-24f5-49a0-8923-c1babfadbcd5",
-      "custom_fields": [
-          {
-              "field": {
-                  "id": 1,
-                  "name": "test",
-                  "data_type": "string"
-              },
-              "value": "oasdn ajda. dddd"
-          },
-          {
-              "field": {
-                  "id": 2,
-                  "name": "test1",
-                  "data_type": "integer"
-              },
-              "value": 342023
-          },
-          {
-              "field": {
-                  "id": 3,
-                  "name": "test2",
-                  "data_type": "integer"
-              },
-              "value": 34232193
-          }
-      ],
-      "title": "nino, fanjrebi",
-      "customer": "nino",
-      "case": "fanjrebi",
-      "status": "TODO",
-      "path": null,
-      "comment": "aksndajksd ajksnd asdaskjdnas dasjdnaks dnaskj dnaksd aksjnd asdnaksdnakjsnd adka snd adkasn da sdkajnsd kajn dasn dkajdan sdkjasn d",
-      "created_at": "2024-07-13T06:45:13.331747Z",
-      "updated_at": "2024-07-13T06:45:13.331760Z",
-      "tags": []
-  },
-  {
-      "uuid": "95e4e06d-5c1f-4c5d-907b-c430e925d7c6",
-      "custom_fields": [],
-      "title": "test, karebi",
-      "customer": "test",
-      "case": "karebi",
-      "status": "TODO",
-      "path": "media/uploads/test/karebi/",
-      "comment": "aksndajksd ajksnd asdaskjdnas dasjdnaks dnaskj dnaksd aksjnd asdnaksdnakjsnd adka snd adkasn da sdkajnsd kajn dasn dkajdan sdkjasn d",
-      "created_at": "2024-07-13T10:05:37.328549Z",
-      "updated_at": "2024-07-13T10:05:37.328558Z",
-      "tags": []
-  },
-  {
-      "uuid": "693768d9-1cff-4b55-a46e-4b08ac5db5f1",
-      "custom_fields": [],
-      "title": "test7, skamebi",
-      "customer": "test7",
-      "case": "skamebi",
-      "status": "DONE",
-      "path": "media/uploads/test7/skamebi/",
-      "comment": "aksndajksd ajksnd asdaskjdnas dasjdnaks dnaskj dnaksd aksjnd asdnaksdnakjsnd adka snd adkasn da sdkajnsd kajn dasn dkajdan sdkjasn d sadaskjd akshdnka sdkasdk ajsdjna skdjan dkjnas kdjna sdkjnas kdasn kdjan skdna",
-      "created_at": "2024-07-14T20:37:21.757392Z",
-      "updated_at": "2024-07-14T20:37:21.757419Z",
-      "tags": []
-  },
-  {
-      "uuid": "32748e83-7ecb-4076-8931-1819e5fcffb5",
-      "custom_fields": [],
-      "title": "test2, test1",
-      "customer": "test2",
-      "case": "test1",
-      "status": "TODO",
-      "path": "media/uploads/test2/test1/",
-      "comment": "ajdsknasjdnaksd",
-      "created_at": "2024-07-15T14:35:11.891291Z",
-      "updated_at": "2024-07-15T14:35:11.891321Z",
-      "tags": []
-  },
-  {
-      "uuid": "e1ee31a4-9968-4101-a858-ff2a17a48d6d",
-      "custom_fields": [],
-      "title": "nino, fanjrebu",
-      "customer": "nino",
-      "case": "fanjrebu",
-      "status": "TODO",
-      "path": "media/uploads/nino/fanjrebu/",
-      "comment": "shdnahjd",
-      "created_at": "2024-07-15T15:47:25.228285Z",
-      "updated_at": "2024-07-15T15:47:25.228304Z",
-      "tags": []
-  }
-]
-const response_headers = [
-  {
-      "id": 1,
-      "name": "test",
-      "label": "test",
-      "data_type": "string"
-  },
-  {
-      "id": 3,
-      "name": "test2",
-      "label": "test2",
-      "data_type": "integer"
-  },
-  {
-      "id": 2,
-      "name": "test1",
-      "label": "test1",
-      "data_type": "integer"
-  }
-]
+
+// const response_adata = [
+//   {
+//     "uuid": "6a2ff5ec-24f5-49a0-8923-c1babfadbcd5",
+//     "custom_fields": [
+//       {
+//         "field": {
+//           "id": 1,
+//           "name": "test",
+//           "data_type": "string"
+//         },
+//         "value": "oasdn ajda. dddd"
+//       },
+//       {
+//         "field": {
+//           "id": 2,
+//           "name": "test1",
+//           "data_type": "integer"
+//         },
+//         "value": 342023
+//       },
+//       {
+//         "field": {
+//           "id": 4,
+//           "name": "a3dd",
+//           "data_type": "integer"
+//         },
+//         "value": 3131213
+//       },
+//       {
+//         "field": {
+//           "id": 3,
+//           "name": "test2",
+//           "data_type": "integer"
+//         },
+//         "value": 34232193
+//       }
+//     ],
+//     "title": "nino, fanjrebi",
+//     "customer": "nino",
+//     "case": "fanjrebi",
+//     "status": "TODO",
+//     "path": null,
+//     "comment": "aksndajksd ajksnd asdaskjdnas dasjdnaks dnaskj dnaksd aksjnd asdnaksdnakjsnd adka snd adkasn da sdkajnsd kajn dasn dkajdan sdkjasn d",
+//     "created_at": "2024-07-13T06:45:13.331747Z",
+//     "updated_at": "2024-07-13T06:45:13.331760Z",
+//     "tags": []
+//   },
+//   {
+//     "uuid": "95e4e06d-5c1f-4c5d-907b-c430e925d7c6",
+//     "custom_fields": [
+//       {
+//         "field": {
+//           "id": 1,
+//           "name": "test",
+//           "data_type": "string"
+//         },
+//         "value": "oas"
+//       },
+//       {
+//         "field": {
+//           "id": 2,
+//           "name": "test1",
+//           "data_type": "integer"
+//         },
+//         "value": 3
+//       },
+//       {
+//         "field": {
+//           "id": 4,
+//           "name": "a3dd",
+//           "data_type": "integer"
+//         },
+//         "value": 3
+//       },
+//       {
+//         "field": {
+//           "id": 3,
+//           "name": "test2",
+//           "data_type": "integer"
+//         },
+//         "value": 31
+//       }
+//     ],
+//     "title": "test, karebi",
+//     "customer": "test",
+//     "case": "karebi",
+//     "status": "TODO",
+//     "path": "media/uploads/test/karebi/",
+//     "comment": "aksndajksd ajksnd asdaskjdnas dasjdnaks dnaskj dnaksd aksjnd asdnaksdnakjsnd adka snd adkasn da sdkajnsd kajn dasn dkajdan sdkjasn d",
+//     "created_at": "2024-07-13T10:05:37.328549Z",
+//     "updated_at": "2024-07-13T10:05:37.328558Z",
+//     "tags": []
+//   },
+//   {
+//     "uuid": "693768d9-1cff-4b55-a46e-4b08ac5db5f1",
+//     "custom_fields": [
+//       {
+//         "field": {
+//           "id": 1,
+//           "name": "test",
+//           "data_type": "string"
+//         },
+//         "value": "oasd dddd"
+//       },
+//       {
+//         "field": {
+//           "id": 2,
+//           "name": "test1",
+//           "data_type": "integer"
+//         },
+//         "value": 3023
+//       },
+//       {
+//         "field": {
+//           "id": 4,
+//           "name": "a3dd",
+//           "data_type": "integer"
+//         },
+//         "value": 3113
+//       },
+//       {
+//         "field": {
+//           "id": 3,
+//           "name": "test2",
+//           "data_type": "integer"
+//         },
+//         "value": 3493
+//       }
+//     ],
+//     "title": "test7, skamebi",
+//     "customer": "test7",
+//     "case": "skamebi",
+//     "status": "DONE",
+//     "path": "media/uploads/test7/skamebi/",
+//     "comment": "aksndajksd ajksnd asdaskjdnas dasjdnaks dnaskj dnaksd aksjnd asdnaksdnakjsnd adka snd adkasn da sdkajnsd kajn dasn dkajdan sdkjasn d sadaskjd akshdnka sdkasdk ajsdjna skdjan dkjnas kdjna sdkjnas kdasn kdjan skdna",
+//     "created_at": "2024-07-14T20:37:21.757392Z",
+//     "updated_at": "2024-07-14T20:37:21.757419Z",
+//     "tags": []
+//   },
+//   {
+//     "uuid": "32748e83-7ecb-4076-8931-1819e5fcffb5",
+//     "custom_fields": [],
+//     "title": "test2, test1",
+//     "customer": "test2",
+//     "case": "test1",
+//     "status": "TODO",
+//     "path": "media/uploads/test2/test1/",
+//     "comment": "ajdsknasjdnaksd",
+//     "created_at": "2024-07-15T14:35:11.891291Z",
+//     "updated_at": "2024-07-15T14:35:11.891321Z",
+//     "tags": []
+//   },
+//   {
+//     "uuid": "e1ee31a4-9968-4101-a858-ff2a17a48d6d",
+//     "custom_fields": [],
+//     "title": "nino, fanjrebu",
+//     "customer": "nino",
+//     "case": "fanjrebu",
+//     "status": "TODO",
+//     "path": "media/uploads/nino/fanjrebu/",
+//     "comment": "shdnahjd",
+//     "created_at": "2024-07-15T15:47:25.228285Z",
+//     "updated_at": "2024-07-15T15:47:25.228304Z",
+//     "tags": []
+//   }
+// ]
+
+
+// const response_headers = [
+//   {
+//     "id": 1,
+//     "name": "test",
+//     "label": "test",
+//     "data_type": "string"
+//   },
+//   {
+//     "id": 3,
+//     "name": "test2",
+//     "label": "test2",
+//     "data_type": "integer"
+//   },
+//   {
+//     "id": 4,
+//     "name": "a3dd",
+//     "label": "tes1231t2",
+//     "data_type": "integer"
+//   },
+//   {
+//     "id": 2,
+//     "name": "test1",
+//     "label": "test1",
+//     "data_type": "integer"
+//   }
+// ]
 
 const mandatoryHeaders = [
-  { accessor: 'id', type: "integer", label: '#', sortable: true, sortbyOrder: "desc", order: 0, visible: true},
+  { accessor: 'id', type: "integer", label: '#', sortable: false, sortbyOrder: "desc", order: 0, visible: true },
   { accessor: 'title', type: "string", label: 'სახელი', sortable: true, sortbyOrder: "desc", order: 1, visible: true },
   { accessor: 'customer', type: "string", label: 'დამკვეთი', sortable: true, sortbyOrder: "desc", order: 2, visible: true },
-  { accessor: 'case', type: "string",label: 'ქეისი', sortable: true, sortbyOrder: "desc", order: 3, visible: true },
+  { accessor: 'case', type: "string", label: 'ქეისი', sortable: true, sortbyOrder: "desc", order: 3, visible: true },
   { accessor: 'status', type: "string", label: 'სტატუსი', sortable: true, sortbyOrder: "desc", order: 4, visible: true },
   { accessor: 'created_at', type: "date", label: 'შექმნის თარიღი', sortable: true, sortbyOrder: "desc", order: 998, visible: true },
   { accessor: 'updated_at', type: "date", label: 'განახლების თარიღი', sortable: true, sortbyOrder: "desc", order: 999, visible: true },
-  { accessor: 'uuid', type: "string", label: 'uuid', sortable: true, sortbyOrder: "desc", order: 1000, visible: false}, 
-  { accessor: 'comment', type: "string", label: 'comment', sortable: true, sortbyOrder: "desc", order: 1001, visible: false}, 
+  { accessor: 'uuid', type: "string", label: 'uuid', sortable: true, sortbyOrder: "desc", order: 1000, visible: false },
+  { accessor: 'comment', type: "string", label: 'comment', sortable: true, sortbyOrder: "desc", order: 1001, visible: false },
 ]
+
+
+
 
 const formatedHeaders = (mandatoryHeaders, response) => {
   var formated = [...mandatoryHeaders]
@@ -144,7 +231,7 @@ const formatedHeaders = (mandatoryHeaders, response) => {
       order: i,
       visible: true,
     });
-    i+=1;
+    i += 1;
   })
 
   return formated.sort((a, b) => a.order - b.order);;
@@ -159,7 +246,7 @@ const formatedData = (formattedHeaders, response) => {
   response.map(folder => {
     tmp = [];
     headers.map(header => {
-      
+
       tmp.push({
         accessor: header['accessor'],
         type: header['type'],
@@ -172,20 +259,22 @@ const formatedData = (formattedHeaders, response) => {
         tmp.at(-1)['value'] = folder[header['accessor']]
         tmp.at(-1)['visible'] = header['visible']
       } else {
-          if (folder['custom_fields']) {
-            folder['custom_fields'].forEach(field => {
-              if (field['field']['name'] == header['accessor']) {
-                tmp.at(-1)['value'] = field['value']
-              }
-            })
-          }
+        if (folder['custom_fields']) {
+          folder['custom_fields'].forEach(field => {
+            if (field['field']['name'] == header['accessor']) {
+              tmp.at(-1)['value'] = field['value']
+            }
+          })
+        }
       }
     })
-    
+
     tmp[0].value = i;
-    i+=1;
+    i += 1;
     formated.push(tmp);
   })
+
+  
 
   return formated.sort((a, b) => a.order - b.order);
 }
@@ -194,18 +283,40 @@ const formatedData = (formattedHeaders, response) => {
 
 const Projects = () => {
   const dispatch = useDispatch();
+  const loading = useAuthCheck();
+  const files = useSelector((state) => state.project.fileList);
   const seeResizebleDiv = useSelector((state) => state.project.seeResizebleDiv);
   const selectedProject = useSelector((state) => state.project.projectInfo);
+  const response_headers = useSelector((state) => state.project.projectHeaders);
+  const response_adata = useSelector((state) => state.project.projectList);
   const selectedFile = useSelector((state) => state.project.fileInfo);
   const headers = formatedHeaders(mandatoryHeaders, response_headers)
   const [data, setData] = useState(formatedData(headers, response_adata));
 
+
+
+  const getData = async () => {
+    try {
+      await dispatch(getProjectHeadersThunk()).unwrap();
+      await dispatch(getProjectListThunk()).unwrap();
+    } catch (err) {
+      console.error('Failed to get project list:', err);
+    }
+  };
+
+  useEffect(() => {
+    setData(formatedData(headers, response_adata));
+  }, [response_adata]);
+
+  useEffect(()=>{
+    getData();
+  }, [])
+
   const handleResizebleDivToggle = () => {
     dispatch(setProjectSeeResizebleDiv(!seeResizebleDiv));
   };
-
   const handleClick = (file) => {
-    dispatch(setFile(file));
+    dispatch(setFileInfo(file));
   };
 
   return (
@@ -436,7 +547,7 @@ const Projects = () => {
                 </div>
               </div>
 
-              <div className="w-full flex-1 overflow-x-auto">
+              <div className="w-full flex-1 overflow-x-auto flex items-center"> 
                 <Table columns={headers} data={data} setData={setData} />
               </div>
 
@@ -448,7 +559,7 @@ const Projects = () => {
             {seeResizebleDiv && (
               <ResizableDiv setSeeResizebleDiv={handleResizebleDivToggle}>
                 <div className="text-white p-4">
-                  <FileIcon handleClick={handleClick} selectedFile={selectedFile} />
+                  <FileIcon files={files} handleClick={handleClick} selectedFile={selectedFile} />
                 </div>
 
                 <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
@@ -457,7 +568,7 @@ const Projects = () => {
                       Comment
                       <p className="mt-1 text-sm font-normal text-gray-400">
                         {
-                          // selectedProject?.filter(obj => obj.accessor == 'comment')[0].value
+                          selectedProject?.filter(obj => obj.accessor == 'comment')[0].value
                         }
                       </p>
                     </caption>
@@ -476,15 +587,15 @@ const Projects = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {/* {
-                        selectedProject.map ((item) => {
+                      {
+                        selectedProject?.map((item) => {
                           if (!item.visible) return;
                           return (
                             <tr key={uuidv4()} className="w-full border-b">
                               <th scope="row" className="px-6 py-4 font-medium text-white">
                                 {item.accessor}
                               </th>
-                              
+
                               <td className="px-6 py-4">
                                 {item.value}
                               </td>
@@ -497,8 +608,8 @@ const Projects = () => {
                             </tr>
                           )
                         })
-                        
-                      } */}
+
+                      }
 
                     </tbody>
                   </table>

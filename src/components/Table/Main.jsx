@@ -1,16 +1,17 @@
-import { TableBody, TableHead } from "./components";
+import React from "react";
+import TableHead from "./components/TableHead";
+import TableBody from "./components/TableBody";
 import { useSortableTable } from "./useSortableTable";
 
-const Table = ({columns, data, setData}) => {
-    const [tableData, handleSorting] = useSortableTable(data, columns);
+const Table = ({ columns, data }) => {
+  const [tableData, handleSorting] = useSortableTable(data, columns);
 
-    return (
-        <>
-            <table className="whitespace-nowrap">
-                <TableHead columns={columns} handleSorting={handleSorting} />
-                <TableBody columns={columns} tableData={tableData} />
-            </table>
-        </>
-    );
+  return (
+    <table className="whitespace-nowrap">
+      <TableHead columns={columns} handleSorting={handleSorting} />
+      <TableBody columns={columns} tableData={tableData} />
+    </table>
+  );
 };
+
 export default Table;

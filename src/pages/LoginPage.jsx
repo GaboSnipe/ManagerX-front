@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginThunk } from '../features/auth/loginThunk';
+import { loginThunk, logoutThunk } from '../features/auth/loginThunk';
 import { Logo } from "../components/";
 
 const LoginPage = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const [email, setEmail] = useState('admin@admin.com');
-    const [password, setPassword] = useState('TestPass123');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [emailDirty, setEmailDirty] = useState(false);
     const [passwordDirty, setPasswordDirty] = useState(false);
     const [emailError, setEmailError] = useState('emaili ar unda iyos carieli');
     const [passwordError, setPasswordError] = useState('paroli ar unda iyos carieli');
     const [formValid, setFormValid] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const isAuth = useSelector((state) => state.auth.isAuth);
 
     useEffect(() => {
         if (emailError || passwordError) {
@@ -64,13 +65,20 @@ const LoginPage = () => {
     
         try {
             await dispatch(loginThunk({ email, password })).unwrap();
-            setIsSubmitting(false);
             navigate('/dashboard');
         } catch (err) {
             console.error('Failed to login:', err);
             setIsSubmitting(false);
         }
     };
+
+    useEffect(() => {
+        if (isAuth) {
+            if(!isSubmitting){
+                dispatch(logoutThunk());
+            }
+        }
+      }, [isAuth]);
 
     return (
         <div className="bg-gradient-to-tr from-sky-200 to-sky-500 min-h-screen flex items-center justify-center">

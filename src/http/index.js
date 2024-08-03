@@ -21,7 +21,10 @@ $api.interceptors.response.use(
         if (error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             try {
-                const response = await axios.get(`${API_URL}/api/accounts/auth/jwt/refresh/`, { withCredentials: true });
+                const response = await axios.post(`${API_URL}/api/accounts/auth/jwt/refresh/`, 
+                    { refresh: localStorage.getItem('refresh') }, 
+                    { withCredentials: true }
+                  );
                 localStorage.setItem('token', response.data.access);
                 originalRequest.headers.Authorization = `JWT ${response.data.access}`;
                 return $api(originalRequest);

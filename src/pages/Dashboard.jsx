@@ -1,6 +1,9 @@
 import React from "react";
+import useAuthCheck from '../utils/hooks/useAuthCheck';
 
 const Dashboard = () => {
+  const loading = useAuthCheck();
+
   return (
     <>
       <div className="min-h-full">
