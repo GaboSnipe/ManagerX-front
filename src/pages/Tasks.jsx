@@ -226,13 +226,34 @@ const Tasks = () => {
                 </table>
               </div>
             </div>
-            {seeAddDiv &&
-
-              <>
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={closeAddDiv}></div>
-                <div className="fixed inset-0 flex items-center justify-center z-50">
-                  <div className="bg-gray-900 p-6 rounded-lg shadow-lg">
-                  <input
+            {seeAddDiv && (
+        <>
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={closeAddDiv}
+          ></div>
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-gray-900 p-6 rounded-lg shadow-lg relative">
+            <button
+          className="m-2 bg-red-600 p-1 rounded-full hover:bg-gray-200 ml-auto"
+          onClick={closeAddDiv}
+        >
+          <svg
+            className="h-6 w-6 text-black"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+              <input
                 type="text"
                 name="title"
                 value={formState.title}
@@ -273,7 +294,7 @@ const Tasks = () => {
                 className="p-2 rounded mb-4 w-full"
               >
                 {usersList.map((user) => (
-                  <option key={user.userName} value={user.id}>
+                  <option key={user.id} value={user.id}>
                     {user.email}
                   </option>
                 ))}
@@ -284,11 +305,10 @@ const Tasks = () => {
               >
                 Add Task
               </button>
-                  </div>
-                </div>
-              </>
-
-            }
+            </div>
+          </div>
+        </>
+      )}
           </div>
         </div>
       </div>
