@@ -61,7 +61,7 @@ const CustomContextMenu = ({ x, y, onClose, selectedFolder }) => {
   );
 };
 
-const FolderIcon = ({ onDoubleClick, handleSingleClick, folders }) => {
+const FolderIcon = ({ onDoubleClick, handleSingleClick, folders, listView }) => {
   const dispatch = useDispatch();
   const selectedFolder = useSelector((state) => state.workplace.folderInfo);
   const [contextMenu, setContextMenu] = useState(null);
@@ -108,10 +108,10 @@ const FolderIcon = ({ onDoubleClick, handleSingleClick, folders }) => {
           key={folder.uuid}
           onContextMenu={handleContextMenu}
           onClick={() => handleClick(folder)}
-          className={`relative flex flex-col items-center justify-center h-36 ${selectedFolder.uuid === folder.uuid ? 'bg-gray-300 p-1 content-center rounded-lg' : ''}`}
+          className={`relative flex items-center justify-center ${listView === true ? 'flex-row h-4' : 'flex-col h-36'} ${selectedFolder.uuid === folder.uuid ? 'bg-gray-300 p-1 content-center rounded-lg' : ''}`}
         >
-          <FaFolder className="text-yellow-400 text-6xl" />
-          <span className={`mt-1 text-sm p-1 rounded-lg whitespace-normal break-words w-24 h-12 flex items-center justify-center text-center`}>
+          <FaFolder className={`text-yellow-400 ${listView === true ? 'text-xl' : 'text-6xl'}`} />
+          <span className={`${listView === true ? '' : 'mt-1'} text-sm p-1 rounded-lg whitespace-normal break-words w-24 h-12 flex items-center justify-center text-center`}>
             {folder.title}
           </span>
         </button>
