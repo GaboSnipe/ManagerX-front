@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Header } from './components';
 import { navigation } from './globalEnv';
-import { LoginPage } from './pages';
+import { LoginPage, UserPage } from './pages';
 
 function App() {
   const location = useLocation();
@@ -16,6 +16,7 @@ function App() {
           <Route key={item.name} path={item.href} element={<item.component />} />
         ))}
         <Route path="/" element={<LoginPage />} />
+        <Route path="/profile" element={<UserPage />} />
       </Routes>
     </>
   );

@@ -16,9 +16,14 @@ module.exports = {
       "txtcustom-secondary": "#3f4040",
       "txtcustom-secondar-100": "#4c4c4c",
     },
-    extend: {},
+    extend: {
+      maxHeight: {
+        '48': '12rem', // Или любое значение, которое вам нужно
+        '64': '16rem', // Например, можно добавить больше значений по необходимости
+      },
+    },
   },
   plugins: [
-    require('flowbite/plugin')
-  ]
+    require('flowbite/plugin'),
+  ],
 }

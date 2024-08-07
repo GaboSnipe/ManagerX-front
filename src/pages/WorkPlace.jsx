@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { FaArrowLeft } from 'react-icons/fa';
 import { FolderIcon, FileIcon, ResizableDiv } from '../components';
-import { setFolder, setFile } from '../features/workplace/workplaceSlice';
+import { setFolder, setFile, setSeeResizebleDiv } from '../features/workplace/workplaceSlice';
 import useAuthCheck from '../utils/hooks/useAuthCheck';
 import { addFileInFolderThunk, getFolderDetailsThunk, getFolderListThunk } from '../features/workplace/workplaceThunk';
 import { getProjectHeadersThunk } from '../features/project/projectThunk';
@@ -62,11 +62,10 @@ const formatData = (formattedHeaders, response) => {
 const WorkPlace = () => {
   const loading = useAuthCheck();
   const dispatch = useDispatch();
-  const [seeFolderResizebleDiv, setSeeFolderResizebleDiv] = useState(false);
-  const [seeFileResizebleDiv, setSeeFileResizebleDiv] = useState(false);
   const [showFileIcon, setShowFileIcon] = useState(false);
 
   const selectedFolder = useSelector(state => state.workplace.folderInfo);
+  const seeResizebleDiv = useSelector(state => state.workplace.seeResizebleDiv);
   const selectedFile = useSelector(state => state.workplace.fileInfo);
   const folders = useSelector(state => state.workplace.folderList);
   const files = useSelector(state => state.workplace.fileList);
@@ -109,7 +108,7 @@ const WorkPlace = () => {
     setShowFileIcon(false);
     dispatch(setFolder({}));
     dispatch(setFile({}));
-    setSeeFileResizebleDiv(false);
+    dispatch(setSeeResizebleDiv(false));
   };
 
   const addFileInFolder = () => {
@@ -128,7 +127,7 @@ const WorkPlace = () => {
     formData.append('folderId', selectedFolder.uuid);
 
     dispatch(addFileInFolderThunk(formData));
-    setSeeAddFileDiv(false); // Закрытие окна после добавления файла
+    setSeeAddFileDiv(false);
   };
 
   const handleFormChange = (e) => {
@@ -140,18 +139,19 @@ const WorkPlace = () => {
   };
 
   const folderShowClose = () => {
-    setSeeFolderResizebleDiv(false);
+    dispatch(setSeeResizebleDiv(false));
+
     dispatch(setFolder({}));
   };
 
   const fileShowClose = () => {
-    setSeeFileResizebleDiv(false);
+    dispatch(setSeeResizebleDiv(false));
     dispatch(setFile({}));
   };
 
   const handleClick = file => {
     dispatch(setFile(file));
-    setSeeFileResizebleDiv(true);
+    dispatch(setSeeResizebleDiv(true));
   };
 
   const clockhandler = file => {
@@ -166,13 +166,13 @@ const WorkPlace = () => {
   const handleFolderSingleClick = folder => {
     dispatch(setFolder(folder));
     dispatch(getFolderDetailsThunk(folder.uuid));
-    setSeeFolderResizebleDiv(true);
+    dispatch(setSeeResizebleDiv(true));
   };
 
   const handleFolderDoubleClick = folder => {
     dispatch(getFolderDetailsThunk(folder.uuid)).unwrap();
     setShowFileIcon(true);
-    setSeeFolderResizebleDiv(false);
+    dispatch(setSeeResizebleDiv(false));
   };
 
   const closeSeeAddDiv = () => {
@@ -243,8 +243,17 @@ const WorkPlace = () => {
               )}
             </div>
           </div>
-          {seeFolderResizebleDiv && (
-            <ResizableDiv setSeeResizebleDiv={folderShowClose}>
+          {seeResizebleDiv && (
+            showFileIcon ? 
+            (
+
+                          <ResizableDiv setSeeResizebleDiv={fileShowClose}>
+                          <p className="text-purple-800 text-5xl"></p>
+                        </ResizableDiv>
+            )
+            :
+            (
+              <ResizableDiv setSeeResizebleDiv={folderShowClose}>
               <div className="text-white p-4">
                 <FileIcon files={files} handleClick={clockhandler} selectedFile={selectedFile} />
               </div>
@@ -297,11 +306,8 @@ const WorkPlace = () => {
                 </table>
               </div>
             </ResizableDiv>
-          )}
-          {seeFileResizebleDiv && (
-            <ResizableDiv setSeeResizebleDiv={fileShowClose}>
-              <p className="text-purple-800 text-5xl"></p>
-            </ResizableDiv>
+            )
+
           )}
         </div>
       </div>

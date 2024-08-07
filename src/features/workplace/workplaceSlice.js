@@ -7,6 +7,7 @@ const initialState = {
   fileInfo: {},
   fileList: [],
   loading: false,
+  seeResizebleDiv: false,
   error: null,
 };
 
@@ -19,6 +20,9 @@ const workplaceSlice = createSlice({
     },
     setFileList(state, action) {
       state.fileList = action.payload;
+    },
+    setSeeResizebleDiv(state, action) {
+      state.seeResizebleDiv = action.payload;
     },
     setFolderList(state, action) {
       state.folderList = action.payload;
@@ -94,5 +98,6 @@ export const {
   removeFolder,
   setFileList,
   setFolderList,
+  setSeeResizebleDiv,
 } = workplaceSlice.actions;
 export default workplaceSlice.reducer;

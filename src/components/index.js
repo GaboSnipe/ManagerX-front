@@ -6,4 +6,7 @@ export { default as FolderIcon } from "./Files/FolderIcon.jsx";
 export { default as FileIcon } from "./Files/FileIcon.jsx";
 export { default as Logo } from "./Logo/Logo.jsx";
 export { default as FullLogo } from "./Logo/FullLogo.jsx";
+export { default as ExpandableTable } from "./Tasks/Main.jsx";
+export { default as Editor } from "./Editor.jsx";
+export { default as UserSearchDropDown } from "./UserSearchDropDown.jsx";
 

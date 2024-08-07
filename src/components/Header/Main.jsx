@@ -15,9 +15,9 @@ const Main = () => {
 
   
   const userNavigation = [
-    { name: 'Your Profile', href: '#' },
+    { name: 'Your Profile', href: '/profile' },
     { name: 'Settings', href: '#' },
-    { name: 'Sign out', href: '#' },
+    { name: 'Sign out', href: '/' },
   ]
   
   function classNames(...classes) {
@@ -53,7 +53,7 @@ const Main = () => {
         </div>
         <MobileMenu navigation={navigation} user={user} userNavigation={userNavigation} classNames={classNames} />
       </Disclosure>
-      {/* <Header /> */}
+      <Header />
     </>
   );
 }

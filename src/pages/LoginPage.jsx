@@ -11,8 +11,8 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [emailDirty, setEmailDirty] = useState(false);
     const [passwordDirty, setPasswordDirty] = useState(false);
-    const [emailError, setEmailError] = useState('emaili ar unda iyos carieli');
-    const [passwordError, setPasswordError] = useState('paroli ar unda iyos carieli');
+    const [emailError, setEmailError] = useState('Email не должен быть пустым');
+    const [passwordError, setPasswordError] = useState('Пароль не должен быть пустым');
     const [formValid, setFormValid] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const isAuth = useSelector((state) => state.auth.isAuth);
@@ -29,7 +29,7 @@ const LoginPage = () => {
         setEmail(e.target.value);
         const re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         if (!re.test(String(e.target.value).toLowerCase())) {
-            setEmailError('Not correct email!');
+            setEmailError('Некорректный email!');
         } else {
             setEmailError('');
         }
@@ -38,9 +38,9 @@ const LoginPage = () => {
     const passwordHandler = (e) => {
         setPassword(e.target.value);
         if (e.target.value.length < 3 || e.target.value.length > 35) {
-            setPasswordError('Password must be between 3 and 35 characters');
+            setPasswordError('Пароль должен быть от 3 до 35 символов');
             if (!e.target.value) {
-                setPasswordError('Password is required');
+                setPasswordError('Пароль обязателен');
             }
         } else {
             setPasswordError('');
@@ -73,12 +73,8 @@ const LoginPage = () => {
     };
 
     useEffect(() => {
-        if (isAuth) {
-            if(!isSubmitting){
-                dispatch(logoutThunk());
-            }
-        }
-      }, [isAuth]);
+            dispatch(logoutThunk());
+    }, []);
 
     return (
         <div className="bg-gradient-to-tr from-sky-200 to-sky-500 min-h-screen flex items-center justify-center">

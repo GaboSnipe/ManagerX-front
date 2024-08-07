@@ -17,19 +17,20 @@ export const loginThunk = createAsyncThunk(
   }
 );
 
+
 export const logoutThunk = createAsyncThunk(
   'auth/logout',
-  async (thunkAPI) => {
+  async (_, thunkAPI) => { // Здесь "_" обозначает игнорируемый первый параметр
     try {
       localStorage.removeItem('token');
       localStorage.removeItem('refresh');
-      await AuthService.logout();
-      return response.data;
+      // await AuthService.logout();
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return thunkAPI.rejectWithValue(error.response?.data);
     }
   }
 );
+
 
 export const checkAuth = createAsyncThunk(
   'auth/checkAuth',

@@ -12,7 +12,7 @@ const TableBody = ({ tableData, columns }) => {
         try {
             await dispatch(getFilesListThunk({ uuid })).unwrap();
         } catch (error) {
-            console.error('Ошибка при получении данных:', error);
+            console.error('error:', error);
         }
     };
 

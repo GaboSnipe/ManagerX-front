@@ -3,7 +3,8 @@ import { getTaskListThunk, addTaskThunk } from './taskThunk';
 
 const initialState = {
   taskList: [],
-  selectTask: {},
+  selectedSubtask: {},
+  seeResizebleDiv: false,
 };
 
 const taskSlice = createSlice({
@@ -13,8 +14,11 @@ const taskSlice = createSlice({
     setTaskList(state, action) {
       state.taskList = action.payload;
     },
-    setSelectTask(state, action) {
-      state.selectTask = action.payload;
+    setSelectedSubtask(state, action) {
+      state.selectedSubtask = action.payload;
+    },
+    setSeeResizebleDiv(state, action) {
+      state.seeResizebleDiv = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -35,5 +39,5 @@ const taskSlice = createSlice({
   },
 });
 
-export const { setTaskList, setSelectTask } = taskSlice.actions;
+export const { setTaskList, setSelectedSubtask, setSeeResizebleDiv } = taskSlice.actions;
 export default taskSlice.reducer;
