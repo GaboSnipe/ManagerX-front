@@ -3,7 +3,7 @@ import 'quill/dist/quill.snow.css';
 import { Editor } from '../../';
 import TaskService from '../../../services/TaskService';
 
-const TextEditor = ({ isEditing, defaultVal, setFormData }) => {
+const TextEditor = ({ isEditing, defaultValue, setFormData }) => {
   const [readOnly, setReadOnly] = useState(false);
   const quillRef = useRef(null);
 
@@ -25,7 +25,7 @@ const TextEditor = ({ isEditing, defaultVal, setFormData }) => {
         <Editor
           ref={quillRef}
           readOnly={readOnly}
-          defaultValue={defaultVal}
+          defaultValue={defaultValue}
           onTextChange={handleTextChange}
         />
       </div>

@@ -53,14 +53,14 @@ function UserSearchDropDown({ value, isEditing, formData, setFormData, qkey }) {
                 ref={buttonRef}
                 id="dropdownSearchButton"
                 onClick={toggleDropdown}
-                className={`focus:outline-none ${isEditing && "focus:bg-gray-300"} font-medium rounded-t-lg text-center inline-flex px-4`}
+                className={`focus:outline-none ${isEditing && "focus:bg-gray-300"} font-medium rounded-t-lg text-center inline-flex px-4  min-w-52`}
                 type="button"
             >
                 <div className='flex items-center pr-2'>
                     <span className="bg-purple-500 text-white rounded-full w-7 h-7 flex items-center justify-center">
-                        {value.id}
+                        {value?.id}
                     </span>
-                    <span className="text-gray-500 ml-3">{value.email}</span>
+                    <span className="text-gray-500 ml-3">{value?.email}</span>
                 </div>
             </button>
 

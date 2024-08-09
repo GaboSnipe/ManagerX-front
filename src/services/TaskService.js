@@ -13,4 +13,10 @@ export default class TaskService {
     static async editTask (uuid, formData){
         return $api.patch(`/api/tasks/${uuid}/update/`,formData)
     }
+    static async createTask (formData){
+        return $api.post(`/api/tasks/create/`,formData)
+    }
+    static async editSubTask (uuid, formData){
+        return $api.patch(`/api/tasks/subtasks/${uuid}/update/`,formData)
+    }
 }

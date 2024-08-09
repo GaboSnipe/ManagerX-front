@@ -98,8 +98,6 @@ const Projects = () => {
   const headers = formatedHeaders(mandatoryHeaders, response_headers)
   const [data, setData] = useState(formatedData(headers, response_adata));
 
-
-
   const getData = async () => {
     try {
       await dispatch(getProjectHeadersThunk()).unwrap();
@@ -372,7 +370,7 @@ const Projects = () => {
                     <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
                       <table className="w-full text-sm text-left rtl:text-right text-[#252525]">
                         <caption className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-[#252525]">
-                          <TextEditor isEditing={false} defaultVal={"skljdna"} setData={setData} />
+                          <TextEditor isEditing={false}    setData={setData} />
                         </caption>
 
                         <thead className="w-full text-xs uppercase text-[#252525]">

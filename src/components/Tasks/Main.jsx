@@ -8,6 +8,21 @@ import { FaRegEdit } from "react-icons/fa";
 import { editTaskThunk } from "../../features/task/taskThunk";
 
 
+const statuses = {
+  "TODO": "To Do",
+  "INPROGRESS": "In Progress",
+  "DONE": "Done",
+  "REJECTED": "Rejected",
+  "UNCERTAIN": "Uncertain"
+};
+const statusStyles = {
+  "TODO": "bg-yellow-500",
+  "INPROGRESS": "bg-blue-500",
+  "DONE": "bg-green-500",
+  "REJECTED": "bg-gray-500",
+  "UNCERTAIN": "bg-purple-500"
+};
+
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -23,6 +38,7 @@ const ExpandableTable = ({ task, setTasks }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const motherRef = useRef();
   const [fullTask, setFullTask] = useState(task);
+  const [saveSubTasks, setSaveSubTasks] = useState(task);
   const quillRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(task);
@@ -77,6 +93,7 @@ const ExpandableTable = ({ task, setTasks }) => {
   }
 
   const canselEdit = () => {
+    setFormData(fullTask)
     setIsEditing(false);
   }
 
@@ -91,16 +108,14 @@ const ExpandableTable = ({ task, setTasks }) => {
     }));
   };
 
-  console.log(formData.comment)
 
   const saveNewTask = () => {
     const newFormData = {};
 
+    setSaveSubTasks(!saveSubTasks);
+
     if (formData.assign_to !== undefined && formData.assign_to !== fullTask.assign_to) {
-      console.log(formData.assign_to)
-      console.log(fullTask.assign_to)
       newFormData.assign_to = formData.assign_to;
-      console.log(newFormData.assign_to)
     }
     if (formData.title !== undefined && formData.title !== fullTask.title) {
       newFormData.title = formData.title;
@@ -126,18 +141,19 @@ const ExpandableTable = ({ task, setTasks }) => {
   
       TaskService.editTask(task.uuid, newFormData)
         .then(response => {
-          console.log(response.data)
           TaskService.getTask(task.uuid)
             .then(response => {
               setFullTask(response.data)
             })
-            setIsEditing(false)
         })
         .catch(error => {
           console.error(error);
         });
     } else {
     }
+
+    setIsEditing(false)
+
   };
 
   
@@ -209,14 +225,21 @@ const ExpandableTable = ({ task, setTasks }) => {
         </div>
       </td>
 
+
+      <td>
+      <span className={`${statusStyles[formData.status]} text-white px-2 py-1 rounded`}>
+                    {statuses[formData.status]}
+                  </span>
+      </td>
+
       {/* Deadline Button */}
       <td className="pl-5">
         <button
           className={`py-3 px-3 text-sm focus:outline-none leading-none ${getDeadlineStyles(
-            task.deadline
+            formData.deadline? formData.deadline : task.deadline
           )} rounded`}
         >
-          Due {formatDeadline(task.deadline)}
+          Due {formatDeadline(formData.deadline? formData.deadline : task.deadline)}
         </button>
       </td>
 
@@ -224,6 +247,7 @@ const ExpandableTable = ({ task, setTasks }) => {
       <td>
         <button
           onClick={toggleRow}
+          disabled={isEditing}
           className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
         >
           {isExpanded ? "Collapse" : "Expand"}
@@ -249,7 +273,7 @@ const ExpandableTable = ({ task, setTasks }) => {
       <tr className="overflow-x-auto">
         <td
           className="overflow-hidden focus:outline-none border border-gray-100 rounded p-5"
-          colSpan={4}
+          colSpan={5}
         >
           <div className="relative w-full shadow-md sm:rounded-lg">
             <ExpandableDetails
@@ -259,7 +283,7 @@ const ExpandableTable = ({ task, setTasks }) => {
               formData={formData}
               setFormData={setFormData}
             />
-            <TextEditor isEditing={isEditing} task={fullTask} quillRef={quillRef} formData={formData} setFormData={setFormData}/>
+            <TextEditor isEditing={isEditing} defaultValue={fullTask.comment} quillRef={quillRef} formData={formData} setFormData={setFormData}/>
             <section ref={motherRef} className="w-auto p-5 relative">
               <p className="text-start text-gray-700 text-2xl mb-4">Subtasks:</p>
               <div className="p-4 bg-white shadow-md rounded-lg">
@@ -275,11 +299,12 @@ const ExpandableTable = ({ task, setTasks }) => {
                   <tbody>
                     {fullTask.subtasks.map((subtask, index) => (
                       <SubTasks
-                        isEditing={isEditing}
+                        isEditing={isEditing} 
                         motherRef={motherRef}
                         subtask={subtask}
                         index={index}
                         key={subtask.uuid}
+                        saveSubTasks={saveSubTasks}
                       />
                     ))}
                   </tbody>
@@ -291,7 +316,7 @@ const ExpandableTable = ({ task, setTasks }) => {
             {isEditing && (
               <div className="flex justify-end space-x-4 mt-4 p-5">
                 <button
-                  onClick={() => setIsEditing(!isEditing)}
+                  onClick={canselEdit}
                   className="flex items-center space-x-1 text-gray-600"
                 >
                   <FiXCircle className="text-xl" />

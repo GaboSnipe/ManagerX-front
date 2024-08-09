@@ -1,10 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getTaskListThunk, addTaskThunk } from './taskThunk';
+import { getTaskListThunk, addTaskThunk, editTaskThunk } from './taskThunk';
 
 const initialState = {
   taskList: [],
   selectedSubtask: {},
   seeResizebleDiv: false,
+  isAddEnable: false,
 };
 
 const taskSlice = createSlice({
@@ -13,6 +14,9 @@ const taskSlice = createSlice({
   reducers: {
     setTaskList(state, action) {
       state.taskList = action.payload;
+    },
+    setIsAddEnable(state, action) {
+      state.isAddEnable = action.payload;
     },
     setSelectedSubtask(state, action) {
       state.selectedSubtask = action.payload;
@@ -35,9 +39,15 @@ const taskSlice = createSlice({
     })
     .addCase(addTaskThunk.rejected, (state, action) => {
       console.error('Error fetching project headers:', action.payload);
+    })
+    .addCase(editTaskThunk.fulfilled, (state, action) => {
+      state.taskList = [...taskList, action.payload];
+    })
+    .addCase(editTaskThunk.rejected, (state, action) => {
+      console.error('Error fetching project headers:', action.payload);
     });
   },
 });
 
-export const { setTaskList, setSelectedSubtask, setSeeResizebleDiv } = taskSlice.actions;
+export const { setTaskList, setIsAddEnable, setSelectedSubtask, setSeeResizebleDiv } = taskSlice.actions;
 export default taskSlice.reducer;

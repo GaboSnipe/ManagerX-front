@@ -8,6 +8,7 @@ import { setSelectedSubtask, setSeeResizebleDiv } from '../../../features/task/t
 import UserSearchDropDown from '../../UserSearchDropDown';
 import "../../../styles/DefaultStyles.css"
 import UserService from '../../../services/UserService';
+import TaskService from '../../../services/TaskService';
 
 const statuses = {
   "TODO": "To Do",
@@ -24,15 +25,16 @@ const statusStyles = {
   "UNCERTAIN": "bg-purple-500"
 };
 
-const SubTasks = ({ subtask, motherRef, index, isEditing }) => {
+const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks }) => {
   const dispatch = useDispatch();
   const selectedSubTask = useSelector((state) => state.task.selectedSubtask);
   const [startDate, setStartDate] = useState(new Date());
   const seeResizebleDiv = useSelector((state) => state.task.seeResizebleDiv);
-       const [assignTo, setAssignTo] = useState({});
-       const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [assignTo, setAssignTo] = useState({});
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef();
   const buttonRef = useRef();
+  const [newSubTask, setNewSubTask] = useState(subtask)
 
   const handleClick = (subtask) => {
     dispatch(setSelectedSubtask(subtask));
@@ -44,7 +46,7 @@ const SubTasks = ({ subtask, motherRef, index, isEditing }) => {
       const buttonRect = buttonRef.current.getBoundingClientRect();
       const motherRect = motherRef.current.getBoundingClientRect();
       const dropdownRect = dropdownRef.current.getBoundingClientRect();
-  const windowHeight = window.innerHeight;
+      const windowHeight = window.innerHeight;
 
       const spaceBelow = windowHeight - buttonRect.bottom;
       const spaceAbove = buttonRect.top;
@@ -67,6 +69,19 @@ const SubTasks = ({ subtask, motherRef, index, isEditing }) => {
       });
     }
 
+  };
+
+  const getDeadlineStyles = (deadline) => {
+    const now = new Date();
+    const deadlineDate = new Date(deadline);
+    const diffTime = deadlineDate - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+    if (diffDays === 0) return 'text-yellow-700 bg-yellow-100';
+    if (diffDays > 0) return 'text-green-700 bg-green-100';
+    if (diffDays < 0) return 'text-red-700 bg-red-100';
+  
+    return '';
   };
 
   const handleClickOutside = (event) => {
@@ -99,24 +114,104 @@ const SubTasks = ({ subtask, motherRef, index, isEditing }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [isDropdownOpen]);
 
+
+
   useEffect(() => {
     const getAssignTo = async () => {
       try {
-        const response = await UserService.getUserInfo(subtask.assign_to);
+        const response = await UserService.getUserInfo(newSubTask.assign_to);
         setAssignTo(response.data);
       } catch (error) {
         console.error(error);
       }
     };
-
     getAssignTo();
-  }, []);
+  }, [newSubTask.assign_to]);
+
+
+  const setDataForm = (date) => {
+    setNewSubTask(prevData => ({
+      ...prevData,
+      deadline: date
+    }));
+  };
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+  
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+  
+    return `${year}-${month}-${day}`;
+  };
+
+
+  const saveNewSubTask = () => {
+    const newFormData = {};
+
+    if (newSubTask.assign_to !== undefined && newSubTask.assign_to !== subtask.assign_to) {
+      newFormData.assign_to = newSubTask.assign_to;
+    }
+    if (newSubTask.title !== undefined && newSubTask.title !== subtask.title) {
+      newFormData.title = newSubTask.title;
+    }
+    if (newSubTask.status !== undefined && newSubTask.status !== subtask.status) {
+      newFormData.status = newSubTask.status;
+    }
+    if (newSubTask.comment !== undefined && newSubTask.comment !== subtask.comment) {
+      newFormData.comment = newSubTask.comment;
+    }
+    if (newSubTask.deadline !== undefined && newSubTask.deadline !== subtask.deadline) {
+      const formattedDate = formatDate(newSubTask.deadline);
+
+      newFormData.deadline = formattedDate;
+    }
+    if (newSubTask.creator !== undefined && newSubTask.creator !== subtask.creator) {
+      newFormData.creator = newSubTask.creator;
+    }
+    if (newSubTask.folder !== undefined && newSubTask.folder !== subtask.folder) {
+      newFormData.folder = newSubTask.folder;
+    }
+
+    if (Object.keys(newFormData).length > 0) {
+      console.log("sdaskdk")
+      TaskService.editSubTask(subtask.uuid, newFormData)
+        .then(response => {
+
+          console.log(response)
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    } else {
+    }
+  };
+
+  useEffect(() => {
+    saveNewSubTask();
+
+  }, [saveSubTasks])
+
+  const changeStatus = (statusKey) => {
+    setNewSubTask(prevData => ({
+      ...prevData,
+      status: statusKey
+    }));
+    setIsDropdownOpen(false);
+  };
+
+  const handleInputChange = (e) => {
+    setNewSubTask(prevData => ({
+      ...prevData,
+      title: e.target.value
+    }));
+  };
 
 
   return (
     <tr
       key={index}
-      className={`border-t relative ${subtask.uuid === selectedSubTask.uuid ? "bg-blue-100" : ""} rounded-lg`}
+      className={`border-t relative ${newSubTask.uuid === selectedSubTask.uuid ? "bg-blue-100" : ""} rounded-lg`}
     >
       <td className="py-2">
         <div className="flex items-center space-x-2">
@@ -145,34 +240,35 @@ const SubTasks = ({ subtask, motherRef, index, isEditing }) => {
             </div>
           </div>
           <input
-        type="text"
-        className="pl-5"
-        value={subtask.title}
-        readOnly={!isEditing}
-      />
+            type="text"
+            className="pl-5"
+            onChange={((e) => handleInputChange(e))}
+            value={newSubTask.title}
+            readOnly={!isEditing}
+          />
 
         </div>
       </td>
       <td className="py-2">
         <div className="flex items-center space-x-2">
           <FiUserPlus className="text-gray-400" />
-          <UserSearchDropDown value={assignTo} isEditing={isEditing} />
+          <UserSearchDropDown value={assignTo} formData={newSubTask} setFormData={setNewSubTask} isEditing={isEditing} qkey={"assign_to"} />
         </div>
       </td>
       <td className="py-2">
         <div className="flex items-center space-x-2">
-          <div className="py-2 px-3 text-sm focus:outline-none leading-none text-red-700 bg-red-100 rounded">
+          <div className={`py-2 px-3 text-sm focus:outline-none leading-none ${getDeadlineStyles(newSubTask.deadline)}  rounded`}>
             <div className="flex items-center space-x-2">
               <FiCalendar className="" />
-              <div className="py-2 text-sm text-red-700 bg-red-100 rounded flex">
+              <div className={`py-2 text-sm rounded flex`}>
 
-                                <DatePicker
+              <DatePicker
                   disabled={!isEditing}
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
+                  selected={newSubTask.deadline}
+                  onChange={(date) => setDataForm(date)}
                   customInput={<CustomDataInput />} 
                   minDate={new Date()}
-                  dateFormat="MMMM d, yyyy"
+                  dateFormat="yyyy-MM-dd"
                 />
               </div>
             </div>
@@ -187,8 +283,8 @@ const SubTasks = ({ subtask, motherRef, index, isEditing }) => {
               className="font-medium rounded-lg text-xs text-start inline-flex items-center"
               onClick={toggleDropdown}
             >
-                <span className={`${statusStyles[subtask.status]} text-white px-2 py-1 rounded`}>
-                {statuses[subtask.status]}
+              <span className={`${statusStyles[newSubTask.status]} text-white px-2 py-1 rounded`}>
+                {statuses[newSubTask.status]}
               </span>
               {isEditing &&
                 <svg
@@ -215,17 +311,17 @@ const SubTasks = ({ subtask, motherRef, index, isEditing }) => {
               className={`absolute z-50 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow-gray-400 shadow-xl ${isDropdownOpen ? "block" : "hidden"}`}
               style={{ top: dropdownRef.current ? dropdownRef.current.style.top : "100%" }}
             >
-                    <ul className="text-center">
-                      {Object.keys(statuses).map((statusKey) => (
-                        <li key={statusKey}>
-                          <a className="block px-4 py-2 hover:bg-gray-100">
-                            <span className={`${statusStyles[statusKey]} text-white px-2 py-1 rounded`}>
-                              {statuses[statusKey]}
-                            </span>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
+              <ul className="text-center">
+                {Object.keys(statuses).map((statusKey) => (
+                  <li key={statusKey}>
+                    <button onClick={(() => changeStatus(statusKey))} className="block px-4 py-2 hover:bg-gray-100">
+                      <span className={`${statusStyles[statusKey]} text-white px-2 py-1 rounded`}>
+                        {statuses[statusKey]}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
@@ -233,9 +329,9 @@ const SubTasks = ({ subtask, motherRef, index, isEditing }) => {
       <td>
         <button
           className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
-          onClick={() => handleClick(subtask)}
+          onClick={() => handleClick(newSubTask)}
         >
-          {selectedSubTask.uuid === subtask.uuid && seeResizebleDiv ? "Close" : "View"}
+          {selectedSubTask.uuid === newSubTask.uuid && seeResizebleDiv ? "Close" : "View"}
         </button>
       </td>
     </tr>

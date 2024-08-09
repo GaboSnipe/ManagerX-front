@@ -20,6 +20,7 @@
     "@preline/collapse": "^2.4.1",
     "@reduxjs/toolkit": "^2.2.6",
     "axios": "^1.7.2",
+    "date-fns": "^3.6.0",
     "flowbite": "^2.4.1",
     "heroicons-react": "^1.4.1",
     "quill": "^2.0.2",

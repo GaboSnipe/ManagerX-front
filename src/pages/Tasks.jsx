@@ -4,6 +4,7 @@ import { addTaskThunk, getTaskListThunk } from '../features/task/taskThunk';
 import { setSeeResizebleDiv } from '../features/task/taskSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { ExpandableTable, ResizableDiv } from '../components';
+import { TaskAddTable } from '../components/Tasks/components';
 
 
 const formatDeadline = (deadline) => {
@@ -33,6 +34,7 @@ const Tasks = () => {
   const [seeAddDiv, setSeeAddDiv] = useState(false);
   const [seeDiv, setSeeDiv] = useState(false);
   const selectedSubTask = useSelector((state) => state.task.selectedSubtask);
+  const isAddEnable = useSelector((state) => state.task.isAddEnable);
   const seeResizebleDiv = useSelector((state) => state.task.seeResizebleDiv);
   const [tasks, setTasks] = useState([])
   const [formState, setFormState] = useState({
@@ -103,8 +105,15 @@ const Tasks = () => {
       <div className="flex-1 mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="sm:px-6 max-w-full">
           <div className="mt-7 w-full text-sm">
+
+              
             <table className="w-full whitespace-nowrap">
               <tbody>
+                {isAddEnable && 
+                
+              <TaskAddTable setTasks={setTasks} tasks={tasks} />
+            }
+
                 {tasks.map((task) => (
                   <ExpandableTable key={task.uuid} task={task} setTasks={setTasks} />
                 ))}

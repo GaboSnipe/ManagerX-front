@@ -50,7 +50,7 @@ const Editor = forwardRef(
           const delta = JSON.parse(defaultValue);
           quill.setContents(delta);
         } catch (error) {
-          console.error('Ошибка при разборе начального значения:', error);
+          console.error(error);
         }
       }
 

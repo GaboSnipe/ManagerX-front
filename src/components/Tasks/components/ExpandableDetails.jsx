@@ -9,6 +9,7 @@ import { redirect, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { ToastContainer, toast } from 'react-toastify';
 import FileService from "../../../services/FileService";
+import { parse, differenceInCalendarDays } from 'date-fns';
 import UserService from "../../../services/UserService";
 import { format } from 'date-fns';
 import { getFolderDetailsThunk } from "../../../features/workplace/workplaceThunk";
@@ -37,6 +38,7 @@ const formatDate = (date) => {
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
+
 
 
 const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormData }) => {
@@ -91,8 +93,19 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
     getCreator();
   }, [formData.creator]);
 
-  
 
+  const getDeadlineStyles = (deadline) => {
+    const now = new Date();
+    const deadlineDate = new Date(deadline);
+    const diffTime = deadlineDate - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+    if (diffDays === 0) return 'text-yellow-700 bg-yellow-100';
+    if (diffDays > 0) return 'text-green-700 bg-green-100';
+    if (diffDays < 0) return 'text-red-700 bg-red-100';
+  
+    return '';
+  };
 
   const handleDropdownToggle = () => {
     if (isEditing) {
@@ -161,10 +174,9 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
   };
 
   const setDataForm = (date) => {
-    const formattedDate = formatDate(date);
     setFormData(prevData => ({
       ...prevData,
-      deadline: formattedDate
+      deadline: date
     }));
   };
 
@@ -242,7 +254,8 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
             {/* Deadline */}
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 w-28">Deadline</span>
-              <div className="py-2 px-3 text-sm text-red-700 bg-red-100 rounded">
+              <div className={`py-2 px-3 text-sm rounded ${getDeadlineStyles(formData.deadline ? formData.deadline : task.deadline)}`}>
+
                 {/* Due today at 18:00 */}
                 <DatePicker
                   disabled={!isEditing}
@@ -250,7 +263,7 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
                   onChange={(date) => setDataForm(date)}
                   customInput={<CustomDataInput />} 
                   minDate={new Date()}
-                  dateFormat="MMMM d, yyyy"
+                  dateFormat="yyyy-MM-dd"
                 />
               </div>
             </div>
@@ -324,7 +337,7 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 w-28">Created At</span>
-              <div className="py-2 px-3 text-sm text-red-700 bg-red-100 rounded">
+              <div className="py-2 px-3 text-sm text-gray-700 bg-gray-100 rounded">
                 {formatDate(task.created_at)}
               </div>
             </div>
