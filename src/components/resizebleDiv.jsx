@@ -64,13 +64,13 @@ const ResizableDiv = ({ children, setSeeResizebleDiv }) => {
   return (
     <div
       ref={resizableRef}
-      className="bg-[#f9f9f9] relative rounded-l-lg shadow-lg"
+      className="bg-gray-700 relative rounded-l-lg shadow-lg"
       style={{ width: `${size.width}px`, minWidth: '200px' }}
     >
       <div className='flex'>
-        {/*<h2 className="text-white text-xl p-3">*/}
-        {/*  Content: */}
-        {/*</h2>*/}
+        <h2 className="text-white text-xl p-3">
+          Content: 
+        </h2>
         <button
           className="m-2 bg-white p-1 rounded-full hover:bg-gray-200 ml-auto"
           onClick={() => setSeeResizebleDiv(false)}

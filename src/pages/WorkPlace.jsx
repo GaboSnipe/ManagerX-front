@@ -7,7 +7,6 @@ import useAuthCheck from '../utils/hooks/useAuthCheck';
 import { addFileInFolderThunk, getFolderDetailsThunk, getFolderListThunk } from '../features/workplace/workplaceThunk';
 import { getProjectHeadersThunk } from '../features/project/projectThunk';
 import { v4 as uuidv4 } from 'uuid';
-import {TextEditor} from "../components/Tasks/components/index.js";
 
 const mandatoryHeaders = [
   { accessor: 'id', type: "integer", label: '#', sortable: false, sortbyOrder: "desc", order: 0, visible: true },
@@ -42,7 +41,6 @@ const formatData = (formattedHeaders, response) => {
   const data = formattedHeaders.map(header => ({
     accessor: header.accessor,
     type: header.type,
-    label: header.label,
     value: response[header.accessor] || null,
     order: header.order,
     visible: header.visible,
@@ -256,56 +254,54 @@ const WorkPlace = () => {
             :
             (
               <ResizableDiv setSeeResizebleDiv={folderShowClose}>
-              <div className="text-[#252525] p-4">
-                <FileIcon files={files} handleClick={clockhandler} selectedFile={selectedFile} listView={true} />
+              <div className="text-white p-4">
+                <FileIcon files={files} handleClick={clockhandler} selectedFile={selectedFile} />
               </div>
 
               <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
-                <table className="w-full text-sm text-left rtl:text-right">
-                  <caption className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-[#252525]">
-                    <TextEditor isEditing={false} />
+                <table className="w-full text-sm text-left rtl:text-right text-white">
+                  <caption className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-white bg-gray-800">
+                    Comment
+                    <p className="mt-1 text-sm font-normal text-gray-400">
+                      {
+                        data.find(item => item.accessor === 'comment')?.value
+                      }
+                    </p>
                   </caption>
 
-                  <thead className="w-full text-xs uppercase text-[#252525]">
-                  <tr>
-                    <th scope="col" className="px-6 py-3">
-                      Property
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Value
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      <span className="sr-only">Edit</span>
-                    </th>
-                  </tr>
+                  <thead className="w-full text-xs uppercase bg-gray-700 text-gray-400">
+                    <tr>
+                      <th scope="col" className="px-6 py-3">
+                        Property
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Value
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        <span className="sr-only">Edit</span>
+                      </th>
+                    </tr>
                   </thead>
                   <tbody>
-                  {
-                    data?.map((item) => {
-                      if (!item.visible || item.accessor === 'id') return;
+                    {data.map((item) => {
+                      if (!item.visible) return null;
+
                       return (
-                          <tr key={uuidv4()} className="w-full border border-gray-300 hover:bg-gray-200">
-                            <th scope="row" className="px-6 py-4 font-medium text-[#252525] border border-gray-300">
-                              {
-                                item?.label
-                              }
-                            </th>
-
-                            <td className="px-6 py-4 border border-gray-300" colSpan={2}>
-                              {item?.value}
-                            </td>
-
-
-                            <td className="px-6 py-4 text-right border border-gray-300">
-                              <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                Edit
-                              </a>
-                            </td>
-                          </tr>
-                      )
-                    })
-
-                  }
+                        <tr key={uuidv4()} className="w-full border-b">
+                          <th scope="row" className="px-6 py-4 font-medium text-white">
+                            {item.accessor}
+                          </th>
+                          <td className="px-6 py-4">
+                            {item.value}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <a href="#" className="font-medium text-blue-600 hover:underline">
+                              Edit
+                            </a>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
