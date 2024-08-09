@@ -5,204 +5,11 @@ import { Paginations, Table, ResizableDiv, FileIcon } from '../components';
 import { v4 as uuidv4 } from 'uuid';
 import { getProjectListThunk, getProjectHeadersThunk } from '../features/project/projectThunk';
 import useAuthCheck from '../utils/hooks/useAuthCheck';
-
-// const response_adata = [
-//   {
-//     "uuid": "6a2ff5ec-24f5-49a0-8923-c1babfadbcd5",
-//     "custom_fields": [
-//       {
-//         "field": {
-//           "id": 1,
-//           "name": "test",
-//           "data_type": "string"
-//         },
-//         "value": "oasdn ajda. dddd"
-//       },
-//       {
-//         "field": {
-//           "id": 2,
-//           "name": "test1",
-//           "data_type": "integer"
-//         },
-//         "value": 342023
-//       },
-//       {
-//         "field": {
-//           "id": 4,
-//           "name": "a3dd",
-//           "data_type": "integer"
-//         },
-//         "value": 3131213
-//       },
-//       {
-//         "field": {
-//           "id": 3,
-//           "name": "test2",
-//           "data_type": "integer"
-//         },
-//         "value": 34232193
-//       }
-//     ],
-//     "title": "nino, fanjrebi",
-//     "customer": "nino",
-//     "case": "fanjrebi",
-//     "status": "TODO",
-//     "path": null,
-//     "comment": "aksndajksd ajksnd asdaskjdnas dasjdnaks dnaskj dnaksd aksjnd asdnaksdnakjsnd adka snd adkasn da sdkajnsd kajn dasn dkajdan sdkjasn d",
-//     "created_at": "2024-07-13T06:45:13.331747Z",
-//     "updated_at": "2024-07-13T06:45:13.331760Z",
-//     "tags": []
-//   },
-//   {
-//     "uuid": "95e4e06d-5c1f-4c5d-907b-c430e925d7c6",
-//     "custom_fields": [
-//       {
-//         "field": {
-//           "id": 1,
-//           "name": "test",
-//           "data_type": "string"
-//         },
-//         "value": "oas"
-//       },
-//       {
-//         "field": {
-//           "id": 2,
-//           "name": "test1",
-//           "data_type": "integer"
-//         },
-//         "value": 3
-//       },
-//       {
-//         "field": {
-//           "id": 4,
-//           "name": "a3dd",
-//           "data_type": "integer"
-//         },
-//         "value": 3
-//       },
-//       {
-//         "field": {
-//           "id": 3,
-//           "name": "test2",
-//           "data_type": "integer"
-//         },
-//         "value": 31
-//       }
-//     ],
-//     "title": "test, karebi",
-//     "customer": "test",
-//     "case": "karebi",
-//     "status": "TODO",
-//     "path": "media/uploads/test/karebi/",
-//     "comment": "aksndajksd ajksnd asdaskjdnas dasjdnaks dnaskj dnaksd aksjnd asdnaksdnakjsnd adka snd adkasn da sdkajnsd kajn dasn dkajdan sdkjasn d",
-//     "created_at": "2024-07-13T10:05:37.328549Z",
-//     "updated_at": "2024-07-13T10:05:37.328558Z",
-//     "tags": []
-//   },
-//   {
-//     "uuid": "693768d9-1cff-4b55-a46e-4b08ac5db5f1",
-//     "custom_fields": [
-//       {
-//         "field": {
-//           "id": 1,
-//           "name": "test",
-//           "data_type": "string"
-//         },
-//         "value": "oasd dddd"
-//       },
-//       {
-//         "field": {
-//           "id": 2,
-//           "name": "test1",
-//           "data_type": "integer"
-//         },
-//         "value": 3023
-//       },
-//       {
-//         "field": {
-//           "id": 4,
-//           "name": "a3dd",
-//           "data_type": "integer"
-//         },
-//         "value": 3113
-//       },
-//       {
-//         "field": {
-//           "id": 3,
-//           "name": "test2",
-//           "data_type": "integer"
-//         },
-//         "value": 3493
-//       }
-//     ],
-//     "title": "test7, skamebi",
-//     "customer": "test7",
-//     "case": "skamebi",
-//     "status": "DONE",
-//     "path": "media/uploads/test7/skamebi/",
-//     "comment": "aksndajksd ajksnd asdaskjdnas dasjdnaks dnaskj dnaksd aksjnd asdnaksdnakjsnd adka snd adkasn da sdkajnsd kajn dasn dkajdan sdkjasn d sadaskjd akshdnka sdkasdk ajsdjna skdjan dkjnas kdjna sdkjnas kdasn kdjan skdna",
-//     "created_at": "2024-07-14T20:37:21.757392Z",
-//     "updated_at": "2024-07-14T20:37:21.757419Z",
-//     "tags": []
-//   },
-//   {
-//     "uuid": "32748e83-7ecb-4076-8931-1819e5fcffb5",
-//     "custom_fields": [],
-//     "title": "test2, test1",
-//     "customer": "test2",
-//     "case": "test1",
-//     "status": "TODO",
-//     "path": "media/uploads/test2/test1/",
-//     "comment": "ajdsknasjdnaksd",
-//     "created_at": "2024-07-15T14:35:11.891291Z",
-//     "updated_at": "2024-07-15T14:35:11.891321Z",
-//     "tags": []
-//   },
-//   {
-//     "uuid": "e1ee31a4-9968-4101-a858-ff2a17a48d6d",
-//     "custom_fields": [],
-//     "title": "nino, fanjrebu",
-//     "customer": "nino",
-//     "case": "fanjrebu",
-//     "status": "TODO",
-//     "path": "media/uploads/nino/fanjrebu/",
-//     "comment": "shdnahjd",
-//     "created_at": "2024-07-15T15:47:25.228285Z",
-//     "updated_at": "2024-07-15T15:47:25.228304Z",
-//     "tags": []
-//   }
-// ]
-
-
-// const response_headers = [
-//   {
-//     "id": 1,
-//     "name": "test",
-//     "label": "test",
-//     "data_type": "string"
-//   },
-//   {
-//     "id": 3,
-//     "name": "test2",
-//     "label": "test2",
-//     "data_type": "integer"
-//   },
-//   {
-//     "id": 4,
-//     "name": "a3dd",
-//     "label": "tes1231t2",
-//     "data_type": "integer"
-//   },
-//   {
-//     "id": 2,
-//     "name": "test1",
-//     "label": "test1",
-//     "data_type": "integer"
-//   }
-// ]
+import {ExpandableDetails, TextEditor} from "../components/Tasks/components/index.js";
 
 const mandatoryHeaders = [
-  { accessor: 'id', type: "integer", label: '#', sortable: false, sortbyOrder: "desc", order: 0, visible: true },
+  { accessor: 'id', type: "integer", label: '', sortable: false, sortbyOrder: "desc", order: -1, visible: true },
+  { accessor: 'conclusionNumber', type: "string", label: '#', sortable: true, sortbyOrder: "desc", order: 0, visible: true },
   { accessor: 'title', type: "string", label: 'სახელი', sortable: true, sortbyOrder: "desc", order: 1, visible: true },
   { accessor: 'customer', type: "string", label: 'დამკვეთი', sortable: true, sortbyOrder: "desc", order: 2, visible: true },
   { accessor: 'case', type: "string", label: 'ქეისი', sortable: true, sortbyOrder: "desc", order: 3, visible: true },
@@ -212,9 +19,6 @@ const mandatoryHeaders = [
   { accessor: 'uuid', type: "string", label: 'uuid', sortable: true, sortbyOrder: "desc", order: 1000, visible: false },
   { accessor: 'comment', type: "string", label: 'comment', sortable: true, sortbyOrder: "desc", order: 1001, visible: false },
 ]
-
-
-
 
 const formatedHeaders = (mandatoryHeaders, response) => {
   var formated = [...mandatoryHeaders]
@@ -249,6 +53,7 @@ const formatedData = (formattedHeaders, response) => {
       tmp.push({
         accessor: header['accessor'],
         type: header['type'],
+        label: header['label'],
         value: null,
         order: header['order'],
         visible: true
@@ -277,7 +82,6 @@ const formatedData = (formattedHeaders, response) => {
 
   return formated.sort((a, b) => a.order - b.order);
 }
-
 
 
 const Projects = () => {
@@ -557,22 +361,19 @@ const Projects = () => {
 
             {seeResizebleDiv && (
               <ResizableDiv setSeeResizebleDiv={handleResizebleDivToggle}>
-                <div className="text-white p-4">
-                  <FileIcon files={files} handleClick={handleClick} selectedFile={selectedFile} />
+
+                <div className="text-[#252525] p-4">
+                  <FileIcon files={files} handleClick={handleClick} selectedFile={selectedFile} listView = {true}/>
                 </div>
 
+
                 <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
-                  <table className="w-full text-sm text-left rtl:text-right text-white">
-                    <caption className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-white bg-gray-800">
-                      Comment
-                      <p className="mt-1 text-sm font-normal text-gray-400">
-                        {
-                          selectedProject?.filter(obj => obj.accessor == 'comment')[0].value
-                        }
-                      </p>
+                  <table className="w-full text-sm text-left rtl:text-right text-[#252525]">
+                    <caption className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-[#252525]">
+                      <TextEditor isEditing={false} />
                     </caption>
 
-                    <thead className="w-full text-xs uppercase bg-gray-700 text-gray-400">
+                    <thead className="w-full text-xs uppercase text-[#252525]">
                       <tr>
                         <th scope="col" className="px-6 py-3">
                           Property
@@ -588,18 +389,21 @@ const Projects = () => {
                     <tbody>
                       {
                         selectedProject?.map((item) => {
-                          if (!item.visible) return;
+                          if (!item.visible || item.accessor === 'id') return;
                           return (
-                            <tr key={uuidv4()} className="w-full border-b">
-                              <th scope="row" className="px-6 py-4 font-medium text-white">
-                                {item.accessor}
+                            <tr key={uuidv4()} className="w-full border border-gray-300 hover:bg-gray-200">
+                              <th scope="row" className="px-6 py-4 font-medium text-[#252525] border border-gray-300">
+                                {
+                                  item?.label
+                                }
                               </th>
 
-                              <td className="px-6 py-4">
-                                {item.value}
+                              <td className="px-6 py-4 border border-gray-300" colSpan={2}>
+                                {item?.value}
                               </td>
 
-                              <td className="px-6 py-4 text-right">
+
+                              <td className="px-6 py-4 text-right border border-gray-300">
                                 <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                                   Edit
                                 </a>
