@@ -5,13 +5,32 @@ import DatePicker from "react-datepicker";
 import CustomDataInput from "./CustomDataInput";
 import "react-datepicker/dist/react-datepicker.css";
 import { setSelectedSubtask, setSeeResizebleDiv } from '../../../features/task/taskSlice';
+import UserSearchDropDown from '../../UserSearchDropDown';
+import "../../../styles/DefaultStyles.css"
+import UserService from '../../../services/UserService';
 
-const SubTasks = ({ subtask, motherRef, index }) => {
+const statuses = {
+  "TODO": "To Do",
+  "INPROGRESS": "In Progress",
+  "DONE": "Done",
+  "REJECTED": "Rejected",
+  "UNCERTAIN": "Uncertain"
+};
+const statusStyles = {
+  "TODO": "bg-yellow-500",
+  "INPROGRESS": "bg-blue-500",
+  "DONE": "bg-green-500",
+  "REJECTED": "bg-gray-500",
+  "UNCERTAIN": "bg-purple-500"
+};
+
+const SubTasks = ({ subtask, motherRef, index, isEditing }) => {
   const dispatch = useDispatch();
   const selectedSubTask = useSelector((state) => state.task.selectedSubtask);
   const [startDate, setStartDate] = useState(new Date());
   const seeResizebleDiv = useSelector((state) => state.task.seeResizebleDiv);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+       const [assignTo, setAssignTo] = useState({});
+       const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef();
   const buttonRef = useRef();
 
@@ -25,12 +44,12 @@ const SubTasks = ({ subtask, motherRef, index }) => {
       const buttonRect = buttonRef.current.getBoundingClientRect();
       const motherRect = motherRef.current.getBoundingClientRect();
       const dropdownRect = dropdownRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+  const windowHeight = window.innerHeight;
 
       const spaceBelow = windowHeight - buttonRect.bottom;
       const spaceAbove = buttonRect.top;
 
-      if ((spaceBelow < dropdownRect.height && spaceAbove > dropdownRect.height) || dropdownRect.height + buttonRect.bottom > motherRect.bottom ) {
+      if ((spaceBelow < dropdownRect.height && spaceAbove > dropdownRect.height) || dropdownRect.height + buttonRect.bottom > motherRect.bottom) {
         dropdownRef.current.style.top = `-${dropdownRect.height}px`;
       } else {
         dropdownRef.current.style.top = `${buttonRect.height}px`;
@@ -39,12 +58,15 @@ const SubTasks = ({ subtask, motherRef, index }) => {
   };
 
   const toggleDropdown = () => {
-    setIsDropdownOpen((prev) => {
-      if (!prev) {
-        handlePosition();
-      }
-      return !prev;
-    });
+    if (isEditing) {
+      setIsDropdownOpen((prev) => {
+        if (!prev) {
+          handlePosition();
+        }
+        return !prev;
+      });
+    }
+
   };
 
   const handleClickOutside = (event) => {
@@ -77,6 +99,20 @@ const SubTasks = ({ subtask, motherRef, index }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [isDropdownOpen]);
 
+  useEffect(() => {
+    const getAssignTo = async () => {
+      try {
+        const response = await UserService.getUserInfo(subtask.assign_to);
+        setAssignTo(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    getAssignTo();
+  }, []);
+
+
   return (
     <tr
       key={index}
@@ -108,16 +144,19 @@ const SubTasks = ({ subtask, motherRef, index }) => {
               </svg>
             </div>
           </div>
-          <p className="pl-5">{subtask.title}</p>
+          <input
+        type="text"
+        className="pl-5"
+        value={subtask.title}
+        readOnly={!isEditing}
+      />
+
         </div>
       </td>
       <td className="py-2">
         <div className="flex items-center space-x-2">
           <FiUserPlus className="text-gray-400" />
-          <span className="bg-purple-500 text-white rounded-full text-xs w-5 h-5 ml-2 flex items-center justify-center">
-            KG
-          </span>
-          <span className="text-gray-500 ml-3">Keso@mail.com</span>
+          <UserSearchDropDown value={assignTo} isEditing={isEditing} />
         </div>
       </td>
       <td className="py-2">
@@ -126,13 +165,14 @@ const SubTasks = ({ subtask, motherRef, index }) => {
             <div className="flex items-center space-x-2">
               <FiCalendar className="" />
               <div className="py-2 text-sm text-red-700 bg-red-100 rounded flex">
-                <DatePicker
-                  disabled={false}
-                  showTimeSelect
-                  dateFormat="Pp"
+
+                                <DatePicker
+                  disabled={!isEditing}
                   selected={startDate}
                   onChange={(date) => setStartDate(date)}
-                  customInput={<CustomDataInput />}
+                  customInput={<CustomDataInput />} 
+                  minDate={new Date()}
+                  dateFormat="MMMM d, yyyy"
                 />
               </div>
             </div>
@@ -147,53 +187,45 @@ const SubTasks = ({ subtask, motherRef, index }) => {
               className="font-medium rounded-lg text-xs text-start inline-flex items-center"
               onClick={toggleDropdown}
             >
-              <span className="bg-blue-500 text-white px-2 py-1 rounded">
-                IN PROGRESS
+                <span className={`${statusStyles[subtask.status]} text-white px-2 py-1 rounded`}>
+                {statuses[subtask.status]}
               </span>
-              <svg
-                className={`w-2.5 h-2.5 ms-3 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 10 6"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m1 1 4 4 4-4"
-                />
-              </svg>
+              {isEditing &&
+                <svg
+                  className={`w-2.5 h-2.5 ms-3 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 10 6"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="m1 1 4 4 4-4"
+                  />
+                </svg>
+              }
+
             </button>
 
             <div
               ref={dropdownRef}
-              className={`absolute min-w-full z-50 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow-gray-400 shadow-xl ${isDropdownOpen ? "block" : "hidden"}`}
+              className={`absolute z-50 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow-gray-400 shadow-xl ${isDropdownOpen ? "block" : "hidden"}`}
               style={{ top: dropdownRef.current ? dropdownRef.current.style.top : "100%" }}
             >
-              <ul className="py-2 text-sm text-center">
-                <li>
-                  <a className="block px-4 py-2 hover:bg-gray-100">
-                    <span className="bg-yellow-500 text-white px-2 py-1 rounded">TO DO</span>
-                  </a>
-                </li>
-                <li>
-                  <a className="block px-4 py-2 hover:bg-gray-100">
-                    <span className="bg-blue-500 text-white px-2 py-1 rounded">IN PROGRESS</span>
-                  </a>
-                </li>
-                <li>
-                  <a className="block px-4 py-2 hover:bg-gray-100">
-                    <span className="bg-green-500 text-white px-2 py-1 rounded">DONE</span>
-                  </a>
-                </li>
-                <li>
-                  <a className="block px-4 py-2 hover:bg-gray-100">
-                    <span className="bg-gray-500 text-white px-2 py-1 rounded">REJECTED</span>
-                  </a>
-                </li>
-              </ul>
+                    <ul className="text-center">
+                      {Object.keys(statuses).map((statusKey) => (
+                        <li key={statusKey}>
+                          <a className="block px-4 py-2 hover:bg-gray-100">
+                            <span className={`${statusStyles[statusKey]} text-white px-2 py-1 rounded`}>
+                              {statuses[statusKey]}
+                            </span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
             </div>
           </div>
         </div>

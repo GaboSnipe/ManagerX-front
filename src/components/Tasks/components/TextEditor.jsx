@@ -1,36 +1,34 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import 'quill/dist/quill.snow.css';
-import {Editor} from '../../';
-import Quill from 'quill/core';
+import { Editor } from '../../';
+import TaskService from '../../../services/TaskService';
 
-const Delta = Quill.import('delta');
-
-const TextEditor = () => {
+const TextEditor = ({ isEditing, task, setFormData }) => {
+  const [readOnly, setReadOnly] = useState(false);
   const quillRef = useRef(null);
-  const [readOnly, setReadOnly] = useState(true);
 
-  const toggleReadOnly = () => {
-    setReadOnly(!readOnly);
+  useEffect(() => {
+    setReadOnly(!isEditing);
+  }, [isEditing]);
+
+  const handleTextChange = (contentString) => {
+    setFormData(prevData => ({
+      ...prevData,
+      comment: contentString
+    }));
   };
 
   return (
-    <section className="w-auto p-5">
-      <p className="text-start text-gray-700 text-2xl mb-4">Description: </p>
+    <section className="w-auto p-5 max-h-96 overflow-y-auto overflow-x-hidden">
+      <p className="text-start text-gray-700 text-2xl mb-4">Description:</p>
       <div className="p-5 border border-gray-300 rounded">
         <Editor
           ref={quillRef}
           readOnly={readOnly}
-          defaultValue={new Delta()
-            .insert('Hello')
-            .insert('\n', { header: 1 })
-            .insert('Some ')
-            .insert('initial', { bold: true })
-            .insert(' ')
-            .insert('content', { underline: true })
-            .insert('\n')}
+          defaultValue={task.comment}
+          onTextChange={handleTextChange}
         />
       </div>
-
     </section>
   );
 };

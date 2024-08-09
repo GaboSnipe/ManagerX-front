@@ -8,39 +8,109 @@ import { FaFolder, FaRegEdit } from 'react-icons/fa';
 import { redirect, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { ToastContainer, toast } from 'react-toastify';
+import FileService from "../../../services/FileService";
+import UserService from "../../../services/UserService";
+import { format } from 'date-fns';
+import { getFolderDetailsThunk } from "../../../features/workplace/workplaceThunk";
 
 
-const ExpandableDetails = ({ task, isEditing, setIsEditing }) => {
+
+const statuses = {
+  "TODO": "To Do",
+  "INPROGRESS": "In Progress",
+  "DONE": "Done",
+  "REJECTED": "Rejected",
+  "UNCERTAIN": "Uncertain"
+};
+const statusStyles = {
+  "TODO": "bg-yellow-500",
+  "INPROGRESS": "bg-blue-500",
+  "DONE": "bg-green-500",
+  "REJECTED": "bg-gray-500",
+  "UNCERTAIN": "bg-purple-500"
+};
+
+const formatDate = (date) => {
+  if (!date) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+
+const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormData }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDropdownFolder, setIsDropdownFolder] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
+  const [folder, setLocalFolder] = useState({});
+  const [creator, setCreator] = useState({});
+  const [assignTo, setAssignTo] = useState({});
+  const [folderList, setFolderList] = useState([]);
   const dropdownRef = useRef(null);
   const dropdownFolderRef = useRef(null);
 
 
-  const folder = {
-    case: "fanjrebu",
-    comment: "shdnahjd",
-    created_at: "2024-08-02T06:47:37.497863Z",
-    custom_fields: [],
-    customer: "nino",
-    path: "media/uploads/nino/fanjrebu/",
-    status: "TODO",
-    tags: [],
-    title: "nino, fanjrebu",
-    updated_at: "2024-08-02T06:47:37.497885Z",
-    uuid: "dd831e9d-e14f-490f-929f-9d082240c0f0"
-  };
-  const notify = () => toast("Wow so easy!");
+  useEffect(() => {
+    const fetchFolderDetails = async () => {
+      try {
+        const response = await FileService.getFolderDetails(task.folder);
+        setLocalFolder(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchFolderDetails();
+  }, []);
+  useEffect(() => {
+
+    const getAssignTo = async () => {
+      try {
+        const response = await UserService.getUserInfo(formData.assign_to || task.assign_to);
+        setAssignTo(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    getAssignTo();
+  }, [formData.assign_to]);
+  useEffect(() => {
+
+    const getCreator = async () => {
+      try {
+        const response = await UserService.getUserInfo(formData.creator || task.creator);
+        setCreator(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getCreator();
+  }, [formData.creator]);
+
+  
+
 
   const handleDropdownToggle = () => {
-    setIsDropdownOpen(!isDropdownOpen);
+    if (isEditing) {
+      setIsDropdownOpen(!isDropdownOpen);
+    }
   };
-  const handleDropdownFolderToggle = () => {
-    setIsDropdownFolder(!isDropdownFolder);
+  const handleDropdownFolderToggle = async () => {
+
+    if (isEditing) {
+      try {
+        const response = await FileService.getFolderList();
+        setFolderList(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+
+      setIsDropdownFolder(!isDropdownFolder);
+    }
   };
 
   const handleClickOutside = (event) => {
@@ -56,9 +126,9 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing }) => {
   };
   const handleRedirectToWorkspace = () => {
     dispatch(setSeeResizebleDiv(true));
-    dispatch(setFolder(folder));
-    navigate("/workplace");
+    dispatch(getFolderDetailsThunk(folder.uuid));
 
+    navigate("/workplace");
   }
 
   const handleOutside = (event) => {
@@ -71,6 +141,10 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing }) => {
     setIsEditing(true);
   }
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return format(date, 'MMMM d, yyyy');
+  };
 
   useEffect(() => {
     document.addEventListener('mousedown', handleOutside);
@@ -78,14 +152,38 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing }) => {
       document.removeEventListener('mousedown', handleOutside);
     };
   }, []);
+  const changeStatus = (statusKey) => {
+    setFormData(prevData => ({
+      ...prevData,
+      status: statusKey
+    }));
+    setIsDropdownOpen(false);
+  };
 
+  const setDataForm = (date) => {
+    const formattedDate = formatDate(date);
+    setFormData(prevData => ({
+      ...prevData,
+      deadline: formattedDate
+    }));
+  };
+
+  const chooseFolder = (folder) => {
+    setFormData(prevData => ({
+      ...prevData,
+      folder: folder.uuid
+    }));
+    setLocalFolder(folder)
+    setIsDropdownFolder(false)
+  }
+  
   return (
     <section className="w-auto p-5 ">
       <div className="flex w-full justify-between items-center mb-4">
-      <p className="text-start text-gray-700 text-2xl mb-4">Details: </p>
-      {!isEditing &&
-      <button onClick={handleStartEditing} className="bg-yellow-400 text-white text-base items-center px-4 py-2 rounded flex space-x-2"> <FaRegEdit /> <p>Edit</p></button>
-      }
+        <p className="text-start text-gray-700 text-2xl mb-4">Details: </p>
+        {!isEditing &&
+          <button onClick={handleStartEditing} className="bg-yellow-400 text-white text-base items-center px-4 py-2 rounded flex space-x-2"> <FaRegEdit /> <p>Edit</p></button>
+        }
       </div>
       <div className="p-5">
         <div className="grid grid-cols-2 gap-8 p-4">
@@ -98,52 +196,44 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing }) => {
                   className="font-medium rounded-lg text-xs text-start inline-flex items-center"
                   onClick={handleDropdownToggle}
                 >
-                  <span className="bg-blue-500 text-white px-2 py-1 rounded">
-                    IN PROGRESS
+                  <span className={`${statusStyles[formData.status]} text-white px-2 py-1 rounded`}>
+                    {statuses[formData.status]}
                   </span>
-                  <svg
-                    className={`w-2.5 h-2.5 ms-3 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 10 6"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m1 1 4 4 4-4"
-                    />
-                  </svg>
+                  {isEditing &&
+                    <svg
+                      className={`w-2.5 h-2.5 ms-3 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 10 6"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="m1 1 4 4 4-4"
+                      />
+                    </svg>
+                  }
                 </button>
                 {isDropdownOpen && (
                   <div
                     ref={dropdownRef}
                     className="absolute z-50 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow top-full"
                   >
-                    <ul className="py-2 text-sm text-center">
-                      <li>
-                        <a className="block px-4 py-2 hover:bg-gray-100">
-                          <span className="bg-yellow-500 text-white px-2 py-1 rounded">TO DO</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a className="block px-4 py-2 hover:bg-gray-100">
-                          <span className="bg-blue-500 text-white px-2 py-1 rounded">IN PROGRESS</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a className="block px-4 py-2 hover:bg-gray-100">
-                          <span className="bg-green-500 text-white px-2 py-1 rounded">DONE</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a className="block px-4 py-2 hover:bg-gray-100">
-                          <span className="bg-gray-500 text-white px-2 py-1 rounded">REJECTED</span>
-                        </a>
-                      </li>
+                    <ul className="">
+                      {Object.keys(statuses).map((statusKey) => (
+                        <li key={statusKey}>
+                          <button onClick={(()=>changeStatus(statusKey))} className="block px-4 py-2 hover:bg-gray-100">
+                            <span className={`${statusStyles[statusKey]} text-white px-2 py-1 rounded`}>
+                              {statuses[statusKey]}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
                     </ul>
+
                   </div>
                 )}
               </div>
@@ -155,22 +245,23 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing }) => {
               <div className="py-2 px-3 text-sm text-red-700 bg-red-100 rounded">
                 {/* Due today at 18:00 */}
                 <DatePicker
-                  disabled={false}
-                  showTimeSelect
-                  dateFormat="Pp"
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  customInput={<CustomDataInput />} />
+                  disabled={!isEditing}
+                  selected={formData.deadline}
+                  onChange={(date) => setDataForm(date)}
+                  customInput={<CustomDataInput />} 
+                  minDate={new Date()}
+                  dateFormat="MMMM d, yyyy"
+                />
               </div>
             </div>
             {/* Folder */}
             <div className="relative flex items-center space-x-2">
               <span className="text-gray-600 w-28">Folder</span>
               <div className="flex ">
-                <button onClick={handleRedirectToWorkspace}  className="flex mr-2">
+                <button onClick={handleRedirectToWorkspace} className="flex mr-2">
                   <span className="text-gray-400 flex">
                     <FaFolder className="text-yellow-400 text-xl" />
-                    <p className="px-3">Test Folder</p>
+                    <p className="px-3">{folder.title}</p>
                   </span>
                 </button>
                 <button
@@ -178,21 +269,23 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing }) => {
                   aria-expanded={isDropdownFolder}
                   className="focus:outline-none "
                 >
-                  <svg
-                    className={`w-2.5 h-2.5 transition-transform duration-300 ${isDropdownFolder ? 'rotate-180' : ''}`}
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 10 6"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="m1 1 4 4 4-4"
-                    />
-                  </svg>
+                  {isEditing &&
+                    <svg
+                      className={`w-2.5 h-2.5 transition-transform duration-300 ${isDropdownFolder ? 'rotate-180' : ''}`}
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 10 6"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="m1 1 4 4 4-4"
+                      />
+                    </svg>
+                  }
                 </button>
                 {isDropdownFolder && (
                   <div
@@ -200,22 +293,14 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing }) => {
                     className="absolute z-50 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow top-full"
                   >
                     <ul className="py-2 text-sm p-2 space-y-1">
-                      <li className="flex">
-                        <FaFolder className="text-yellow-400 text-xl" />
-                        <p className="px-3">Test Folder</p>
-                      </li>
-                      <li className="flex">
-                        <FaFolder className="text-yellow-400 text-xl" />
-                        <p className="px-3">Test Folder</p>
-                      </li>
-                      <li className="flex">
-                        <FaFolder className="text-yellow-400 text-xl" />
-                        <p className="px-3">Test Folder</p>
-                      </li>
-                      <li className="flex">
-                        <FaFolder className="text-yellow-400 text-xl" />
-                        <p className="px-3">Test Folder</p>
-                      </li>
+                      {folderList.map((folder) => (
+                        <li key={folder.uuid}>
+                          <button  className="flex" onClick={(()=>chooseFolder(folder))}>
+                          <FaFolder className="text-yellow-400 text-xl" />
+                          <p className="px-3">{folder.title}</p>
+                          </button>
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 )}
@@ -229,18 +314,18 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing }) => {
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 w-28">Reporter</span>
               <div className="flex items-center">
-              <UserSearchDropDown value={{avatar: "NN", email: "Nino@mail.com", id: 2}}/>
-                
+                <UserSearchDropDown value={assignTo} formData={formData} setFormData={setFormData} isEditing={isEditing} qkey={"assign_to"} />
+
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 w-28">Assignee</span>
-              <UserSearchDropDown value={{avatar: "KG", email: "Keso@mail.com", id: 1}}/>
+              <UserSearchDropDown value={creator} formData={formData} setFormData={setFormData} isEditing={isEditing}  qkey={"creator"} />
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 w-28">Created At</span>
               <div className="py-2 px-3 text-sm text-red-700 bg-red-100 rounded">
-                Due today at 18:00
+                {formatDate(task.created_at)}
               </div>
             </div>
           </div>

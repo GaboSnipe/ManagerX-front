@@ -34,7 +34,6 @@ const Header = () => {
       return;
     }
 
-    console.log('Form data submitted:', formData);
   };
 
 

@@ -23,3 +23,14 @@ export const addTaskThunk  = createAsyncThunk(
     }
   }
 );
+export const editTaskThunk  = createAsyncThunk(
+  'task/edit/',
+  async (uuid, formData, thunkAPI) => {
+    try {
+      const response = await TaskService.editTask(uuid, formData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);

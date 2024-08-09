@@ -1,0 +1,17 @@
+
+  /* Стили для контента редактора */
+  .custom-quill-editor .ql-editor {
+    border-top-width: 2px;
+
+  }
+  
+  .ql-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .ql-toolbar .ql-formats {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  

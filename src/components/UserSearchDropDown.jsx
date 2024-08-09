@@ -1,36 +1,51 @@
-import { width } from '@fortawesome/free-solid-svg-icons/fa0';
 import React, { useEffect, useRef, useState } from 'react';
+import UserService from '../services/UserService';
 
-const userList = [{ avatar: "KG", email: "Keso@mail.com", id: 1 }, { avatar: "NN", email: "Nino@mail.com", id: 2 }, { avatar: "KG", email: "Keso@mail.com", id: 3 }, { avatar: "NN", email: "Nino@mail.com", id: 4 }, { avatar: "KG", email: "Keso@mail.com", id: 5 }];
-
-function UserSearchDropDown({ value, setValue }) {
+function UserSearchDropDown({ value, isEditing, formData, setFormData, qkey }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const buttonRef = useRef(null);
+    const [userList, setUserList] = useState([]);
     const [dropdownWidth, setDropdownWidth] = useState('auto');
-    const toggleDropdown = () => setIsOpen(!isOpen);
 
-
-
-
-    const handleClickOutside = (event) => {
-        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const toggleDropdown = async () => {
+        if (isEditing && !isOpen) {
+            try {
+                const response = await UserService.getUserList();
+                setUserList(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+            setIsOpen(true);
+        } else {
             setIsOpen(false);
         }
     };
-    const handleOutside = (event) => {
-        handleClickOutside(event);
+
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target) && !buttonRef.current.contains(event.target)) {
+            setIsOpen(false);
+        }
     };
+
     useEffect(() => {
-        document.addEventListener('mousedown', handleOutside);
+        document.addEventListener('mousedown', handleClickOutside);
         return () => {
-            document.removeEventListener('mousedown', handleOutside);
+            document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
 
     useEffect(() => {
         setDropdownWidth(buttonRef.current.clientWidth);
-    }, [isOpen, value, buttonRef]);
+    }, [isOpen]);
+
+    const changeUser = (user) => {
+        setFormData(prevData => ({
+            ...prevData,
+            [qkey]: user.id
+        }));
+        setIsOpen(false);
+    };
 
     return (
         <div>
@@ -38,12 +53,12 @@ function UserSearchDropDown({ value, setValue }) {
                 ref={buttonRef}
                 id="dropdownSearchButton"
                 onClick={toggleDropdown}
-                className="focus:outline-none focus:bg-gray-300 font-medium rounded-t-lg text-center inline-flex px-4"
+                className={`focus:outline-none ${isEditing && "focus:bg-gray-300"} font-medium rounded-t-lg text-center inline-flex px-4`}
                 type="button"
             >
                 <div className='flex items-center pr-2'>
                     <span className="bg-purple-500 text-white rounded-full w-7 h-7 flex items-center justify-center">
-                        {value.avatar}
+                        {value.id}
                     </span>
                     <span className="text-gray-500 ml-3">{value.email}</span>
                 </div>
@@ -77,23 +92,25 @@ function UserSearchDropDown({ value, setValue }) {
                             <input
                                 type="text"
                                 id="input-group-search"
-                                className="block w-full ps-10 text-sm text-gray-900 rounded-b-lg border-0 border-b-2 border-gray-300 "
+                                className="block w-full ps-10 text-sm text-gray-900 rounded-b-lg border-0 border-b-2 border-gray-300"
                                 placeholder="Search user"
                             />
                         </div>
                     </div>
-                    <ul className="h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownSearchButton">
+                    <ul className="max-h-48 overflow-y-auto px-3 pb-3 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownSearchButton">
                         {/* Example list items */}
-                        <li className='space-y-2'>
-                            {userList.map((user)=>
-                                <div key={user.id} className='flex items-center pr-2 mt-2'>
-                                <span className="bg-purple-500 text-white rounded-full w-7 h-7 flex items-center justify-center">
-                                    {user.avatar}
-                                </span>
-                                <span className="text-gray-500 ml-3 ">{user.email}</span>
-                            </div>
-                            )}
-                        </li>
+                        {userList.map((user) => (
+                            <li key={user.id} className='space-y-2'>
+                                <div className='flex items-center pr-2 mt-2'>
+                                    <button onClick={() => changeUser(user)} className='flex'>
+                                        <span className="bg-purple-500 text-white rounded-full w-7 h-7 flex items-center justify-center">
+                                            {user.id}
+                                        </span>
+                                        <span className="text-gray-500 ml-3">{user.email}</span>
+                                    </button>
+                                </div>
+                            </li>
+                        ))}
                     </ul>
                 </div>
             )}

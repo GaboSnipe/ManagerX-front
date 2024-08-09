@@ -1,10 +1,11 @@
 import React, { forwardRef, useEffect, useLayoutEffect, useRef } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
+import "./customQuillStyles.css"
 
 const toolbarOptions = [
   ['bold', 'italic', 'underline', 'strike'],
-  ['link', 'image'],
+  ['link'],
   [{ header: 1 }, { header: 2 }],
   [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
   [{ script: 'sub' }, { script: 'super' }],
@@ -21,37 +22,19 @@ const formats = [
   'list', 'bullet',
   'bold', 'italic', 'underline',
   'color', 'background',
-  'link', 'image', 'video'
+  'link'
 ];
 
 const Editor = forwardRef(
-  ({ readOnly, defaultValue, onTextChange, onSelectionChange }, ref) => {
+  ({ readOnly, defaultValue, onTextChange }, ref) => {
     const containerRef = useRef(null);
-    const defaultValueRef = useRef(defaultValue);
-    const onTextChangeRef = useRef(onTextChange);
-    const onSelectionChangeRef = useRef(onSelectionChange);
-
-    useLayoutEffect(() => {
-      onTextChangeRef.current = onTextChange;
-      onSelectionChangeRef.current = onSelectionChange;
-    });
-
-    useEffect(() => {
-      if (ref.current) {
-        ref.current.enable(!readOnly);
-        if (readOnly) {
-          ref.current.getModule('toolbar').container.style.display = 'none';
-        } else {
-          ref.current.getModule('toolbar').container.style.display = '';
-        }
-      }
-    }, [readOnly]);
+    const quillRef = useRef(null);
 
     useEffect(() => {
       const container = containerRef.current;
-      const editorContainer = container.appendChild(
-        container.ownerDocument.createElement('div'),
-      );
+      const editorContainer = container.ownerDocument.createElement('div');
+      container.appendChild(editorContainer);
+
       const quill = new Quill(editorContainer, {
         modules: {
           toolbar: toolbarOptions
@@ -59,25 +42,41 @@ const Editor = forwardRef(
         theme: 'snow',
       });
 
+      quillRef.current = quill;
       ref.current = quill;
 
-      if (defaultValueRef.current) {
-        quill.setContents(defaultValueRef.current);
+      if (defaultValue) {
+        try {
+          const delta = JSON.parse(defaultValue);
+          quill.setContents(delta);
+        } catch (error) {
+          console.error('Ошибка при разборе начального значения:', error);
+        }
       }
 
-      quill.on(Quill.events.TEXT_CHANGE, (...args) => {
-        onTextChangeRef.current?.(...args);
-      });
-
-      quill.on(Quill.events.SELECTION_CHANGE, (...args) => {
-        onSelectionChangeRef.current?.(...args);
+      quill.on('text-change', () => {
+        if (onTextChange) {
+          const delta = quill.getContents();
+          const contentString = JSON.stringify(delta);
+          onTextChange(contentString);
+        }
       });
 
       return () => {
         ref.current = null;
         container.innerHTML = '';
       };
-    }, [ref]);
+    }, [ref, defaultValue]);
+
+    useLayoutEffect(() => {
+      if (quillRef.current) {
+        quillRef.current.enable(!readOnly);
+        const toolbar = quillRef.current.getModule('toolbar');
+        if (toolbar) {
+          toolbar.container.style.display = readOnly ? 'none' : '';
+        }
+      }
+    }, [readOnly]);
 
     return <div ref={containerRef}></div>;
   },

@@ -11,8 +11,8 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [emailDirty, setEmailDirty] = useState(false);
     const [passwordDirty, setPasswordDirty] = useState(false);
-    const [emailError, setEmailError] = useState('Email не должен быть пустым');
-    const [passwordError, setPasswordError] = useState('Пароль не должен быть пустым');
+    const [emailError, setEmailError] = useState('email is empetry');
+    const [passwordError, setPasswordError] = useState('password is empetry');
     const [formValid, setFormValid] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const isAuth = useSelector((state) => state.auth.isAuth);
@@ -29,7 +29,7 @@ const LoginPage = () => {
         setEmail(e.target.value);
         const re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         if (!re.test(String(e.target.value).toLowerCase())) {
-            setEmailError('Некорректный email!');
+            setEmailError('incorect email');
         } else {
             setEmailError('');
         }
@@ -38,7 +38,7 @@ const LoginPage = () => {
     const passwordHandler = (e) => {
         setPassword(e.target.value);
         if (e.target.value.length < 3 || e.target.value.length > 35) {
-            setPasswordError('Пароль должен быть от 3 до 35 символов');
+            setPasswordError('password to 3 -35');
             if (!e.target.value) {
                 setPasswordError('Пароль обязателен');
             }

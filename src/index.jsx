@@ -15,7 +15,15 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <Provider store={store}>
       <Router>
         <App />
-        <ToastContainer />
+        <ToastContainer
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={true}
+          draggable
+          pauseOnFocusLoss={false}
+          pauseOnHover
+        />
       </Router>
     </Provider>
   </React.StrictMode>,

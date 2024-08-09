@@ -1,15 +1,31 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../../styles/global.css"
 import { ExpandableDetails, TextEditor } from "./components/"
 import SubTasks from "./components/SubTasks";
 import { FiCheckCircle, FiXCircle } from "react-icons/fi";
+import TaskService from "../../services/TaskService"
 import { FaRegEdit } from "react-icons/fa";
+import { editTaskThunk } from "../../features/task/taskThunk";
 
-const ExpandableTable = ({ task, subtasks }) => {
-  const [expandedRows, setExpandedRows] = useState([]);
+
+
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
+const ExpandableTable = ({ task, setTasks }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const motherRef = useRef();
+  const [fullTask, setFullTask] = useState(task);
+  const quillRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
-
+  const [formData, setFormData] = useState(task);
   const getDeadlineStyles = (deadline) => {
     const deadlineStatus = formatDeadline(deadline);
     switch (deadlineStatus) {
@@ -21,6 +37,7 @@ const ExpandableTable = ({ task, subtasks }) => {
         return "text-green-700 bg-green-100";
     }
   };
+
 
   const formatDeadline = (deadline) => {
     const now = new Date();
@@ -34,13 +51,22 @@ const ExpandableTable = ({ task, subtasks }) => {
     return deadlineDate.toLocaleDateString();
   };
 
-  const toggleRow = (index) => {
-    setExpandedRows((prev) =>
-      prev.includes(index)
-        ? prev.filter((rowIndex) => rowIndex !== index)
-        : [...prev, index]
-    );
+  const toggleRow = async () => {
+    try {
+
+      if (!isExpanded) {
+        
+        const response = await TaskService.getTask(task.uuid);
+
+        setFullTask(response.data);
+      }
+      setIsExpanded(!isExpanded);
+    } catch (error) {
+      console.error(error);
+    }
   };
+
+  
 
   const startEdit = () => {
     setIsEditing(true);
@@ -54,227 +80,237 @@ const ExpandableTable = ({ task, subtasks }) => {
     setIsEditing(false);
   }
 
-  return (
+  useEffect(() => {
+    setFormData(task || {});
+  }, [task]);
 
+  const handleInputChange = (e) => {
+    setFormData(prevData => ({
+      ...prevData,
+      title: e.target.value
+    }));
+  };
+
+  console.log(formData.comment)
+
+  const saveNewTask = () => {
+    const newFormData = {};
+
+    if (formData.assign_to !== undefined && formData.assign_to !== fullTask.assign_to) {
+      console.log(formData.assign_to)
+      console.log(fullTask.assign_to)
+      newFormData.assign_to = formData.assign_to;
+      console.log(newFormData.assign_to)
+    }
+    if (formData.title !== undefined && formData.title !== fullTask.title) {
+      newFormData.title = formData.title;
+    }
+    if (formData.status !== undefined && formData.status !== fullTask.status) {
+      newFormData.status = formData.status;
+    }
+    if (formData.comment !== undefined && formData.comment !== fullTask.comment) {
+      newFormData.comment = formData.comment;
+    }
+    if (formData.deadline !== undefined && formData.deadline !== fullTask.deadline) {
+      const formattedDate = formatDate(formData.deadline);
+      newFormData.deadline = formattedDate;
+    }
+    if (formData.creator !== undefined && formData.creator !== fullTask.creator) {
+      newFormData.creator = formData.creator;
+    }
+    if (formData.folder !== undefined && formData.folder !== fullTask.folder) {
+      newFormData.folder = formData.folder;
+    }
+
+    if (Object.keys(newFormData).length > 0) {
+  
+      TaskService.editTask(task.uuid, newFormData)
+        .then(response => {
+          console.log(response.data)
+          TaskService.getTask(task.uuid)
+            .then(response => {
+              setFullTask(response.data)
+            })
+            setIsEditing(false)
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    } else {
+    }
+  };
+
+  
+
+  return (
     <React.Fragment>
-      <tr className="focus:outline-none h-16 border border-gray-100 rounded" >
-        <td>
-          <div className="ml-5">
-            <div
-              className="bg-gray-200 rounded-sm w-5 h-5 flex flex-shrink-0 justify-center items-center relative">
-              <input placeholder="checkbox" type="checkbox"
-                className="focus:opacity-100 checkbox opacity-0 absolute cursor-pointer w-full h-full" />
+    <tr className="relative h-16 border border-gray-100 rounded">
+      {/* Checkbox Column */}
+
+      <td className="overflow-x-auto">
+        <div className=" whitespace-nowrap">
+          <div className="flex items-center justify-center space-x-3 ml-5">
+            <div className="bg-gray-200 rounded-sm w-5 h-5 flex flex-shrink-0 justify-center items-center relative">
+              <input
+                type="checkbox"
+                className="focus:opacity-100 checkbox opacity-0 absolute cursor-pointer w-full h-full"
+              />
               <div className="check-icon hidden bg-indigo-700 text-white rounded-sm">
-                <svg className="icon icon-tabler icon-tabler-check"
-                  xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                  strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round"
-                  strokeLinejoin="round">
+                <svg
+                  className="icon icon-tabler icon-tabler-check"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path stroke="none" d="M0 0h24v24H0z"></path>
                   <path d="M5 12l5 5l10 -10"></path>
                 </svg>
               </div>
             </div>
           </div>
-        </td>
-        <td className="">
-          <div className="flex items-center pl-5">
-            <p className="text-base font-medium leading-none text-gray-700 mr-2">{task?.title}</p>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"
-              fill="none">
-              <path
-                d="M6.66669 9.33342C6.88394 9.55515 7.14325 9.73131 7.42944 9.85156C7.71562 9.97182 8.02293 10.0338 8.33335 10.0338C8.64378 10.0338 8.95108 9.97182 9.23727 9.85156C9.52345 9.73131 9.78277 9.55515 10 9.33342L12.6667 6.66676C13.1087 6.22473 13.357 5.62521 13.357 5.00009C13.357 4.37497 13.1087 3.77545 12.6667 3.33342C12.2247 2.89139 11.6251 2.64307 11 2.64307C10.3749 2.64307 9.77538 2.89139 9.33335 3.33342L9.00002 3.66676"
-                stroke="#3B82F6" strokeLinecap="round" strokeLinejoin="round"></path>
-              <path
-                d="M9.33336 6.66665C9.11611 6.44492 8.8568 6.26876 8.57061 6.14851C8.28442 6.02825 7.97712 5.96631 7.66669 5.96631C7.35627 5.96631 7.04897 6.02825 6.76278 6.14851C6.47659 6.26876 6.21728 6.44492 6.00003 6.66665L3.33336 9.33332C2.89133 9.77534 2.64301 10.3749 2.64301 11C2.64301 11.6251 2.89133 12.2246 3.33336 12.6666C3.77539 13.1087 4.37491 13.357 5.00003 13.357C5.62515 13.357 6.22467 13.1087 6.66669 12.6666L7.00003 12.3333"
-                stroke="#3B82F6" strokeLinecap="round" strokeLinejoin="round"></path>
-            </svg>
-          </div>
-        </td>
-        <td className="pl-24">
-          <div className="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"
-              fill="none">
-              <path
-                d="M9.16667 2.5L16.6667 10C17.0911 10.4745 17.0911 11.1922 16.6667 11.6667L11.6667 16.6667C11.1922 17.0911 10.4745 17.0911 10 16.6667L2.5 9.16667V5.83333C2.5 3.99238 3.99238 2.5 5.83333 2.5H9.16667"
-                stroke="#52525B" strokeWidth="1.25" strokeLinecap="round"
-                strokeLinejoin="round"></path>
-              <circle cx="7.50004" cy="7.49967" r="1.66667" stroke="#52525B" strokeWidth="1.25"
-                strokeLinecap="round" strokeLinejoin="round"></circle>
-            </svg>
-            <p className="text-sm leading-none text-gray-600 ml-2">Urgent</p>
-          </div>
-        </td>
-        <td className="pl-5">
-          <div className="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"
-              fill="none">
-              <path d="M7.5 5H16.6667" stroke="#52525B" strokeWidth="1.25" strokeLinecap="round"
-                strokeLinejoin="round"></path>
-              <path d="M7.5 10H16.6667" stroke="#52525B" strokeWidth="1.25" strokeLinecap="round"
-                strokeLinejoin="round"></path>
-              <path d="M7.5 15H16.6667" stroke="#52525B" strokeWidth="1.25" strokeLinecap="round"
-                strokeLinejoin="round"></path>
-              <path d="M4.16669 5V5.00667" stroke="#52525B" strokeWidth="1.25" strokeLinecap="round"
-                strokeLinejoin="round"></path>
-              <path d="M4.16669 10V10.0067" stroke="#52525B" strokeWidth="1.25"
-                strokeLinecap="round" strokeLinejoin="round"></path>
-              <path d="M4.16669 15V15.0067" stroke="#52525B" strokeWidth="1.25"
-                strokeLinecap="round" strokeLinejoin="round"></path>
-            </svg>
-            <p className="text-sm leading-none text-gray-600 ml-2">04/07</p>
-          </div>
-        </td>
-        <td className="pl-5">
-          <div className="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"
-              fill="none">
-              <path
-                d="M3.33331 17.4998V6.6665C3.33331 6.00346 3.59671 5.36758 4.06555 4.89874C4.53439 4.4299 5.17027 4.1665 5.83331 4.1665H14.1666C14.8297 4.1665 15.4656 4.4299 15.9344 4.89874C16.4033 5.36758 16.6666 6.00346 16.6666 6.6665V11.6665C16.6666 12.3295 16.4033 12.9654 15.9344 13.4343C15.4656 13.9031 14.8297 14.1665 14.1666 14.1665H6.66665L3.33331 17.4998Z"
-                stroke="#52525B" strokeWidth="1.25" strokeLinecap="round"
-                strokeLinejoin="round"></path>
-              <path d="M10 9.1665V9.17484" stroke="#52525B" strokeWidth="1.25" strokeLinecap="round"
-                strokeLinejoin="round"></path>
-              <path d="M6.66669 9.1665V9.17484" stroke="#52525B" strokeWidth="1.25"
-                strokeLinecap="round" strokeLinejoin="round"></path>
-              <path d="M13.3333 9.1665V9.17484" stroke="#52525B" strokeWidth="1.25"
-                strokeLinecap="round" strokeLinejoin="round"></path>
-            </svg>
-            <p className="text-sm leading-none text-gray-600 ml-2">23</p>
-          </div>
-        </td>
-        <td className="pl-5">
-          <div className="flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"
-              fill="none">
-              <path
-                d="M12.5 5.83339L7.08333 11.2501C6.75181 11.5816 6.56556 12.0312 6.56556 12.5001C6.56556 12.9689 6.75181 13.4185 7.08333 13.7501C7.41485 14.0816 7.86449 14.2678 8.33333 14.2678C8.80217 14.2678 9.25181 14.0816 9.58333 13.7501L15 8.33339C15.663 7.67034 16.0355 6.77107 16.0355 5.83339C16.0355 4.8957 15.663 3.99643 15 3.33339C14.337 2.67034 13.4377 2.29785 12.5 2.29785C11.5623 2.29785 10.663 2.67034 10 3.33339L4.58333 8.75005C3.58877 9.74461 3.03003 11.0935 3.03003 12.5001C3.03003 13.9066 3.58877 15.2555 4.58333 16.2501C5.57789 17.2446 6.92681 17.8034 8.33333 17.8034C9.73985 17.8034 11.0888 17.2446 12.0833 16.2501L17.5 10.8334"
-                stroke="#52525B"
-                strokeWidth="1.25"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              ></path>
-            </svg>
-            <p className="text-sm leading-none text-gray-600 ml-2">04/07</p>
-          </div>
-        </td>
-        <td className="pl-5">
-          <button
-            className={`py-3 px-3 text-sm focus:outline-none leading-none ${getDeadlineStyles(task.deadline)} rounded`}>Due {formatDeadline(task.deadline)}
-          </button>
-        </td>
-        <td>
-          <button
-            onClick={() => toggleRow(task.uuid)}
-            className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+        </div>
+      </td>
+
+      {/* Task Title */}
+      <td>
+      <div className="flex items-center pl-5 space-x-2">
+      <input
+          type="text"
+          value={formData.title}
+          readOnly={!isEditing}
+          onChange={handleInputChange}
+        />
+          {/* <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
           >
-            {expandedRows.includes(task.uuid) ? 'Collapse' : 'Expand'}
-            <svg
-              className={`transition-transform duration-500 ${expandedRows.includes(task.uuid) ? 'rotate-180' : ''}`}
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
+            <path
+              d="M6.66669 9.33342C6.88394 9.55515 7.14325 9.73131 7.42944 9.85156C7.71562 9.97182 8.02293 10.0338 8.33335 10.0338C8.64378 10.0338 8.95108 9.97182 9.23727 9.85156C9.52345 9.73131 9.78277 9.55515 10 9.33342L12.6667 6.66676C13.1087 6.22473 13.357 5.62521 13.357 5.00009C13.357 4.37497 13.1087 3.77545 12.6667 3.33342C12.2247 2.89139 11.6251 2.64307 11 2.64307C10.3749 2.64307 9.77538 2.89139 9.33335 3.33342L9.00002 3.66676"
+              stroke="#3B82F6"
               strokeLinecap="round"
               strokeLinejoin="round"
-            >
-              <path d="m6 9 6 6 6-6"></path>
-            </svg>
-          </button>
-        </td>
-        {/* <td>
-                        {isEditing ? (
-                          <button
-                            onClick={saveEdit}
-                            className="flex items-center space-x-1 text-white bg-purple-600 px-4 py-2 rounded">
-                            <FiCheckCircle className="text-xl" />
-                            <span>Save</span>
-                          </button>
-                        ) : (
-                          <button
-                            onClick={startEdit}
-                            className="flex items-center space-x-1 text-white bg-yellow-400 px-4 py-2 rounded">
-                            <FaRegEdit className="text-xl" />
-                            <span>Edit</span>
-                          </button>
-                        )}
+            ></path>
+            <path
+              d="M9.33336 6.66665C9.11611 6.44492 8.8568 6.26876 8.57061 6.14851C8.28442 6.02825 7.97712 5.96631 7.66669 5.96631C7.35627 5.96631 7.04897 6.02825 6.76278 6.14851C6.47659 6.26876 6.21728 6.44492 6.00003 6.66665L3.33336 9.33332C2.89133 9.77534 2.64301 10.3749 2.64301 11C2.64301 11.6251 2.89133 12.2246 3.33336 12.6666C3.77539 13.1087 4.37491 13.357 5.00003 13.357C5.62515 13.357 6.22467 13.1087 6.66669 12.6666L7.00003 12.3333"
+              stroke="#3B82F6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></path>
+          </svg> */}
+        </div>
+      </td>
 
+      {/* Deadline Button */}
+      <td className="pl-5">
+        <button
+          className={`py-3 px-3 text-sm focus:outline-none leading-none ${getDeadlineStyles(
+            task.deadline
+          )} rounded`}
+        >
+          Due {formatDeadline(task.deadline)}
+        </button>
+      </td>
 
+      {/* Expand/Collapse Button */}
+      <td>
+        <button
+          onClick={toggleRow}
+          className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+        >
+          {isExpanded ? "Collapse" : "Expand"}
+          <svg
+            className={`transition-transform duration-500 ${isExpanded ? "rotate-180" : ""}`}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m6 9 6 6 6-6"></path>
+          </svg>
+        </button>
+      </td>
+    </tr>
 
-                      </td> */}
-        {/* {isEditing &&
-                      <td>
-
-
-                        <button
-                          onClick={canselEdit}
-                          className="flex items-center space-x-1 text-white bg-red-500 px-4 py-2 rounded">
-                          <FaRegEdit className="text-xl" />
-                          <span>Cansel</span>
-                        </button>
-
-
-
-
-                      </td>
-                    } */}
-      </tr>
-      {expandedRows.includes(task.uuid) && (
-        <tr>
-          <td className="overflow-hidden focus:outline-none border border-gray-100 rounded p-5" colSpan={`${isEditing ? (10) : (9)}`}>
-            <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
-              <div className="w-full text-sm text-left rtl:text-right">
+    {isExpanded && (
+      <tr className="overflow-x-auto">
+        <td
+          className="overflow-hidden focus:outline-none border border-gray-100 rounded p-5"
+          colSpan={4}
+        >
+          <div className="relative w-full shadow-md sm:rounded-lg">
+            <ExpandableDetails
+              setIsEditing={setIsEditing}
+              isEditing={isEditing}
+              task={fullTask}
+              formData={formData}
+              setFormData={setFormData}
+            />
+            <TextEditor isEditing={isEditing} task={fullTask} quillRef={quillRef} formData={formData} setFormData={setFormData}/>
+            <section ref={motherRef} className="w-auto p-5 relative">
+              <p className="text-start text-gray-700 text-2xl mb-4">Subtasks:</p>
+              <div className="p-4 bg-white shadow-md rounded-lg">
+                <table className="w-full table-auto">
+                  <thead>
+                    <tr>
+                      <th className="text-left text-gray-600">Name</th>
+                      <th className="text-left text-gray-600">Assignee</th>
+                      <th className="text-left text-gray-600">Due date</th>
+                      <th className="text-left text-gray-600">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fullTask.subtasks.map((subtask, index) => (
+                      <SubTasks
+                        isEditing={isEditing}
+                        motherRef={motherRef}
+                        subtask={subtask}
+                        index={index}
+                        key={subtask.uuid}
+                      />
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <ExpandableDetails setIsEditing={setIsEditing} isEditing={isEditing} task={task} />
+            </section>
 
-              <TextEditor isEditing={isEditing} />
-
-              <section ref={motherRef} className="w-auto p-5 relative">
-                <p className="text-start text-gray-700 text-2xl mb-4">Subtasks:</p>
-                <div className="p-4 bg-white shadow-md rounded-lg">
-                  <table className="w-full table-auto">
-                    <thead>
-                      <tr>
-                        <th className="text-left text-gray-600">Name</th>
-                        <th className="text-left text-gray-600">Assignee</th>
-                        <th className="text-left text-gray-600">Due date</th>
-                        <th className="text-left text-gray-600">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {subtasks.map((subtask, index) => (
-
-                        <SubTasks isEditing={isEditing} motherRef={motherRef} subtask={subtask} index={index} key={subtask.uuid} />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-
-              {isEditing &&
-                <div className="flex justify-end space-x-4 mt-4 p-5">
-                  <button onClick={(()=> setIsEditing(!isEditing))}  className="flex items-center space-x-1 text-gray-600">
-                    <FiXCircle className="text-xl" />
-                    <span>Cancel</span>
-                  </button>
-                  <button
-                  onClick={(()=> setIsEditing(!isEditing))} 
-                    className="flex items-center space-x-1 text-white bg-purple-600 px-4 py-2 rounded">
-                    <FiCheckCircle className="text-xl" />
-                    <span>Save</span>
-                  </button>
-                </div>
-
-              }
-
-
-            </div>
-          </td>
-        </tr>
-      )}
-    </React.Fragment>
+            {/* Editing Controls */}
+            {isEditing && (
+              <div className="flex justify-end space-x-4 mt-4 p-5">
+                <button
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="flex items-center space-x-1 text-gray-600"
+                >
+                  <FiXCircle className="text-xl" />
+                  <span>Cancel</span>
+                </button>
+                <button
+                  onClick={saveNewTask}
+                  className="flex items-center space-x-1 text-white bg-purple-600 px-4 py-2 rounded"
+                >
+                  <FiCheckCircle className="text-xl" />
+                  <span>Save</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </td>
+      </tr>
+    )}
+  </React.Fragment>
 
   );
 };
