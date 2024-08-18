@@ -1,11 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getFolderListThunk, getFolderDetailsThunk, addFileInFolderThunk, deleteFileThunk } from "./workplaceThunk";
+import { getFolderListThunk, getFolderDetailsThunk, addFileInFolderThunk, deleteFileThunk, addFolderThunk } from "./workplaceThunk";
 
 const initialState = {
   folderInfo: {},
   folderList: [],
   fileInfo: {},
   fileList: [],
+  showFileIcon: false,
   loading: false,
   seeResizebleDiv: false,
   error: null,
@@ -29,6 +30,9 @@ const workplaceSlice = createSlice({
     },
     setFolder(state, action) {
       state.folderInfo = action.payload;
+    },
+    setShowFileIcon(state, action) {
+      state.showFileIcon = action.payload;
     },
     removeFolder(state, action) {
       state.folderList = state.folderList.filter(folder => folder.uuid !== action.payload);
@@ -76,6 +80,19 @@ const workplaceSlice = createSlice({
         state.error = action.payload || 'Failed to add file';
         console.error(action.payload);
       })
+      .addCase(addFolderThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addFolderThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.folderList = [...state.folderList, action.payload];
+      })
+      .addCase(addFolderThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to add folder';
+        console.error(action.payload);
+      })
       .addCase(deleteFileThunk.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -99,5 +116,6 @@ export const {
   setFileList,
   setFolderList,
   setSeeResizebleDiv,
+  setShowFileIcon,
 } = workplaceSlice.actions;
 export default workplaceSlice.reducer;

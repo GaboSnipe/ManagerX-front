@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import DatePicker from "react-datepicker";
 import CustomDataInput from "./CustomDataInput";
 import "react-datepicker/dist/react-datepicker.css";
-import { setSelectedSubtask, setSeeResizebleDiv } from '../../../features/task/taskSlice';
+import taskSlice, { setSelectedSubtask, setSeeResizebleDiv } from '../../../features/task/taskSlice';
 import UserSearchDropDown from '../../UserSearchDropDown';
 import "../../../styles/DefaultStyles.css"
 import UserService from '../../../services/UserService';
@@ -25,7 +25,7 @@ const statusStyles = {
   "UNCERTAIN": "bg-purple-500"
 };
 
-const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks }) => {
+const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks, setSaveSubTasks, taskUuid, setSubTasks, removeSubTask }) => {
   const dispatch = useDispatch();
   const selectedSubTask = useSelector((state) => state.task.selectedSubtask);
   const [startDate, setStartDate] = useState(new Date());
@@ -34,6 +34,7 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef();
   const buttonRef = useRef();
+  const [dangerShow, setDangerShow] = useState(false);
   const [newSubTask, setNewSubTask] = useState(subtask)
 
   const handleClick = (subtask) => {
@@ -76,11 +77,11 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks }) => {
     const deadlineDate = new Date(deadline);
     const diffTime = deadlineDate - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
     if (diffDays === 0) return 'text-yellow-700 bg-yellow-100';
     if (diffDays > 0) return 'text-green-700 bg-green-100';
     if (diffDays < 0) return 'text-red-700 bg-red-100';
-  
+
     return '';
   };
 
@@ -125,7 +126,10 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks }) => {
         console.error(error);
       }
     };
-    getAssignTo();
+    if (newSubTask.assign_to) {
+      getAssignTo();
+    }
+
   }, [newSubTask.assign_to]);
 
 
@@ -137,59 +141,79 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks }) => {
   };
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-  
+
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-  
+
     return `${year}-${month}-${day}`;
   };
 
 
-  const saveNewSubTask = () => {
+
+  const saveChangeSubTask = () => {
     const newFormData = {};
 
-    if (newSubTask.assign_to !== undefined && newSubTask.assign_to !== subtask.assign_to) {
-      newFormData.assign_to = newSubTask.assign_to;
-    }
-    if (newSubTask.title !== undefined && newSubTask.title !== subtask.title) {
-      newFormData.title = newSubTask.title;
-    }
-    if (newSubTask.status !== undefined && newSubTask.status !== subtask.status) {
-      newFormData.status = newSubTask.status;
-    }
-    if (newSubTask.comment !== undefined && newSubTask.comment !== subtask.comment) {
-      newFormData.comment = newSubTask.comment;
-    }
-    if (newSubTask.deadline !== undefined && newSubTask.deadline !== subtask.deadline) {
-      const formattedDate = formatDate(newSubTask.deadline);
+    const fieldsToCheck = ['assign_to', 'title', 'status', 'deadline'];
 
-      newFormData.deadline = formattedDate;
-    }
-    if (newSubTask.creator !== undefined && newSubTask.creator !== subtask.creator) {
-      newFormData.creator = newSubTask.creator;
-    }
-    if (newSubTask.folder !== undefined && newSubTask.folder !== subtask.folder) {
-      newFormData.folder = newSubTask.folder;
-    }
+    fieldsToCheck.forEach(field => {
+      if (newSubTask[field] !== undefined && newSubTask[field] !== subtask[field]) {
+        if (field === 'deadline') {
+          newFormData.deadline = formatDate(newSubTask.deadline);
+        } else {
+          newFormData[field] = newSubTask[field];
+        }
+      }
+    });
 
     if (Object.keys(newFormData).length > 0) {
-      console.log("sdaskdk")
       TaskService.editSubTask(subtask.uuid, newFormData)
         .then(response => {
-
-          console.log(response)
         })
         .catch(error => {
           console.error(error);
         });
+    }
+  };
+  const formatAndValidateSubTask = (subTask) => {
+    const formattedSubTask = {
+      ...subTask,
+      deadline: formatDate(subTask.deadline),
+      task: taskUuid,
+    };
+  
+    const isValid = formattedSubTask.title && formattedSubTask.assign_to;
+    return { formattedSubTask, isValid };
+  };
+  
+  const saveNewSubTask = async () => {
+    const { formattedSubTask, isValid } = formatAndValidateSubTask(newSubTask);
+  
+    if (isValid) {
+      try {
+        await TaskService.createSubTask(formattedSubTask);
+        const response = await TaskService.getSubtaskList(taskUuid);
+        setSubTasks(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     } else {
+      setSubTasks((prevSubTasks) =>
+        prevSubTasks.filter((_, i) => i !== index)
+      );
     }
   };
 
   useEffect(() => {
-    saveNewSubTask();
+    if (saveSubTasks) {
+      if (newSubTask.uuid) {
+        saveChangeSubTask();
+      } else {
+        saveNewSubTask();
+      }
 
+    }
+    setSaveSubTasks(false);
   }, [saveSubTasks])
 
   const changeStatus = (statusKey) => {
@@ -207,11 +231,45 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks }) => {
     }));
   };
 
+  const handleDeleteSubTask = () => {
+    setDangerShow(true)
+  }
+
+const confirmDelete = () => {
+  if (newSubTask.uuid) {
+    TaskService.deleteSubTask(newSubTask.uuid)
+      .then(() => {
+        TaskService.getSubtaskList(taskUuid)
+          .then(response => {
+            setFormData(prevFormData => ({
+              ...prevFormData,
+              subtasks: response.data
+            }));
+          })
+          .catch(error => {
+            console.error('Error fetching subtask list:', error);
+          });
+      })
+      .catch(error => {
+        console.error('Error deleting subtask:', error);
+      });
+  } else {
+    removeSubTask(index, newSubTask);
+  }
+
+  setDangerShow(false);
+};
+  
+  
+  const cancelDelete = () => {
+    setDangerShow(false);
+  };
+
 
   return (
     <tr
       key={index}
-      className={`border-t relative ${newSubTask.uuid === selectedSubTask.uuid ? "bg-blue-100" : ""} rounded-lg`}
+      className={`border-t relative ${newSubTask?.uuid != null && newSubTask.uuid === selectedSubTask.uuid ? "bg-blue-100" : ""} rounded-lg`}
     >
       <td className="py-2">
         <div className="flex items-center space-x-2">
@@ -242,6 +300,7 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks }) => {
           <input
             type="text"
             className="pl-5"
+            placeholder="Enter task name"
             onChange={((e) => handleInputChange(e))}
             value={newSubTask.title}
             readOnly={!isEditing}
@@ -262,11 +321,11 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks }) => {
               <FiCalendar className="" />
               <div className={`py-2 text-sm rounded flex`}>
 
-              <DatePicker
+                <DatePicker
                   disabled={!isEditing}
                   selected={newSubTask.deadline}
                   onChange={(date) => setDataForm(date)}
-                  customInput={<CustomDataInput />} 
+                  customInput={<CustomDataInput />}
                   minDate={new Date()}
                   dateFormat="yyyy-MM-dd"
                 />
@@ -327,12 +386,49 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks }) => {
         </div>
       </td>
       <td>
+
+        {isEditing ?
+          (
+            <button
+            className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:bg-red-700 disabled:opacity-50 disabled:pointer-events-none"
+            onClick={handleDeleteSubTask}
+          >
+            <span>Delete</span>
+          </button>
+          ) :
+          (
+            <button
+              className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+              onClick={() => handleClick(newSubTask)}
+            >
+              {selectedSubTask.uuid === newSubTask.uuid && seeResizebleDiv ? "Close" : "View"}
+            </button>
+
+        )
+        }
+           {dangerShow && (
+  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+      <h2 className="text-lg font-semibold text-gray-800">Are you sure?</h2>
+      <p className="text-sm text-gray-600 mt-2">Do you really want to delete this subtask?</p>
+      <div className="mt-4 flex justify-end space-x-2">
         <button
-          className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
-          onClick={() => handleClick(newSubTask)}
+          className="py-2 px-4 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none"
+          onClick={cancelDelete}
         >
-          {selectedSubTask.uuid === newSubTask.uuid && seeResizebleDiv ? "Close" : "View"}
+          Cancel
         </button>
+        <button
+          className="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none"
+          onClick={confirmDelete}
+        >
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       </td>
     </tr>
   );

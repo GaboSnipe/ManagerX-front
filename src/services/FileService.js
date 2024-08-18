@@ -16,4 +16,7 @@ export default class FileService {
       }
     });
   }
+  static async addFolder(formData) {
+    return $api.post('/api/expertise/folder/', formData);
+  }
 }

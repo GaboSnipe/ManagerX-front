@@ -4,7 +4,6 @@ import { addTaskThunk, getTaskListThunk } from '../features/task/taskThunk';
 import { setSeeResizebleDiv } from '../features/task/taskSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { ExpandableTable, ResizableDiv } from '../components';
-import { TaskAddTable } from '../components/Tasks/components';
 
 
 const formatDeadline = (deadline) => {
@@ -106,16 +105,15 @@ const Tasks = () => {
         <div className="sm:px-6 max-w-full">
           <div className="mt-7 w-full text-sm">
 
-              
+
             <table className="w-full whitespace-nowrap">
               <tbody>
-                {isAddEnable && 
-                
-              <TaskAddTable setTasks={setTasks} tasks={tasks} />
-            }
+                {isAddEnable &&
+                  <ExpandableTable setTasks={setTasks} isDisable={true}/>
+                }
 
                 {tasks.map((task) => (
-                  <ExpandableTable key={task.uuid} task={task} setTasks={setTasks} />
+                  <ExpandableTable key={task.uuid} task={task} />
                 ))}
               </tbody>
             </table>

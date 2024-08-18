@@ -36,6 +36,17 @@ export const addFileInFolderThunk = createAsyncThunk(
     }
   }
 );
+export const addFolderThunk = createAsyncThunk(
+  'files/addFolder',
+  async (formData, thunkAPI) => {
+    try {
+      const response = await FileService.addFolder(formData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data || 'Failed to add file');
+    }
+  }
+);
 
 export const deleteFileThunk = createAsyncThunk(
   'workplace/deleteFile',

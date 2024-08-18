@@ -58,14 +58,18 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
   useEffect(() => {
     const fetchFolderDetails = async () => {
       try {
-        const response = await FileService.getFolderDetails(task.folder);
+        const response = await FileService.getFolderDetails(task?.folder);
         setLocalFolder(response.data);
       } catch (error) {
         console.error(error);
       }
     };
 
-    fetchFolderDetails();
+    if(task.folder != "") {
+      fetchFolderDetails();
+
+    }
+
   }, []);
   useEffect(() => {
 
@@ -150,7 +154,7 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
   };
 
   const handleStartEditing = () => {
-    toast.warning(`taskName: editing is enabled`);
+    toast.warning(`${formData.title || task.title}: editing is enabled`);
     setIsEditing(true);
   }
 
@@ -208,8 +212,8 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
                   className="font-medium rounded-lg text-xs text-start inline-flex items-center"
                   onClick={handleDropdownToggle}
                 >
-                  <span className={`${statusStyles[formData.status]} text-white px-2 py-1 rounded`}>
-                    {statuses[formData.status]}
+                  <span className={`${statusStyles[formData?.status || task?.status]} text-white px-2 py-1 rounded`}>
+                    {statuses[formData?.status || task?.status]}
                   </span>
                   {isEditing &&
                     <svg
@@ -254,12 +258,12 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
             {/* Deadline */}
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 w-28">Deadline</span>
-              <div className={`py-2 px-3 text-sm rounded ${getDeadlineStyles(formData.deadline ? formData.deadline : task.deadline)}`}>
+              <div className={`py-2 px-3 text-sm rounded ${getDeadlineStyles(formData?.deadline || task?.deadline)}`}>
 
                 {/* Due today at 18:00 */}
                 <DatePicker
                   disabled={!isEditing}
-                  selected={formData.deadline}
+                  selected={formData?.deadline || task?.deadline}
                   onChange={(date) => setDataForm(date)}
                   customInput={<CustomDataInput />} 
                   minDate={new Date()}
@@ -274,7 +278,7 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
                 <button onClick={handleRedirectToWorkspace} className="flex mr-2">
                   <span className="text-gray-400 flex">
                     <FaFolder className="text-yellow-400 text-xl" />
-                    <p className="px-3">{folder.title}</p>
+                    <p className="px-3">{folder?.title}</p>
                   </span>
                 </button>
                 <button
@@ -338,7 +342,7 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 w-28">Created At</span>
               <div className="py-2 px-3 text-sm text-gray-700 bg-gray-100 rounded">
-                {formatDate(task.created_at)}
+                {formatDate(task?.created_at)}
               </div>
             </div>
           </div>

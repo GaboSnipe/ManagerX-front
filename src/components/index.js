@@ -9,4 +9,5 @@ export { default as FullLogo } from "./Logo/FullLogo.jsx";
 export { default as ExpandableTable } from "./Tasks/Main.jsx";
 export { default as Editor } from "./Editor.jsx";
 export { default as UserSearchDropDown } from "./UserSearchDropDown.jsx";
+export { default as FileViewer } from "./FileViewer/Main.jsx";
 

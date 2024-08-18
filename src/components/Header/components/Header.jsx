@@ -1,5 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import { FaArrowLeft } from 'react-icons/fa';
+import { setFolder, setFile, setSeeResizebleDiv, setShowFileIcon } from '../../../features/workplace/workplaceSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsAddEnable } from '../../../features/task/taskSlice';
 
@@ -7,6 +9,7 @@ const Header = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const [seeAddTaskDiv, setSeeAddTaskDiv] = useState(false);
+  const showFileIcon = useSelector(state => state.workplace.showFileIcon);
   const isAddEnable = useSelector((state) => state.task.isAddEnable);
   const [formData, setFormData] = useState({
     title: '',
@@ -14,7 +17,7 @@ const Header = () => {
     comment: '',
     deadline: '',
     assign_to: '',
-    folder:'',
+    folder: '',
   });
   const [errors, setErrors] = useState({});
   const statuses = ['Pending', 'In Progress', 'Completed', 'On Hold', 'Canceled']; // Пример статусов
@@ -44,6 +47,21 @@ const Header = () => {
     dispatch(setIsAddEnable(true))
   }
 
+  const addFolder = () => {
+
+  }
+
+  const backButton = () => {
+    dispatch(setShowFileIcon(false));
+    dispatch(setFolder({}));
+    dispatch(setFile({}));
+    dispatch(setSeeResizebleDiv(false));
+  };
+
+  const addFileInFolder = () => {
+  };
+
+
 
 
   const renderHeaderContent = (pathname) => {
@@ -56,6 +74,39 @@ const Header = () => {
       case '/workplace':
         return (
           <>
+            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex space-x-2">
+
+              {showFileIcon ? (
+                <>
+
+                  <button
+                    onClick={backButton}
+                    className="bg-gray-600 rounded-lg p-2 focus:bg-gray-500 text-white flex items-center"
+                  >
+
+                    <FaArrowLeft className="mr-2" />
+                    Back
+                  </button>
+
+                  <button
+                    onClick={addFileInFolder}
+
+                    className="bg-gray-600 rounded-lg p-2 focus:bg-gray-500 text-white"
+                  >
+                    Add File
+                  </button>
+                </>
+              ) : (
+
+                <button
+                  onClick={addFolder}
+                  className="bg-gray-600 rounded-lg p-2 focus:bg-gray-500 text-white"
+                >
+                  Add Folder
+                </button>
+              )}
+            </div>
+
           </>
         );
       case '/tasks':

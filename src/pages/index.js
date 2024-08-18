@@ -4,3 +4,5 @@ export { default as WorkPlace } from "./WorkPlace";
 export { default as Tasks } from "./Tasks";
 export { default as LoginPage } from "./LoginPage";
 export { default as UserPage } from "./UserPage";
+export { default as SingleTask } from "./SingleTask";
+export { default as NotFound } from "./NotFound";

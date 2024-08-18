@@ -66,7 +66,7 @@ const Editor = forwardRef(
         ref.current = null;
         container.innerHTML = '';
       };
-    }, [ref, defaultValue]);
+    }, [ref]);
 
     useLayoutEffect(() => {
       if (quillRef.current) {

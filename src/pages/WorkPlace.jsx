@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { FaArrowLeft } from 'react-icons/fa';
-import { FolderIcon, FileIcon, ResizableDiv } from '../components';
-import { setFolder, setFile, setSeeResizebleDiv } from '../features/workplace/workplaceSlice';
+import { FolderIcon, FileIcon, ResizableDiv, FileViewer } from '../components';
+import { setFolder, setFile, setSeeResizebleDiv, setShowFileIcon } from '../features/workplace/workplaceSlice';
 import useAuthCheck from '../utils/hooks/useAuthCheck';
 import { addFileInFolderThunk, getFolderDetailsThunk, getFolderListThunk } from '../features/workplace/workplaceThunk';
 import { getProjectHeadersThunk } from '../features/project/projectThunk';
@@ -61,12 +60,44 @@ const formatData = (formattedHeaders, response) => {
   return data.sort((a, b) => a.order - b.order);
 };
 
+const CustomContextMenu = ({ x, y, onClose, selectedFolder }) => {
+  const menuRef = useRef(null);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose]);
+
+
+  return (
+    <div
+      ref={menuRef}
+      className="bg-gray-900 p-4 rounded-lg"
+      style={{ position: 'absolute', top: y, left: x, zIndex: 1000 }}
+    >
+      <ul>
+        <li className="text-green-600 font-bold">
+          <button >Add Folder</button>
+        </li>
+      </ul>
+    </div>
+  );
+};
+
 const WorkPlace = () => {
   const loading = useAuthCheck();
   const dispatch = useDispatch();
-  const [showFileIcon, setShowFileIcon] = useState(false);
+  const showFileIcon = useSelector(state => state.workplace.showFileIcon);
 
   const selectedFolder = useSelector(state => state.workplace.folderInfo);
+  const [contextMenu, setContextMenu] = useState(null);
   const seeResizebleDiv = useSelector(state => state.workplace.seeResizebleDiv);
   const selectedFile = useSelector(state => state.workplace.fileInfo);
   const folders = useSelector(state => state.workplace.folderList);
@@ -106,12 +137,6 @@ const WorkPlace = () => {
     fetchFolderList();
   }, [dispatch]);
 
-  const backButton = () => {
-    setShowFileIcon(false);
-    dispatch(setFolder({}));
-    dispatch(setFile({}));
-    dispatch(setSeeResizebleDiv(false));
-  };
 
   const addFileInFolder = () => {
     setSeeAddFileDiv(true);
@@ -173,7 +198,7 @@ const WorkPlace = () => {
 
   const handleFolderDoubleClick = folder => {
     dispatch(getFolderDetailsThunk(folder.uuid)).unwrap();
-    setShowFileIcon(true);
+    dispatch(setShowFileIcon(true));
     dispatch(setSeeResizebleDiv(false));
   };
 
@@ -181,18 +206,27 @@ const WorkPlace = () => {
     setSeeAddFileDiv(false);
   };
 
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    setContextMenu({
+      mouseX: event.clientX - 2,
+      mouseY: event.clientY - 4,
+    });
+  };
+
+  const handleClose = () => {
+    setContextMenu(null);
+  };
+  
+
+
   return (
-      <div className="min-h-full">
+      <div 
+      onContextMenu={(e) => handleContextMenu(e)}
+      className="flex-grow">
         <div className="mx-auto max-w-full">
           {showFileIcon && (
               <>
-                <button
-                    onClick={backButton}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex"
-                >
-                  <FaArrowLeft className="mr-2" />
-                  Back
-                </button>
                 {seeAddFileDiv && (
                     <>
                       <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={closeSeeAddDiv}></div>
@@ -222,13 +256,6 @@ const WorkPlace = () => {
                     </>
                 )}
 
-                <button
-                    onClick={addFileInFolder}
-
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2"
-                >
-                  Add File
-                </button>
               </>
           )}
           <div className="flex">
@@ -315,6 +342,14 @@ const WorkPlace = () => {
             )}
           </div>
         </div>
+        {contextMenu && (
+        <CustomContextMenu
+          x={contextMenu.mouseX}
+          y={contextMenu.mouseY}
+          onClose={handleClose}
+          selectedFolder={contextMenu.folder}
+        />
+      )}
       </div>
   );
 };
