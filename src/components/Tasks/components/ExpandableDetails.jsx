@@ -21,14 +21,12 @@ const statuses = {
   "INPROGRESS": "In Progress",
   "DONE": "Done",
   "REJECTED": "Rejected",
-  "UNCERTAIN": "Uncertain"
 };
 const statusStyles = {
   "TODO": "bg-yellow-500",
   "INPROGRESS": "bg-blue-500",
   "DONE": "bg-green-500",
   "REJECTED": "bg-gray-500",
-  "UNCERTAIN": "bg-purple-500"
 };
 
 const formatDate = (date) => {
@@ -65,7 +63,7 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
       }
     };
 
-    if(task.folder != "") {
+    if (task.folder && task.folder != "") {
       fetchFolderDetails();
 
     }
@@ -76,25 +74,29 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
     const getAssignTo = async () => {
       try {
         const response = await UserService.getUserInfo(formData.assign_to || task.assign_to);
-        setAssignTo(response.data);
+        setAssignTo(response.data[0]);
+
       } catch (error) {
         console.error(error);
       }
     };
-
-    getAssignTo();
+    if (formData.assign_to || task.assign_to) {
+      getAssignTo();
+    }
   }, [formData.assign_to]);
   useEffect(() => {
 
     const getCreator = async () => {
       try {
         const response = await UserService.getUserInfo(formData.creator || task.creator);
-        setCreator(response.data);
+        setCreator(response.data[0]);
       } catch (error) {
         console.error(error);
       }
     };
-    getCreator();
+    if (formData.creator || task.creator) {
+      getCreator();
+    }
   }, [formData.creator]);
 
 
@@ -103,11 +105,11 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
     const deadlineDate = new Date(deadline);
     const diffTime = deadlineDate - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
     if (diffDays === 0) return 'text-yellow-700 bg-yellow-100';
     if (diffDays > 0) return 'text-green-700 bg-green-100';
     if (diffDays < 0) return 'text-red-700 bg-red-100';
-  
+
     return '';
   };
 
@@ -154,7 +156,9 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
   };
 
   const handleStartEditing = () => {
-    toast.warning(`${formData.title || task.title}: editing is enabled`);
+    toast.warning(`${formData.title || task.title}: editing is enabled`, {
+      containerId: "error"
+    });
     setIsEditing(true);
   }
 
@@ -192,7 +196,7 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
     setLocalFolder(folder)
     setIsDropdownFolder(false)
   }
-  
+
   return (
     <section className="w-auto p-5 ">
       <div className="flex w-full justify-between items-center mb-4">
@@ -241,7 +245,7 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
                     <ul className="">
                       {Object.keys(statuses).map((statusKey) => (
                         <li key={statusKey}>
-                          <button onClick={(()=>changeStatus(statusKey))} className="block px-4 py-2 hover:bg-gray-100">
+                          <button onClick={(() => changeStatus(statusKey))} className="block px-4 py-2 hover:bg-gray-100">
                             <span className={`${statusStyles[statusKey]} text-white px-2 py-1 rounded`}>
                               {statuses[statusKey]}
                             </span>
@@ -265,7 +269,7 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
                   disabled={!isEditing}
                   selected={formData?.deadline || task?.deadline}
                   onChange={(date) => setDataForm(date)}
-                  customInput={<CustomDataInput />} 
+                  customInput={<CustomDataInput />}
                   minDate={new Date()}
                   dateFormat="yyyy-MM-dd"
                 />
@@ -312,9 +316,9 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
                     <ul className="py-2 text-sm p-2 space-y-1">
                       {folderList.map((folder) => (
                         <li key={folder.uuid}>
-                          <button  className="flex" onClick={(()=>chooseFolder(folder))}>
-                          <FaFolder className="text-yellow-400 text-xl" />
-                          <p className="px-3">{folder.title}</p>
+                          <button className="flex" onClick={(() => chooseFolder(folder))}>
+                            <FaFolder className="text-yellow-400 text-xl" />
+                            <p className="px-3">{folder.title}</p>
                           </button>
                         </li>
                       ))}
@@ -337,7 +341,7 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 w-28">Assignee</span>
-              <UserSearchDropDown value={creator} formData={formData} setFormData={setFormData} isEditing={isEditing}  qkey={"creator"} />
+              <UserSearchDropDown value={creator} formData={formData} setFormData={setFormData} isEditing={isEditing} qkey={"creator"} />
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 w-28">Created At</span>

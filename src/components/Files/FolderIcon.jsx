@@ -28,7 +28,9 @@ const CustomContextMenu = ({ x, y, onClose, selectedFolder }) => {
       setNewTitle('');
       onClose();
     } else {
-      toast.warning('Please enter a valid folder name');
+      toast.warning('Please enter a valid folder name', {  
+          containerId : "error"
+      });
     }
   };
 
@@ -39,7 +41,9 @@ const CustomContextMenu = ({ x, y, onClose, selectedFolder }) => {
         onClose();
       }
     } else {
-      toast.warning('Please select a folder to delete');
+      toast.warning('Please select a folder to delete', {  
+        containerId : "error"
+    });
     }
   };
 
@@ -154,7 +158,6 @@ const FolderIcon = ({ onDoubleClick, handleSingleClick, folders, listView }) => 
           selectedFolder={contextMenu.folder}
         />
       )}
-      <ToastContainer />
     </div>
   );
 };

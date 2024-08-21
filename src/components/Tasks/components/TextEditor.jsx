@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import 'quill/dist/quill.snow.css';
 import { Editor } from '../../';
-import TaskService from '../../../services/TaskService';
 
 const TextEditor = ({ isEditing, defaultValue, setFormData }) => {
   const [readOnly, setReadOnly] = useState(false);

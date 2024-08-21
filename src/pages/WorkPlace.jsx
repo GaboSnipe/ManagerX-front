@@ -92,7 +92,7 @@ const CustomContextMenu = ({ x, y, onClose, selectedFolder }) => {
 };
 
 const WorkPlace = () => {
-  const loading = useAuthCheck();
+  // const loading = useAuthCheck();
   const dispatch = useDispatch();
   const showFileIcon = useSelector(state => state.workplace.showFileIcon);
 

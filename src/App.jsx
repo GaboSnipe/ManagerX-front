@@ -2,6 +2,10 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { Header } from './components';
 import { navigation } from './globalEnv';
 import { LoginPage, NotFound, SingleTask, UserPage } from './pages';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 function App() {
   const location = useLocation();
@@ -21,7 +25,23 @@ function App() {
         <Route path="/task/:uuid" element={<SingleTask />} />
         <Route path="/subtask/:uuid" element={<SingleTask />} />
         <Route path="*" element={<NotFound />} />
-      </Routes>
+      </Routes> 
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        draggable
+        pauseOnFocusLoss={false}
+        pauseOnHover
+        containerId="error"
+      />
+      <ToastContainer
+        position="bottom-right"
+        closeButton={false}
+        stacked
+        containerId="notification"
+      />
     </>
   );
 }

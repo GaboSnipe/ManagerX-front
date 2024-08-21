@@ -34,6 +34,8 @@ const formatDate = (dateString) => {
   return `${year}-${month}-${day}`;
 };
 
+
+
 const ExpandableTable = ({ task, setTasks, isDisable, isExpandedDefault }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -44,6 +46,7 @@ const ExpandableTable = ({ task, setTasks, isDisable, isExpandedDefault }) => {
   const quillRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
+  const [isAlert, setIsAlert] = useState(false);
   const [arrIndex, setArrIndex] = useState({});
   const getDeadlineStyles = (deadline) => {
     const deadlineStatus = formatDeadline(deadline);
@@ -56,7 +59,6 @@ const ExpandableTable = ({ task, setTasks, isDisable, isExpandedDefault }) => {
         return "text-green-700 bg-green-100";
     }
   };
-
 
   const formatDeadline = (deadline) => {
     const now = new Date();
@@ -81,7 +83,7 @@ const ExpandableTable = ({ task, setTasks, isDisable, isExpandedDefault }) => {
   const toggleRow = async () => {
     try {
 
-      if (!isExpanded) {
+      if (!isExpanded && task.uuid) {
 
         const response = await TaskService.getTask(task.uuid);
 
@@ -135,21 +137,26 @@ const ExpandableTable = ({ task, setTasks, isDisable, isExpandedDefault }) => {
 
 
 
-
   const saveNewTask = () => {
+    setSaveSubTasks(true);
     const newFormData = formData;
     const formattedDate = formatDate(formData.deadline);
     newFormData.deadline = formattedDate;
 
     TaskService.createTask(newFormData)
       .then((response) => {
-        toast.success("Task created successfully");
+        toast.success("Task created successfully", {
+          containerId: "error"
+        });
         setTasks((prevTasks) => [...prevTasks, response.data]);
         dispatch(setIsAddEnable(false))
       }
       )
       .catch((error) => {
         console.error(error);
+        toast.error(error, {
+          containerId: "error"
+        });
       });
 
   };
@@ -196,6 +203,7 @@ const ExpandableTable = ({ task, setTasks, isDisable, isExpandedDefault }) => {
       subtasks: [
         ...(prevData.subtasks || fullTask.subtasks),
         {
+          localId: nanoid(),
           assign_to: null,
           deadline: formatDate(new Date()),
           status: "TODO",
@@ -214,15 +222,20 @@ const ExpandableTable = ({ task, setTasks, isDisable, isExpandedDefault }) => {
   };
 
 
-  const removeSubTask = (indexToRemove) => {
+  const removeSubTask = (idToRemove) => {
     setFormData(prevFormData => {
-      const updatedSubtasks = prevFormData.subtasks.filter((_, index) => index !== indexToRemove);
+      const subtasks = prevFormData.subtasks || fullTask.subtasks;
+      const updatedSubtasks = subtasks.filter(subtask => subtask.uuid !== idToRemove && subtask.localId !== idToRemove);
+
       return {
         ...prevFormData,
         subtasks: updatedSubtasks
       };
     });
   };
+
+
+
 
   const handleOpenFullTask = () => {
     if (!isEditing) {
@@ -339,53 +352,55 @@ const ExpandableTable = ({ task, setTasks, isDisable, isExpandedDefault }) => {
                 setFormData={setFormData}
               />
               <TextEditor isEditing={isEditing} defaultValue={formData?.comment || fullTask?.comment} quillRef={quillRef} setFormData={setFormData} />
+              {!isDisable &&
+                <section ref={motherRef} className="w-auto p-5 relative">
+                  <p className="text-start text-gray-700 text-2xl mb-4">Subtasks:</p>
+                  <div className="p-4 bg-white shadow-md rounded-lg">
+                    <table className="w-full table-auto">
+                      <thead>
+                        <tr>
+                          <th className="text-left text-gray-600">Name</th>
+                          <th className="text-left text-gray-600">Assignee</th>
+                          <th className="text-left text-gray-600">Due date</th>
+                          <th className="text-left text-gray-600">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
 
-              <section ref={motherRef} className="w-auto p-5 relative">
-                <p className="text-start text-gray-700 text-2xl mb-4">Subtasks:</p>
-                <div className="p-4 bg-white shadow-md rounded-lg">
-                  <table className="w-full table-auto">
-                    <thead>
-                      <tr>
-                        <th className="text-left text-gray-600">Name</th>
-                        <th className="text-left text-gray-600">Assignee</th>
-                        <th className="text-left text-gray-600">Due date</th>
-                        <th className="text-left text-gray-600">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                        {(formData?.subtasks || fullTask?.subtasks)?.map((subtask, index) => (
+                          <SubTasks
+                            key={subtask.uuid || subtask.localId}
+                            isEditing={isEditing}
+                            motherRef={motherRef}
+                            subtask={subtask}
+                            setIsAlert={setIsAlert}
+                            index={index}
+                            saveSubTasks={saveSubTasks}
+                            setSaveSubTasks={setSaveSubTasks}
+                            taskUuid={task.uuid}
+                            removeSubTask={removeSubTask}
+                            setSubTasks={setSubTasks}
+                          />
+                        ))}
 
-                      {(formData?.subtasks || fullTask?.subtasks)?.map((subtask, index) => (
-                        <SubTasks
-                          key={subtask.uuid || subtask.id}
-                          isEditing={isEditing}
-                          motherRef={motherRef}
-                          subtask={subtask}
-                          index={index}
-                          saveSubTasks={saveSubTasks}
-                          setSaveSubTasks={setSaveSubTasks}
-                          taskUuid={task.uuid}
-                          removeSubTask={removeSubTask}
-                          setSubTasks={setSubTasks}
-                        />
-                      ))}
+                        <tr
+                          className={`border-t relative rounded-lg`}
+                        >
+                          <td colSpan={5}>
+                            <div className="w-full mt-4 hover:bg-gray-200 rounded-b-xl">
+                              <button onClick={addSubTask} className="w-full text-lg m-2">
+                                Add Subtask
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
 
-                      <tr
-                        className={`border-t relative rounded-lg`}
-                      >
-                        <td colSpan={5}>
-                          <div className="w-full mt-4 hover:bg-gray-200 rounded-b-xl">
-                            <button onClick={addSubTask} className="w-full text-lg m-2">
-                              Add Subtask
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
 
-                    </tbody>
-                  </table>
-                </div>
-
-              </section>
+                </section>
+              }
 
 
               {/* Editing Controls */}

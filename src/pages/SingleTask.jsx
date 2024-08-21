@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { ExpandableTable } from '../components';
 
 const SingleTask = () => {
-    const navigate = useNavigate();
+  const loadinsg = useAuthCheck();
+  const navigate = useNavigate();
     const { uuid } = useParams();
     const [task, setTask] = useState();
     const [loading, setLoading] = useState();

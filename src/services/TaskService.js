@@ -10,6 +10,9 @@ export default class TaskService {
     static async getTask(uuid) {
         return $api.get(`/api/tasks/${uuid}/`)
     }
+    static async getSubTask(uuid) {
+        return $api.get(`/api/tasks/subtasks/${uuid}/`)
+    }
     static async getSubtaskList(uuid) {
         return $api.get(`/api/tasks/subtasks/list/?task=${uuid}`);
     }

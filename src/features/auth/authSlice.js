@@ -1,9 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { loginThunk, logoutThunk, checkAuth } from './loginThunk';
+import { loginThunk, logoutThunk, checkAuth, googleLoginThunk } from './loginThunk';
 
 const initialState = {
   isAuth: false,
-  userInfo: {},
+  userInfo: (() => {
+    try {
+      const userString = localStorage.getItem('user');
+      return userString ? JSON.parse(userString) : null;
+    } catch (e) {
+      return null;
+    }
+  })(),
   userToken: null,
 };
 
@@ -23,17 +30,28 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loginThunk.fulfilled, (state, action) => {
-        state.isAuth = true;
-        state.userInfo = action.payload.user;
-        state.userToken = action.payload.access;
-      })
-      .addCase(loginThunk.rejected, (state, action) => {
-        state.isAuth = false;
-        state.userInfo = {};
-        state.userToken = null;
-        console.error(action.payload);
-      })
+    .addCase(loginThunk.fulfilled, (state, action) => {
+      state.isAuth = true;
+      state.userInfo = action.payload.user;
+      state.userToken = action.payload.access;
+    })
+    .addCase(loginThunk.rejected, (state, action) => {
+      state.isAuth = false;
+      state.userInfo = {};
+      state.userToken = null;
+      console.error(action.payload);
+    })
+    .addCase(googleLoginThunk.fulfilled, (state, action) => {
+      state.isAuth = true;
+      state.userInfo = action.payload.user;
+      state.userToken = action.payload.access;
+    })
+    .addCase(googleLoginThunk.rejected, (state, action) => {
+      state.isAuth = false;
+      state.userInfo = {};
+      state.userToken = null;
+      console.error(action.payload);
+    })
       .addCase(logoutThunk.fulfilled, (state) => {
         state.userInfo = {};
         state.userToken = null;
@@ -44,8 +62,6 @@ const authSlice = createSlice({
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.isAuth = true;
-        state.userInfo = action.payload.user;
-        state.userToken = action.payload.access;
       })
       .addCase(checkAuth.rejected, (state, action) => {
         state.isAuth = false;
