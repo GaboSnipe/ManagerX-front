@@ -2,14 +2,16 @@ import 'react-toastify/dist/ReactToastify.css';
 import React, { useState, useRef, useEffect } from 'react';
 import { FaFolder } from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
-import { setFolder, removeFolder } from '../../features/workplace/workplaceSlice';
+import { setFolder, removeFolder, setIsModalOpen, setSeeResizebleDiv } from '../../features/workplace/workplaceSlice';
 import { toast, ToastContainer } from 'react-toastify';
+import ModalWindow from '../ModalWindow';
+import { deleteFolderThunk, getFolderDetailsThunk } from '../../features/workplace/workplaceThunk';
 
-// Компонент для контекстного меню
-const CustomContextMenu = ({ x, y, onClose, selectedFolder }) => {
+const CustomContextMenu = ({ x, y, onClose, folder }) => {
   const menuRef = useRef(null);
   const dispatch = useDispatch();
   const [newTitle, setNewTitle] = useState('');
+  const [dangerShow, setDangerShow] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -23,44 +25,71 @@ const CustomContextMenu = ({ x, y, onClose, selectedFolder }) => {
   }, [onClose]);
 
   const handleEdit = () => {
-    if (selectedFolder && newTitle.trim() !== '') {
-      dispatch(setFolder({ ...selectedFolder, title: newTitle }));
-      setNewTitle('');
-      onClose();
-    } else {
-      toast.warning('Please enter a valid folder name');
-    }
+    dispatch(getFolderDetailsThunk(folder.uuid));
+    dispatch(setSeeResizebleDiv(true));
+    onClose();
   };
 
   const handleRemove = () => {
-    if (selectedFolder && Object.keys(selectedFolder).length > 0) {
-      if (window.confirm('Are you sure you want to delete this folder?')) {
-        dispatch(removeFolder(selectedFolder.uuid));
-        onClose();
-      }
-    } else {
-      toast.warning('Please select a folder to delete');
-    }
+    setDangerShow(true);
   };
 
+
+
+  const confirmDelete = () => {
+    dispatch(deleteFolderThunk(folder.uuid));
+    onClose();
+  }
+  const cancelDelete = () => {
+    setDangerShow(false);
+    onClose();
+  }
+
   return (
-    <div
-      ref={menuRef}
-      className="bg-gray-900 p-4 rounded-lg"
-      style={{ position: 'absolute', top: y, left: x, zIndex: 1000 }}
-    >
-      <ul>
-        <li className="text-yellow-600 font-bold">
-          <button onClick={handleRemove}>Rename</button>
-        </li>
-        <li className="text-red-600 font-bold mt-2">
-          <button onClick={handleRemove}>Delete</button>
-        </li>
-        <li className="text-green-600 font-bold mt-2">
-          <button onClick={onClose}>Cancel</button>
-        </li>
-      </ul>
-    </div>
+    <>
+      {!dangerShow ? (
+        <div
+          ref={menuRef}
+          className="bg-gray-900 p-4 rounded-lg"
+          style={{ position: 'absolute', top: y, left: x, zIndex: 1000 }}
+        >
+          <ul>
+            <li className="text-yellow-600 font-bold">
+              <button onClick={handleEdit}>Edit</button>
+            </li>
+            <li className="text-red-600 font-bold mt-2">
+              <button onClick={handleRemove}>Delete</button>
+            </li>
+            <li className="text-green-600 font-bold mt-2">
+              <button onClick={onClose}>Cancel</button>
+            </li>
+          </ul>
+
+        </div>) : (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+            <h2 className="text-lg font-semibold text-gray-800">Are you sure?</h2>
+            <p className="text-sm text-gray-600 mt-2">Do you really want to delete this Folder?</p>
+            <div className="mt-4 flex justify-end space-x-2">
+              <button
+                className="py-2 px-4 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none"
+                onClick={cancelDelete}
+              >
+                Cancel
+              </button>
+              <button
+                className="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none"
+                onClick={confirmDelete}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )
+      }
+    </>
+
   );
 };
 
@@ -129,13 +158,13 @@ const FolderIcon = ({ onDoubleClick, handleSingleClick, folders, listView }) => 
               onChange={(e) => setTitle(e.target.value)}
             />
           ) : (
-<div
-  className={`${listView ? '' : 'mt-1'} text-sm p-1 rounded-lg w-24 h-12 flex items-center justify-center overflow-hidden whitespace-normal leading-tight`}
->
-  <span className="break-all">
-    {folder.title}
-  </span>
-</div>
+            <div
+              className={`${listView ? '' : 'mt-1'} text-sm p-1 rounded-lg w-24 h-12 flex items-center justify-center overflow-hidden whitespace-normal leading-tight`}
+            >
+              <span className="break-all">
+                {folder.title}
+              </span>
+            </div>
 
 
 
@@ -151,10 +180,9 @@ const FolderIcon = ({ onDoubleClick, handleSingleClick, folders, listView }) => 
           x={contextMenu.mouseX}
           y={contextMenu.mouseY}
           onClose={handleClose}
-          selectedFolder={contextMenu.folder}
+          folder={contextMenu.folder}
         />
       )}
-      <ToastContainer />
     </div>
   );
 };

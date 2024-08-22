@@ -2,21 +2,34 @@ import $api from "../http";
 
 export default class FileService {
   static async getFolderList() {
-      return  await $api.get('/api/expertise/folder/list/');
-  }    
-
-  static async getFolderDetails(folderId) {
-      return await $api.get(`/api/expertise/folder/${folderId}/details/`);
+    return await $api.get('/api/expertise/folder/list/');
   }
-
+  static async getFolderDetails(folderId) {
+    return await $api.get(`/api/expertise/folder/${folderId}/details/`);
+  }
+  static async getFileDetails(fileUuid) {
+    return await $api.get(`/api/expertise/file/${fileUuid}/details/`);
+  }
   static async addFileInFolder(formData) {
-    return $api.post('/api/expertise/file/', formData, {
+    return $api.post('/api/expertise/file/upload/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
   }
   static async addFolder(formData) {
-    return $api.post('/api/expertise/folder/', formData);
+    return $api.post('/api/expertise/folder/create/', formData);
+  }
+  static async deleteFolder(folderUuid) {
+    return $api.delete(`/api/expertise/folder/${folderUuid}/delete/`);
+  }
+  static async deleteFile(fileUuid) {
+    return $api.delete(`/api/expertise/file/${fileUuid}/delete/`);
+  }
+  static async patchFile(fileUuid, formData) {
+    return $api.delete(`/api/expertise/file/${fileUuid}/update/`, formData);
+  }
+  static async patchFile(fileUuid, formData) {
+    return $api.delete(`/api/expertise/folder/${fileUuid}/update/`, formData);
   }
 }

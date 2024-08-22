@@ -2,9 +2,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import TaskService from '../services/TaskService';
 import React, { useEffect, useState } from 'react';
 import { ExpandableTable } from '../components';
+import useAuthCheck from '../utils/hooks/useAuthCheck';
 
 const SingleTask = () => {
-    const navigate = useNavigate();
+  const loadinsg = useAuthCheck();
+  const navigate = useNavigate();
     const { uuid } = useParams();
     const [task, setTask] = useState();
     const [loading, setLoading] = useState();

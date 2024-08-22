@@ -15,17 +15,15 @@ const statuses = {
   "INPROGRESS": "In Progress",
   "DONE": "Done",
   "REJECTED": "Rejected",
-  "UNCERTAIN": "Uncertain"
 };
 const statusStyles = {
   "TODO": "bg-yellow-500",
   "INPROGRESS": "bg-blue-500",
   "DONE": "bg-green-500",
   "REJECTED": "bg-gray-500",
-  "UNCERTAIN": "bg-purple-500"
 };
 
-const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks, setSaveSubTasks, taskUuid, setSubTasks, removeSubTask }) => {
+const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks, setSaveSubTasks, taskUuid, setSubTasks, removeSubTask, setIsAlert }) => {
   const dispatch = useDispatch();
   const selectedSubTask = useSelector((state) => state.task.selectedSubtask);
   const [startDate, setStartDate] = useState(new Date());
@@ -37,10 +35,20 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks, setSaveS
   const [dangerShow, setDangerShow] = useState(false);
   const [newSubTask, setNewSubTask] = useState(subtask)
 
-  const handleClick = (subtask) => {
-    dispatch(setSelectedSubtask(subtask));
-    dispatch(setSeeResizebleDiv(selectedSubTask.uuid === subtask.uuid ? !seeResizebleDiv : true));
+  const handleClick = async (subtask) => {
+    if(subtask?.uuid) {
+    try {
+      const response = await TaskService.getSubTask(subtask?.uuid);
+      dispatch(setSelectedSubtask(response.data));
+  
+      const isSameSubtask = selectedSubTask?.uuid === subtask.uuid;
+      dispatch(setSeeResizebleDiv(!isSameSubtask));
+    } catch (error) {
+      console.error('Error fetching subtask:', error);
+    }
+  }
   };
+  
 
   const handlePosition = () => {
     if (dropdownRef.current && buttonRef.current) {
@@ -121,7 +129,7 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks, setSaveS
     const getAssignTo = async () => {
       try {
         const response = await UserService.getUserInfo(newSubTask.assign_to);
-        setAssignTo(response.data);
+        setAssignTo(response.data[0]);
       } catch (error) {
         console.error(error);
       }
@@ -181,14 +189,14 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks, setSaveS
       deadline: formatDate(subTask.deadline),
       task: taskUuid,
     };
-  
-    const isValid = formattedSubTask.title && formattedSubTask.assign_to;
+
+    const isValid = formattedSubTask.title != "" && formattedSubTask.assign_to != null;
     return { formattedSubTask, isValid };
   };
-  
+
   const saveNewSubTask = async () => {
     const { formattedSubTask, isValid } = formatAndValidateSubTask(newSubTask);
-  
+
     if (isValid) {
       try {
         await TaskService.createSubTask(formattedSubTask);
@@ -198,11 +206,13 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks, setSaveS
         console.error(error);
       }
     } else {
-      setSubTasks((prevSubTasks) =>
-        prevSubTasks.filter((_, i) => i !== index)
-      );
+      removeSubTask(newSubTask.uuid || newSubTask.localId);
+
+
+
     }
   };
+
 
   useEffect(() => {
     if (saveSubTasks) {
@@ -235,32 +245,24 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks, setSaveS
     setDangerShow(true)
   }
 
-const confirmDelete = () => {
-  if (newSubTask.uuid) {
-    TaskService.deleteSubTask(newSubTask.uuid)
-      .then(() => {
-        TaskService.getSubtaskList(taskUuid)
-          .then(response => {
-            setFormData(prevFormData => ({
-              ...prevFormData,
-              subtasks: response.data
-            }));
-          })
-          .catch(error => {
-            console.error('Error fetching subtask list:', error);
-          });
-      })
-      .catch(error => {
-        console.error('Error deleting subtask:', error);
-      });
-  } else {
-    removeSubTask(index, newSubTask);
-  }
+  const confirmDelete = () => {
+    if (newSubTask.uuid) {
+      TaskService.deleteSubTask(newSubTask.uuid)
+        .then(() => {
+          removeSubTask(newSubTask.uuid || newSubTask.localId);
+        })
+        .catch(error => {
+          console.error('Error deleting subtask:', error);
+        });
+    } else {
+      removeSubTask(newSubTask.uuid || newSubTask.localId);
 
-  setDangerShow(false);
-};
-  
-  
+    }
+
+    setDangerShow(false);
+  };
+
+
   const cancelDelete = () => {
     setDangerShow(false);
   };
@@ -299,7 +301,7 @@ const confirmDelete = () => {
           </div>
           <input
             type="text"
-            className="pl-5"
+            className="border-none outline-none focus:outline-none bg-transparent focus:border-none focus:ring-0 pl-5"
             placeholder="Enter task name"
             onChange={((e) => handleInputChange(e))}
             value={newSubTask.title}
@@ -390,11 +392,11 @@ const confirmDelete = () => {
         {isEditing ?
           (
             <button
-            className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:bg-red-700 disabled:opacity-50 disabled:pointer-events-none"
-            onClick={handleDeleteSubTask}
-          >
-            <span>Delete</span>
-          </button>
+              className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:bg-red-700 disabled:opacity-50 disabled:pointer-events-none"
+              onClick={handleDeleteSubTask}
+            >
+              <span>Delete</span>
+            </button>
           ) :
           (
             <button
@@ -404,30 +406,30 @@ const confirmDelete = () => {
               {selectedSubTask.uuid === newSubTask.uuid && seeResizebleDiv ? "Close" : "View"}
             </button>
 
-        )
+          )
         }
-           {dangerShow && (
-  <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-      <h2 className="text-lg font-semibold text-gray-800">Are you sure?</h2>
-      <p className="text-sm text-gray-600 mt-2">Do you really want to delete this subtask?</p>
-      <div className="mt-4 flex justify-end space-x-2">
-        <button
-          className="py-2 px-4 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none"
-          onClick={cancelDelete}
-        >
-          Cancel
-        </button>
-        <button
-          className="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none"
-          onClick={confirmDelete}
-        >
-          Confirm
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+        {dangerShow && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+              <h2 className="text-lg font-semibold text-gray-800">Are you sure?</h2>
+              <p className="text-sm text-gray-600 mt-2">Do you really want to delete this subtask?</p>
+              <div className="mt-4 flex justify-end space-x-2">
+                <button
+                  className="py-2 px-4 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 focus:outline-none"
+                  onClick={cancelDelete}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none"
+                  onClick={confirmDelete}
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
       </td>
     </tr>

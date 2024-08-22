@@ -1,8 +1,59 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { loginThunk, logoutThunk } from '../features/auth/loginThunk';
+import { googleLoginThunk, loginThunk, logoutThunk } from '../features/auth/loginThunk';
+import GoogleButton from "react-google-button";
 import { Logo } from "../components/";
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
+import { FcGoogle } from "react-icons/fc";
+import { toast } from "react-toastify";
+
+
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+
+const CustomGoogleButton = ({ setIsSubmitting }) => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const onError = (error) => {
+        toast.error("Failed to Login", {
+            containerId: "error"
+        });
+        setIsSubmitting(false)
+        console.warn(error)
+    }
+    const onSuccess = async (response) => {
+        try {
+            await dispatch(googleLoginThunk({ access_token: response.access_token })).unwrap();
+            navigate('/dashboard');
+        } catch (e) {
+            onError(e);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const googleLogin = useGoogleLogin({
+        onSuccess: response => onSuccess(response),
+        onError: error => onError(error),
+    });
+
+    return (
+        <button
+            onClick={() => {
+                setIsSubmitting(true);
+                googleLogin();
+            }}
+
+            className="w-full flex h-10 border py-1.5 mt-2 bg-white rounded-md items-center"
+        >
+            <FcGoogle className="text-2xl ml-2" />
+            <p className=" text-sm text-center w-full "> Sign in with Google</p>
+        </button>
+    );
+};
+
+
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -11,8 +62,8 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [emailDirty, setEmailDirty] = useState(false);
     const [passwordDirty, setPasswordDirty] = useState(false);
-    const [emailError, setEmailError] = useState('email is empetry');
-    const [passwordError, setPasswordError] = useState('password is empetry');
+    const [emailError, setEmailError] = useState('email is empty');
+    const [passwordError, setPasswordError] = useState('password is empty');
     const [formValid, setFormValid] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const isAuth = useSelector((state) => state.auth.isAuth);
@@ -29,7 +80,8 @@ const LoginPage = () => {
         setEmail(e.target.value);
         const re = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         if (!re.test(String(e.target.value).toLowerCase())) {
-            setEmailError('incorect email');
+            setEmailError('Incorrect email');
+
         } else {
             setEmailError('');
         }
@@ -40,7 +92,7 @@ const LoginPage = () => {
         if (e.target.value.length < 3 || e.target.value.length > 35) {
             setPasswordError('password to 3 -35');
             if (!e.target.value) {
-                setPasswordError('Пароль обязателен');
+                setPasswordError('Password must be between 3 and 35 characters');
             }
         } else {
             setPasswordError('');
@@ -48,21 +100,15 @@ const LoginPage = () => {
     };
 
     const blurHandler = (e) => {
-        switch (e.target.name) {
-            case 'email':
-                setEmailDirty(true);
-                break;
-            case 'password':
-                setPasswordDirty(true);
-                break;
-        }
+        e.target.name === 'email' ? setEmailDirty(true) : setPasswordDirty(true);
     };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formValid) return;
         setIsSubmitting(true);
-    
+
         try {
             await dispatch(loginThunk({ email, password })).unwrap();
             navigate('/dashboard');
@@ -73,7 +119,9 @@ const LoginPage = () => {
     };
 
     useEffect(() => {
+        if (localStorage.getItem("token")) {
             dispatch(logoutThunk());
+        }
     }, []);
 
     return (
@@ -86,13 +134,13 @@ const LoginPage = () => {
                 <form className="flex flex-col justify-center" onSubmit={handleSubmit}>
                     <label className="text-sm font-medium">Email</label>
                     <input
-                        className={`mb-3 mt-1 block w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm shadow-sm placeholder-gray-400
-                        focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 ${emailDirty && emailError ? 'border-red-500 ring-red-500' : ''}`}
+                        className={`mb-3 mt-1 block w-full px-2 py-1.5 border rounded-md text-sm shadow-sm placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 ${emailDirty && emailError ? 'border-red-500 ring-red-500' : 'border-gray-300 '}`}
                         type="text"
                         name="email"
                         value={email}
                         onChange={emailHandler}
                         onBlur={blurHandler}
+                        autoComplete="email"
                         placeholder="Enter Your email..."
                     />
                     {emailDirty && emailError && <div className="text-red-500 text-sm">{emailError}</div>}
@@ -103,6 +151,7 @@ const LoginPage = () => {
                         type="password"
                         name="password"
                         value={password}
+                        autoComplete="current-password"
                         onChange={passwordHandler}
                         onBlur={blurHandler}
                         placeholder="Enter Your password..."
@@ -117,8 +166,13 @@ const LoginPage = () => {
                         <span id="login_default_state" className={`transition-opacity duration-300 ${isSubmitting ? 'hidden' : 'block'}`}>Login</span>
                     </button>
                 </form>
+                <div id="signInButton">
+                    <GoogleOAuthProvider clientId={clientId}>
+                        <CustomGoogleButton setIsSubmitting={setIsSubmitting} />
+                    </GoogleOAuthProvider>
+                </div>
             </div>
-        </div>
+        </div >
     );
 };
 

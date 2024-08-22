@@ -2,10 +2,18 @@ import { Disclosure, DisclosureButton } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Header, MobileMenu, Navigation, UserMenu } from './components' 
 import { navigation } from "../../globalEnv"
+import { API_URL } from '../../http'
+import { useEffect } from 'react'
+import { toast, Slide, cssTransition } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux'
+import { getNotificationsThunk } from '../../features/notifications/notificationsThunk'
+import { setUnseenNotificationsCount } from '../../features/notifications/notificationsSlice'
+
 
 
 const Main = () => {
-
+  const dispatch = useDispatch();
+  const unseenNotificationsCount = useSelector((state) => state.notifications.unseenNotificationsCount);
   const user = {
     name: 'Tom Cook',
     email: 'tom@example.com',
@@ -23,7 +31,44 @@ const Main = () => {
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
   }
-  
+
+  useEffect(() => {
+    let url = `ws://127.0.0.1:8000/ws/notify/?token=${localStorage.getItem("token")}`;
+    const socket = new WebSocket(url);
+
+    socket.onmessage = (e) => {
+      let data = JSON.parse(e.data);
+      let sountArr = ["[appsgolem.com][00-14-06][00-14-12]__.mp3",
+                      "HEHEHEHAclashroyal.mp3",
+                      "Amongussussoundeffect.mp3",
+                      "EmotionalDamage(Meme Sound Effect)(HD).mp3"];
+      const randomIndex = Math.floor(Math.random() * sountArr.length);
+      const audio = new Audio(`/sound/${sountArr[randomIndex]}`);
+      audio.play();
+      toast(`${data.message}`, {
+        autoClose: false,
+        closeOnClick: true,  
+        draggable: true,
+        transition: Slide,
+        pauseOnHover: true,
+        hideProgressBar: true,
+        containerId : "notification",
+      });
+      dispatch(setUnseenNotificationsCount(unseenNotificationsCount+1))
+    };
+
+    return () => {
+      socket.close()
+    };
+  }, []);
+
+  useEffect(()=>{
+    dispatch(getNotificationsThunk());
+  },[])
+
+  useEffect(()=>{
+    dispatch(setUnseenNotificationsCount());
+  },[])
 
   return (
     <>

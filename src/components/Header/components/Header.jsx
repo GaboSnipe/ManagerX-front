@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
-import { setFolder, setFile, setSeeResizebleDiv, setShowFileIcon } from '../../../features/workplace/workplaceSlice';
+import { setFolder, setFile, setSeeResizebleDiv, setShowFileIcon, setIsModalOpen } from '../../../features/workplace/workplaceSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsAddEnable } from '../../../features/task/taskSlice';
 
@@ -48,8 +48,10 @@ const Header = () => {
   }
 
   const addFolder = () => {
+    dispatch(setIsModalOpen(true));
 
   }
+  
 
   const backButton = () => {
     dispatch(setShowFileIcon(false));
@@ -59,6 +61,7 @@ const Header = () => {
   };
 
   const addFileInFolder = () => {
+    dispatch(setIsModalOpen(true));
   };
 
 

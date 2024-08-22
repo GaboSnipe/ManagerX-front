@@ -1,21 +1,20 @@
-input {
-    border: none !important;
-    background: transparent !important;
-    padding: 0 ;
-    padding-left: 5 ;
-    padding-right: 0 ;
-    margin: 0 ;
-    box-shadow: none !important;
-    outline: none !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    appearance: none !important;
-  }
-  
-  input:focus {
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    outline: none !important;
-  }
-  
+/* input {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 ;
+  padding-left: 5 ;
+  padding-right: 0 ;
+  margin: 0 ;
+  box-shadow: none !important;
+  outline: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+}
+
+input:focus {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+} */

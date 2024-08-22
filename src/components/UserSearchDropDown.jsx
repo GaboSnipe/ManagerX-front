@@ -42,7 +42,7 @@ function UserSearchDropDown({ value, isEditing, formData, setFormData, qkey }) {
     const changeUser = (user) => {
         setFormData(prevData => ({
             ...prevData,
-            [qkey]: user.id
+            [qkey]: user.pk
         }));
         setIsOpen(false);
     };
@@ -58,7 +58,6 @@ function UserSearchDropDown({ value, isEditing, formData, setFormData, qkey }) {
             >
                 <div className='flex items-center pr-2'>
                     <span className="bg-purple-500 text-white rounded-full w-7 h-7 flex items-center justify-center">
-                        {value?.id}
                     </span>
                     <span className="text-gray-500 ml-3">{value?.email}</span>
                 </div>
@@ -92,7 +91,7 @@ function UserSearchDropDown({ value, isEditing, formData, setFormData, qkey }) {
                             <input
                                 type="text"
                                 id="input-group-search"
-                                className="block w-full ps-10 text-sm text-gray-900 rounded-b-lg border-0 border-b-2 border-gray-300"
+                                className="block w-full bg-transparent ps-10 text-sm text-gray-900 rounded-b-lg border-0 border-b-2 border-gray-300"
                                 placeholder="Search user"
                             />
                         </div>
@@ -100,11 +99,11 @@ function UserSearchDropDown({ value, isEditing, formData, setFormData, qkey }) {
                     <ul className="max-h-48 overflow-y-auto px-3 pb-3 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownSearchButton">
                         {/* Example list items */}
                         {userList.map((user) => (
-                            <li key={user.id} className='space-y-2'>
+                            <li key={user.pk} className='space-y-2'>
                                 <div className='flex items-center pr-2 mt-2'>
                                     <button onClick={() => changeUser(user)} className='flex'>
                                         <span className="bg-purple-500 text-white rounded-full w-7 h-7 flex items-center justify-center">
-                                            {user.id}
+                                            
                                         </span>
                                         <span className="text-gray-500 ml-3">{user.email}</span>
                                     </button>
