@@ -17,8 +17,6 @@ const UserMenu = ({ user, userNavigation }) => {
   };
 
 
-  console.log(notificationsList)
-
 
   const handleClickOutside = (event) => {
     if (menuRef.current && !menuRef.current.contains(event.target)) {

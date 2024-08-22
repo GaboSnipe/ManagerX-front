@@ -21,7 +21,7 @@ const useAuthCheck = () => {
     if (!loading && !isAuth) {
       navigate('/');
     }
-  }, [isAuth, loading, navigate]);
+  }, [navigate]);
 
   return loading;
 };
