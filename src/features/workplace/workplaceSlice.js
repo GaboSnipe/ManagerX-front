@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getFolderListThunk, getFolderDetailsThunk, addFileInFolderThunk, deleteFileThunk, addFolderThunk } from "./workplaceThunk";
+import { getFolderListThunk, getFolderDetailsThunk, addFileInFolderThunk, deleteFileThunk, addFolderThunk, deleteFolderThunk } from "./workplaceThunk";
 
 const initialState = {
   folderInfo: {},
@@ -9,6 +9,7 @@ const initialState = {
   showFileIcon: false,
   loading: false,
   seeResizebleDiv: false,
+  isModalOpen: false,
   error: null,
 };
 
@@ -27,6 +28,9 @@ const workplaceSlice = createSlice({
     },
     setFolderList(state, action) {
       state.folderList = action.payload;
+    },
+    setIsModalOpen(state, action) {
+      state.isModalOpen = action.payload;
     },
     setFolder(state, action) {
       state.folderInfo = action.payload;
@@ -99,10 +103,22 @@ const workplaceSlice = createSlice({
       })
       .addCase(deleteFileThunk.fulfilled, (state, action) => {
         state.loading = false;
+        state.fileList = state.fileList.filter(file => file.uuid !== action.meta.arg);
+      })
+      .addCase(deleteFileThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(deleteFolderThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteFolderThunk.fulfilled, (state, action) => {
+        state.loading = false;
         state.folderList = state.folderList.filter(folder => folder.uuid !== action.meta.arg);
         state.folderInfo = {};
       })
-      .addCase(deleteFileThunk.rejected, (state, action) => {
+      .addCase(deleteFolderThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
@@ -117,5 +133,6 @@ export const {
   setFolderList,
   setSeeResizebleDiv,
   setShowFileIcon,
+  setIsModalOpen,
 } = workplaceSlice.actions;
 export default workplaceSlice.reducer;

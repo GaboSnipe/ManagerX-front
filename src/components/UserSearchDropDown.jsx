@@ -91,7 +91,7 @@ function UserSearchDropDown({ value, isEditing, formData, setFormData, qkey }) {
                             <input
                                 type="text"
                                 id="input-group-search"
-                                className="block w-full ps-10 text-sm text-gray-900 rounded-b-lg border-0 border-b-2 border-gray-300"
+                                className="block w-full bg-transparent ps-10 text-sm text-gray-900 rounded-b-lg border-0 border-b-2 border-gray-300"
                                 placeholder="Search user"
                             />
                         </div>

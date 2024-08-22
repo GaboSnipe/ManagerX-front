@@ -1,12 +1,14 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { FolderIcon, FileIcon, ResizableDiv, FileViewer } from '../components';
-import { setFolder, setFile, setSeeResizebleDiv, setShowFileIcon } from '../features/workplace/workplaceSlice';
+import { FolderIcon, FileIcon, ResizableDiv } from '../components';
+import { setFolder, setFile, setSeeResizebleDiv, setShowFileIcon, setFolderList, setIsModalOpen } from '../features/workplace/workplaceSlice';
 import useAuthCheck from '../utils/hooks/useAuthCheck';
-import { addFileInFolderThunk, getFolderDetailsThunk, getFolderListThunk } from '../features/workplace/workplaceThunk';
+import { addFileInFolderThunk, getFolderDetailsThunk, getFolderListThunk, addFolderThunk } from '../features/workplace/workplaceThunk';
 import { getProjectHeadersThunk } from '../features/project/projectThunk';
 import { v4 as uuidv4 } from 'uuid';
-import {TextEditor} from "../components/Tasks/components/index.js";
+import { TextEditor } from "../components/Tasks/components/index.js";
+import { ModalWindow } from "../components";
+import { toast } from "react-toastify";
 
 const mandatoryHeaders = [
   { accessor: 'id', type: "integer", label: '#', sortable: false, sortbyOrder: "desc", order: 0, visible: true },
@@ -60,9 +62,10 @@ const formatData = (formattedHeaders, response) => {
   return data.sort((a, b) => a.order - b.order);
 };
 
-const CustomContextMenu = ({ x, y, onClose, selectedFolder }) => {
+const CustomContextMenu = ({ x, y, onClose }) => {
   const menuRef = useRef(null);
   const dispatch = useDispatch();
+  const showFileIcon = useSelector(state => state.workplace.showFileIcon);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -75,6 +78,11 @@ const CustomContextMenu = ({ x, y, onClose, selectedFolder }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [onClose]);
 
+  const handleAdd = () => {
+    dispatch(setIsModalOpen(true));
+    onClose();
+  }
+
 
   return (
     <div
@@ -84,7 +92,7 @@ const CustomContextMenu = ({ x, y, onClose, selectedFolder }) => {
     >
       <ul>
         <li className="text-green-600 font-bold">
-          <button >Add Folder</button>
+          <button onClick={handleAdd} >{showFileIcon ? "Add File" : "Add Folder"}</button>
         </li>
       </ul>
     </div>
@@ -92,7 +100,7 @@ const CustomContextMenu = ({ x, y, onClose, selectedFolder }) => {
 };
 
 const WorkPlace = () => {
-  // const loading = useAuthCheck();
+  const loading = useAuthCheck();
   const dispatch = useDispatch();
   const showFileIcon = useSelector(state => state.workplace.showFileIcon);
 
@@ -105,8 +113,103 @@ const WorkPlace = () => {
   const [headers, setHeaders] = useState([]);
   const [data, setData] = useState(() => formatData(headers, selectedFolder));
   const [filesSel, setSelFile] = useState(null);
+  const [dangerShow, setDangerShow] = useState(false);
   const [formState, setFormState] = useState({ title: '', file: null });
   const [seeAddFileDiv, setSeeAddFileDiv] = useState(false);
+  const isModalOpen = useSelector(state => state.workplace.isModalOpen);
+  const [folderFormData, setFolderFormData] = useState({ status: 'TODO' });
+  const [fileFormData, setFileFormData] = useState({
+    title: '',
+    folder: selectedFolder?.uuid || '',
+    file: null,
+  });
+
+  useEffect(() => {
+    if (selectedFolder?.uuid) {
+      setFileFormData((prevData) => ({
+        ...prevData,
+        folder: selectedFolder?.uuid,
+      }));
+    }
+  }, [selectedFolder?.uuid]);
+
+  const handleChangeFolderForm = (event) => {
+    const { name, value } = event.target;
+    setFolderFormData({ ...folderFormData, [name]: value });
+  };
+  const handleChangeFileForm = (event) => {
+    const { name, value, type, files } = event.target;
+    if (type === 'file') {
+      setFileFormData({ ...fileFormData, file: files[0] });
+    } else {
+      setFileFormData({ ...fileFormData, [name]: value });
+    }
+  };
+
+  const handleSubmitFolder = (event) => {
+    event.preventDefault();
+    try {
+      dispatch(addFolderThunk(folderFormData));
+      toast.success("Folder Created", {
+        containerId: "error"
+      })
+      setFolderFormData({ status: 'TODO' })
+      dispatch(setIsModalOpen(false));
+    } catch (err) {
+      console.error(err)
+      toast.warning(err, {
+        containerId: "error"
+      });
+    }
+  };
+
+  const handleSubmitFile = async (event) => {
+    event.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append('title', fileFormData.title);
+      formData.append('folder', fileFormData.folder);
+      if (fileFormData.file) {
+        formData.append('file', fileFormData.file);
+      }
+
+      await dispatch(addFileInFolderThunk(formData));
+      toast.success("File Uploaded", {
+        containerId: "error",
+      });
+      setFileFormData({
+        title: '',
+        folder: selectedFolder?.uuid || '',
+        file: null,
+      });
+      dispatch(setIsModalOpen(false));
+    } catch (err) {
+      console.error(err);
+      toast.warning(err.message || 'An error occurred', {
+        containerId: "error",
+      });
+    }
+  };
+
+
+
+  const CancelCreating = () => {
+    setFolderFormData({ status: 'TODO' })
+    dispatch(setIsModalOpen(false));
+
+  }
+
+  useEffect(() => {
+    if(folderFormData.customer && folderFormData.customer != "" || folderFormData.case && folderFormData.case != ""){
+      setFolderFormData({ ...folderFormData, title: `${folderFormData.customer}, ${folderFormData.case}` });
+    } else if (folderFormData.customer && folderFormData.customer != "") {
+      setFolderFormData({ ...folderFormData, title: `${folderFormData.customer}` });
+    } else if (folderFormData.case && folderFormData.case != "") {
+      setFolderFormData({ ...folderFormData, case: `${folderFormData.case}` });
+    }
+
+  },[folderFormData.case, folderFormData.customer])
+
 
   const getData = useCallback(async () => {
     try {
@@ -201,11 +304,6 @@ const WorkPlace = () => {
     dispatch(setShowFileIcon(true));
     dispatch(setSeeResizebleDiv(false));
   };
-
-  const closeSeeAddDiv = () => {
-    setSeeAddFileDiv(false);
-  };
-
   const handleContextMenu = (event) => {
     event.preventDefault();
     setContextMenu({
@@ -217,132 +315,33 @@ const WorkPlace = () => {
   const handleClose = () => {
     setContextMenu(null);
   };
-  
+
 
 
   return (
-      <div 
+    <div className='flex'>
+    <div
       onContextMenu={(e) => handleContextMenu(e)}
       className="flex-grow">
-        <div className="mx-auto max-w-full">
-          {showFileIcon && (
-              <>
-                {seeAddFileDiv && (
-                    <>
-                      <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={closeSeeAddDiv}></div>
-                      <div className="fixed inset-0 flex items-center justify-center z-50">
-                        <div className="bg-gray-900 p-6 rounded-lg shadow-lg">
-                          <input
-                              type="text"
-                              name="title"
-                              value={formState.title}
-                              onChange={handleFormChange}
-                              placeholder="Enter file title"
-                              className="p-2 rounded mb-4 w-full"
-                          />
-                          <input
-                              type="file"
-                              name="file"
-                              onChange={handleDocUpload}
-                              className="p-2 rounded mb-4 w-full"
-                          />
-                          <button
-                              onClick={confirmAddFile}
-                              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2">
-                            Add File
-                          </button>
-                        </div>
-                      </div>
-                    </>
-                )}
-
-              </>
-          )}
-          <div className="flex">
-            <div className="w-full flex-1 overflow-x-auto mb-8 overflow-hidden rounded-lg sm:px-6 lg:px-8 mt-5">
-              <div className="flex justify-center px-4 py-6 sm:px-6 lg:px-8">
-                {showFileIcon ? (
-                    <FileIcon files={files} handleClick={handleClick} selectedFile={selectedFile} />
-                ) : (
-                    <FolderIcon
-                        folders={folders}
-                        onDoubleClick={handleFolderDoubleClick}
-                        handleSingleClick={handleFolderSingleClick}
-                    />
-                )}
-              </div>
+      <div className="mx-auto max-w-full">
+        <div className="flex">
+          <div className="w-full flex-1 overflow-x-auto mb-8 overflow-hidden rounded-lg sm:px-6 lg:px-8 mt-5">
+            <div className="flex justify-center px-4 py-6 sm:px-6 lg:px-8">
+              {showFileIcon ? (
+                <FileIcon files={files} handleClick={handleClick} selectedFile={selectedFile} />
+              ) : (
+                <FolderIcon
+                  folders={folders}
+                  onDoubleClick={handleFolderDoubleClick}
+                  handleSingleClick={handleFolderSingleClick}
+                />
+              )}
             </div>
-            {seeResizebleDiv && (
-                showFileIcon ?
-                    (
-
-                        <ResizableDiv setSeeResizebleDiv={fileShowClose}>
-                          <p className="text-purple-800 text-5xl"></p>
-                        </ResizableDiv>
-                    )
-                    :
-                    (
-                        <ResizableDiv setSeeResizebleDiv={folderShowClose}>
-                          <div className="text-[#252525] p-4">
-                            <FileIcon files={files} handleClick={clockhandler} selectedFile={selectedFile} listView={true} />
-                          </div>
-
-                          <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
-                            <table className="w-full text-sm text-left rtl:text-right">
-                              <caption className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-[#252525]">
-                                <TextEditor isEditing={false} />
-                              </caption>
-
-                              <thead className="w-full text-xs uppercase text-[#252525]">
-                              <tr>
-                                <th scope="col" className="px-6 py-3">
-                                  Property
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                  Value
-                                </th>
-                                <th scope="col" className="px-6 py-3">
-                                  <span className="sr-only">Edit</span>
-                                </th>
-                              </tr>
-                              </thead>
-                              <tbody>
-                              {
-                                data?.map((item) => {
-                                  if (!item.visible || item.accessor === 'id') return;
-                                  return (
-                                      <tr key={uuidv4()} className="w-full border border-gray-300 hover:bg-gray-200">
-                                        <th scope="row" className="px-6 py-4 font-medium text-[#252525] border border-gray-300">
-                                          {
-                                            item?.label
-                                          }
-                                        </th>
-
-                                        <td className="px-6 py-4 border border-gray-300" colSpan={2}>
-                                          {item?.value}
-                                        </td>
-
-
-                                        <td className="px-6 py-4 text-right border border-gray-300">
-                                          <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                            Edit
-                                          </a>
-                                        </td>
-                                      </tr>
-                                  )
-                                })
-
-                              }
-                              </tbody>
-                            </table>
-                          </div>
-                        </ResizableDiv>
-                    )
-
-            )}
           </div>
+          
         </div>
-        {contextMenu && (
+      </div>
+      {contextMenu && (
         <CustomContextMenu
           x={contextMenu.mouseX}
           y={contextMenu.mouseY}
@@ -350,7 +349,208 @@ const WorkPlace = () => {
           selectedFolder={contextMenu.folder}
         />
       )}
-      </div>
+
+
+    </div>
+    {seeResizebleDiv && (
+      showFileIcon ?
+        (
+
+          <ResizableDiv setSeeResizebleDiv={fileShowClose}>
+            <p className="text-purple-800 text-5xl"></p>
+          </ResizableDiv>
+        )
+        :
+        (
+          <ResizableDiv setSeeResizebleDiv={folderShowClose}>
+            <div>
+              
+            </div>
+            <div className="text-[#252525] p-4">
+              <FileIcon files={files} handleClick={clockhandler} selectedFile={selectedFile} listView={true} />
+            </div>
+
+            <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
+              <table className="w-full text-sm text-left rtl:text-right">
+                <caption className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-[#252525]">
+                  <TextEditor isEditing={false} />
+                </caption>
+
+                <thead className="w-full text-xs uppercase text-[#252525]">
+                  <tr>
+                    <th scope="col" className="px-6 py-3">
+                      Property
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Value
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    data?.map((item) => {
+                      if (!item.visible || item.accessor === 'id') return;
+                      return (
+                        <tr key={uuidv4()} className="w-full border border-gray-300 hover:bg-gray-200">
+                          <th scope="row" className="px-6 py-4 font-medium text-[#252525] border border-gray-300">
+                            {
+                              item?.label
+                            }
+                          </th>
+                          <td className="px-6 py-4 border border-gray-300" colSpan={2}>
+                            {item?.value}
+                          </td>
+                        </tr>
+                      )
+                    })
+
+                  }
+                </tbody>
+              </table>
+            </div>
+          </ResizableDiv>
+        )
+
+    )}
+
+    <ModalWindow
+    isOpen={isModalOpen}
+    onClose={() => dispatch(setIsModalOpen(false))}
+    title={showFileIcon ? "File Upload" : "Folder Create"}
+  >
+    {showFileIcon ? (
+      <form className="max-w-md mx-auto" onSubmit={handleSubmitFile}>
+        <div className="relative z-0 w-full mb-5 group">
+          <input
+            type="text"
+            name="title"
+            value={fileFormData.title || ''}
+            onChange={handleChangeFileForm}
+            required
+            id="floating_title"
+            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            placeholder=" "
+          />
+          <label
+            htmlFor="floating_title"
+            className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+          >
+            Title
+          </label>
+        </div>
+
+        <div className="relative z-0 w-full mb-5 group">
+          <input
+            type="file"
+            id="doc_file"
+            className="sr-only flex"
+            onChange={handleChangeFileForm}
+          />
+          <label
+            htmlFor="doc_file"
+            className="text-sm text-gray-400 border py-1 border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 focus:outline-none flex items-center justify-center"
+          >
+            <span>{fileFormData.file ? fileFormData.file.name : 'Choose File'}</span>
+          </label>
+        </div>
+
+        <div className="w-full flex justify-end space-x-4">
+          <button
+            type="button"
+            onClick={CancelCreating}
+            className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+    ) : (
+      <form className="max-w-md mx-auto" onSubmit={handleSubmitFolder}>
+        <div className='mb-4'>
+          <span className='text-sm text-gray-400'>Enter customer and case to generate title for folder</span>
+        </div>
+        <div className="relative z-0 w-full mb-5 group">
+          <input
+            type="text"
+            name="customer"
+            value={folderFormData.customer || ''}
+            onChange={handleChangeFolderForm}
+            id="floating_customer"
+            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            placeholder=" "
+            required
+          />
+          <label
+            htmlFor="floating_customer"
+            className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+          >
+            Customer
+          </label>
+        </div>
+
+        <div className="relative z-0 w-full mb-5 group">
+          <input
+            type="text"
+            name="case"
+            value={folderFormData.case || ''}
+            onChange={handleChangeFolderForm}
+            id="floating_case"
+            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            placeholder=" "
+            required
+          />
+          <label
+            htmlFor="floating_case"
+            className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+          >
+            Case
+          </label>
+        </div>
+
+        <div className="relative z-0 w-full mb-5 group">
+          <input
+            type="text"
+            name="title"
+            value={folderFormData.title || ''}
+            onChange={handleChangeFolderForm}
+            required
+            id="floating_title"
+            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+            placeholder=" "
+          />
+          <label
+            htmlFor="floating_title"
+            className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+          >
+            Title
+          </label>
+        </div>
+
+        <div className="w-full flex justify-end space-x-4">
+          <button
+            onClick={CancelCreating}
+            className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none  focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
+    )}
+
+  </ModalWindow>
+  </div>
   );
 };
 

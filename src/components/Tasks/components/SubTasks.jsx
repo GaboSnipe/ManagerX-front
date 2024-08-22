@@ -129,7 +129,7 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks, setSaveS
     const getAssignTo = async () => {
       try {
         const response = await UserService.getUserInfo(newSubTask.assign_to);
-        setAssignTo(response.data);
+        setAssignTo(response.data[0]);
       } catch (error) {
         console.error(error);
       }
@@ -301,7 +301,7 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks, setSaveS
           </div>
           <input
             type="text"
-            className="pl-5"
+            className="border-none outline-none focus:outline-none bg-transparent focus:border-none focus:ring-0 pl-5"
             placeholder="Enter task name"
             onChange={((e) => handleInputChange(e))}
             value={newSubTask.title}

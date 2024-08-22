@@ -288,6 +288,7 @@ const ExpandableTable = ({ task, setTasks, isDisable, isExpandedDefault }) => {
               readOnly={!isEditing}
               onChange={handleInputChange}
               onClick={handleOpenFullTask}
+              className="border-none outline-none bg-transparent focus:outline-none focus:border-none focus:ring-0"
             />
 
           </div>

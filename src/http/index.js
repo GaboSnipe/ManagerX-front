@@ -1,8 +1,9 @@
 import axios from "axios";
 
-export const API_URL = 'http://127.0.0.1:8000';//http://192.168.100.22:8000
+export const API_URL = 'http://localhost:8000';//http://192.168.100.22:8000
 
-const excludedUrls = ['/api/accounts/auth/login/', '/api/accounts/auth/google/'];
+const excludedUrls = ['/api/accounts/auth/login/', '/api/accounts/auth/google/', '/api/accounts/auth/token/verify/'];
+
 
 const $api = axios.create({
     withCredentials: true,
@@ -38,6 +39,9 @@ $api.interceptors.response.use(
 
                 return $api(originalRequest);
             } catch (err) {
+                if (err.response.status === 401) {
+                    window.location.href = "/";
+                }
                 console.error('Token refresh failed', err);
                 return Promise.reject(err);
             }

@@ -119,7 +119,9 @@ const LoginPage = () => {
     };
 
     useEffect(() => {
-        dispatch(logoutThunk());
+        if (localStorage.getItem("token")) {
+            dispatch(logoutThunk());
+        }
     }, []);
 
     return (
@@ -138,6 +140,7 @@ const LoginPage = () => {
                         value={email}
                         onChange={emailHandler}
                         onBlur={blurHandler}
+                        autoComplete="email"
                         placeholder="Enter Your email..."
                     />
                     {emailDirty && emailError && <div className="text-red-500 text-sm">{emailError}</div>}
@@ -148,6 +151,7 @@ const LoginPage = () => {
                         type="password"
                         name="password"
                         value={password}
+                        autoComplete="current-password"
                         onChange={passwordHandler}
                         onBlur={blurHandler}
                         placeholder="Enter Your password..."

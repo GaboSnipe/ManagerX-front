@@ -6,7 +6,7 @@ import CustomDataInput from "./CustomDataInput";
 import { setFolder, setSeeResizebleDiv } from '../../../features/workplace/workplaceSlice';
 import { FaFolder, FaRegEdit } from 'react-icons/fa';
 import { redirect, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from 'react-toastify';
 import FileService from "../../../services/FileService";
 import { parse, differenceInCalendarDays } from 'date-fns';
@@ -42,11 +42,12 @@ const formatDate = (date) => {
 const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormData }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const userInfo = useSelector((state) => state.auth.userInfo);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDropdownFolder, setIsDropdownFolder] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
   const [folder, setLocalFolder] = useState({});
-  const [creator, setCreator] = useState({});
+  const [creator, setCreator] = useState(userInfo);
   const [assignTo, setAssignTo] = useState({});
   const [folderList, setFolderList] = useState([]);
   const dropdownRef = useRef(null);
@@ -84,20 +85,6 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
       getAssignTo();
     }
   }, [formData.assign_to]);
-  useEffect(() => {
-
-    const getCreator = async () => {
-      try {
-        const response = await UserService.getUserInfo(formData.creator || task.creator);
-        setCreator(response.data[0]);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    if (formData.creator || task.creator) {
-      getCreator();
-    }
-  }, [formData.creator]);
 
 
   const getDeadlineStyles = (deadline) => {
@@ -335,13 +322,13 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 w-28">Reporter</span>
               <div className="flex items-center">
-                <UserSearchDropDown value={assignTo} formData={formData} setFormData={setFormData} isEditing={isEditing} qkey={"assign_to"} />
+                <UserSearchDropDown value={creator} formData={formData} setFormData={setFormData} isEditing={false} qkey={"creator"} />
 
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 w-28">Assignee</span>
-              <UserSearchDropDown value={creator} formData={formData} setFormData={setFormData} isEditing={isEditing} qkey={"creator"} />
+              <UserSearchDropDown value={assignTo} formData={formData} setFormData={setFormData} isEditing={isEditing} qkey={"assign_to"} />
             </div>
             <div className="flex items-center space-x-2">
               <span className="text-gray-600 w-28">Created At</span>

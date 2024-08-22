@@ -97,7 +97,7 @@ const Tasks = () => {
     const getCreator = async () => {
       try {
         const response = await UserService.getUserInfo(newSubTask?.creator || selectedSubTask?.creator);
-        setCreator(response.data);
+        setCreator(response.data[0]);
       } catch (error) {
         console.error(error);
       }
@@ -111,7 +111,7 @@ const Tasks = () => {
     const getAssignTo = async () => {
       try {
         const response = await UserService.getUserInfo(newSubTask?.assign_to || selectedSubTask?.assign_to);
-        setAssignTo(response.data);
+        setAssignTo(response.data[0]);
       } catch (error) {
         console.error(error);
       }
@@ -316,7 +316,7 @@ return (
     </div>
 
 
-    {seeResizebleDiv &&
+    {seeResizebleDiv && 
       <ResizableDiv setSeeResizebleDiv={handleResizebleDivToggle}>
         <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg min-w-full">
           <div className='w-full p-4'>
@@ -330,6 +330,8 @@ return (
                     value={newSubTask?.title || selectedSubTask?.title}
                     readOnly={!isEditingSubTask}
                     onChange={setNewSubTaskTitle}
+                    className="border-none outline-none bg-transparent focus:outline-none focus:border-none focus:ring-0 bg-[#f9f9f9]"
+
                   />
 
                 </div>

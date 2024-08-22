@@ -64,10 +64,9 @@ const authSlice = createSlice({
         state.isAuth = true;
       })
       .addCase(checkAuth.rejected, (state, action) => {
-        state.isAuth = false;
-        state.userInfo = {};
-        state.userToken = null;
         console.error(action.payload);
+        console.error(state);
+        console.error(action);
       });
   },
 });

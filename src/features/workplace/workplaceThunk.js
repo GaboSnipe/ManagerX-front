@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import FileService from '../../services/FileService';
+import { toast } from 'react-toastify';
 
 export const getFolderListThunk = createAsyncThunk(
   'folder/getList',
@@ -52,15 +53,32 @@ export const deleteFileThunk = createAsyncThunk(
   'workplace/deleteFile',
   async (fileUuid, thunkAPI) => {
     try {
-      // const response = await axios.delete(`/api/files/${fileUuid}`);
-      // return response.data;
+        await FileService.deleteFile(fileUuid);
       return ;
     } catch (err) {
       if (!err.response) {
         throw err;
       }
-      return thunkAPI.rejectWithValue(error.response.data || 'Failed to delete file');
+      return thunkAPI.rejectWithValue(err.response.data || 'Failed to delete file');
 
+    }
+  }
+);
+
+export const deleteFolderThunk = createAsyncThunk(
+  'workplace/deleteFolder',
+  async (folderUuid, thunkAPI) => {
+    try {
+      await FileService.deleteFolder(folderUuid);
+    } catch (err) {
+      toast.error(err.message, {
+        containerId : "error"
+      })
+      if (!err.response) {
+        throw err;
+      }
+      return thunkAPI.rejectWithValue(err.response.data || 'Failed to delete folder');
+      
     }
   }
 );

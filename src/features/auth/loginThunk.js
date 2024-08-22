@@ -63,11 +63,9 @@ export const checkAuth = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(
-        `${API_URL}/api/accounts/auth/token/verify/`,
-        { token }
-      );
+      await AuthService.authCheck(token);
     } catch (error) {
+      console.log(error)
       return thunkAPI.rejectWithValue(error.response?.data || 'Unknown error');
     }
   }
