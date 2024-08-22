@@ -43,7 +43,7 @@ const Main = () => {
                       "Amongussussoundeffect.mp3",
                       "EmotionalDamage(Meme Sound Effect)(HD).mp3"];
       const randomIndex = Math.floor(Math.random() * sountArr.length);
-      const audio = new Audio(`/sound/${sountArr[randomIndex]}`);
+      const audio = new Audio(`/sound/mixkit-long-pop-2358.wav`);
       audio.play();
       toast(`${data.message}`, {
         autoClose: false,

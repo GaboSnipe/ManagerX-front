@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { FolderIcon, FileIcon, ResizableDiv } from '../components';
+import { FolderIcon, FileIcon, ResizableDiv, UserSearchDropDown } from '../components';
 import { setFolder, setFile, setSeeResizebleDiv, setShowFileIcon, setFolderList, setIsModalOpen } from '../features/workplace/workplaceSlice';
 import useAuthCheck from '../utils/hooks/useAuthCheck';
 import { addFileInFolderThunk, getFolderDetailsThunk, getFolderListThunk, addFolderThunk } from '../features/workplace/workplaceThunk';
@@ -9,6 +9,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { TextEditor } from "../components/Tasks/components/index.js";
 import { ModalWindow } from "../components";
 import { toast } from "react-toastify";
+import { FaTasks } from 'react-icons/fa';
+import { format } from 'date-fns';
 
 const mandatoryHeaders = [
   { accessor: 'id', type: "integer", label: '#', sortable: false, sortbyOrder: "desc", order: 0, visible: true },
@@ -221,6 +223,11 @@ const WorkPlace = () => {
     }
   }, [dispatch]);
 
+  const formatDateSub = (dateString) => {
+    const date = new Date(dateString);
+    return format(date, 'MMMM d, yyyy');
+  };
+
   useEffect(() => {
     setData(formatData(headers, selectedFolder))
   }, [headers, selectedFolder]);
@@ -357,7 +364,73 @@ const WorkPlace = () => {
         (
 
           <ResizableDiv setSeeResizebleDiv={fileShowClose}>
-            <p className="text-purple-800 text-5xl"></p>
+        <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg min-w-full">
+          <div className='w-full p-4'>
+            <div>
+              <div className="flex w-full justify-between items-center mb-4">
+                <div className="flex items-center pl-5 space-x-2">
+                  <input
+                    type="text"
+                    value={selectedFile?.title}
+                    readOnly={true}
+                    // onChange={setNewSubTaskTitle}
+                    className="border-none outline-none bg-transparent focus:outline-none focus:border-none focus:ring-0 bg-[#f9f9f9]"
+                  />
+                </div>
+
+                {/* {!isEditingSubTask &&
+                  <button onClick={startEdit} className="bg-yellow-400 text-white text-base items-center px-4 py-2 rounded flex space-x-2"> <FaRegEdit /> <p>Edit</p></button>
+                } */}
+              </div>
+            </div>
+            <div className="space-y-5">
+              <div className="relative flex items-center space-x-2">
+                <span className="text-gray-600 w-28">Folder</span>
+                <div className="flex ">
+                  <button className="flex mr-2 focus:outline-none "
+                  // onClick={handleDropdownTaskListToggle}
+                  // aria-expanded={isDropdownTaskList}
+                  >
+                    <span className="text-gray-400 flex">
+                      <FaTasks className="text-blue-500 text-xl" />
+                    </span>
+                    
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <span className="text-gray-600 w-28">owner</span>
+                <UserSearchDropDown value={owner} formData={selectedSubTask} setFormData={setNewSubTask}  isEditing={isEditingSubTask} qkey={"owner"} />
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-gray-600 w-28">Created At</span>
+                <div className="py-2 px-3 text-sm text-gray-700 bg-gray-100 rounded">
+                  {formatDateSub(selectedFile.created_at)}
+                </div>
+              </div>
+              {/* {isEditingSubTask &&
+                <div className="flex justify-end space-x-4 mt-4 p-5">
+                  <button
+                    onClick={cancelEdit}
+                    className="flex items-center space-x-1 text-gray-600"
+                  >
+                    <FiXCircle className="text-xl" />
+                    <span>Cancel</span>
+                  </button>
+                  <button
+                    onClick={saveChangeSubTask}
+                    className="flex items-center space-x-1 text-white bg-purple-600 px-4 py-2 rounded"
+                  >
+                    <FiCheckCircle className="text-xl" />
+                    <span>Save</span>
+                  </button>
+                </div>
+              } */}
+            </div>
+          </div>
+
+        </div>
           </ResizableDiv>
         )
         :
@@ -452,22 +525,6 @@ const WorkPlace = () => {
           >
             <span>{fileFormData.file ? fileFormData.file.name : 'Choose File'}</span>
           </label>
-        </div>
-
-        <div className="w-full flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={CancelCreating}
-            className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
-          >
-            Submit
-          </button>
         </div>
       </form>
     ) : (
