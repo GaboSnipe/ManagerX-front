@@ -9,8 +9,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { TextEditor } from "../components/Tasks/components/index.js";
 import { ModalWindow } from "../components";
 import { toast } from "react-toastify";
-import { FaTasks } from 'react-icons/fa';
+import { FaFolder, FaTasks } from 'react-icons/fa';
 import { format } from 'date-fns';
+import UserService from '../services/UserService.js';
 
 const mandatoryHeaders = [
   { accessor: 'id', type: "integer", label: '#', sortable: false, sortbyOrder: "desc", order: 0, visible: true },
@@ -116,8 +117,11 @@ const WorkPlace = () => {
   const [data, setData] = useState(() => formatData(headers, selectedFolder));
   const [filesSel, setSelFile] = useState(null);
   const [dangerShow, setDangerShow] = useState(false);
+  const [owner, setOwner] = useState();
   const [formState, setFormState] = useState({ title: '', file: null });
+  const dropdownFolderRef = useRef(null);
   const [seeAddFileDiv, setSeeAddFileDiv] = useState(false);
+  const [isDropdownFolder, setIsDropdownFolder] = useState(false);
   const isModalOpen = useSelector(state => state.workplace.isModalOpen);
   const [folderFormData, setFolderFormData] = useState({ status: 'TODO' });
   const [fileFormData, setFileFormData] = useState({
@@ -202,7 +206,7 @@ const WorkPlace = () => {
   }
 
   useEffect(() => {
-    if(folderFormData.customer && folderFormData.customer != "" || folderFormData.case && folderFormData.case != ""){
+    if (folderFormData.customer && folderFormData.customer != "" || folderFormData.case && folderFormData.case != "") {
       setFolderFormData({ ...folderFormData, title: `${folderFormData.customer}, ${folderFormData.case}` });
     } else if (folderFormData.customer && folderFormData.customer != "") {
       setFolderFormData({ ...folderFormData, title: `${folderFormData.customer}` });
@@ -210,7 +214,7 @@ const WorkPlace = () => {
       setFolderFormData({ ...folderFormData, case: `${folderFormData.case}` });
     }
 
-  },[folderFormData.case, folderFormData.customer])
+  }, [folderFormData.case, folderFormData.customer])
 
 
   const getData = useCallback(async () => {
@@ -323,93 +327,146 @@ const WorkPlace = () => {
     setContextMenu(null);
   };
 
+  useEffect(() => {
+    const getOwner = async () => {
+      try {
+        const response = await UserService.getUserInfo(selectedFile.owner);
+        setOwner(response.data[0]);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    if (selectedFile.owner || seeResizebleDiv || showFileIcon) {
+      getOwner();
+    }
+  }, [selectedFile.owner]);
+
+  console.log(owner)
+
 
 
   return (
     <div className='flex'>
-    <div
-      onContextMenu={(e) => handleContextMenu(e)}
-      className="flex-grow">
-      <div className="mx-auto max-w-full">
-        <div className="flex">
-          <div className="w-full flex-1 overflow-x-auto mb-8 overflow-hidden rounded-lg sm:px-6 lg:px-8 mt-5">
-            <div className="flex justify-center px-4 py-6 sm:px-6 lg:px-8">
-              {showFileIcon ? (
-                <FileIcon files={files} handleClick={handleClick} selectedFile={selectedFile} />
-              ) : (
-                <FolderIcon
-                  folders={folders}
-                  onDoubleClick={handleFolderDoubleClick}
-                  handleSingleClick={handleFolderSingleClick}
-                />
-              )}
-            </div>
-          </div>
-          
-        </div>
-      </div>
-      {contextMenu && (
-        <CustomContextMenu
-          x={contextMenu.mouseX}
-          y={contextMenu.mouseY}
-          onClose={handleClose}
-          selectedFolder={contextMenu.folder}
-        />
-      )}
-
-
-    </div>
-    {seeResizebleDiv && (
-      showFileIcon ?
-        (
-
-          <ResizableDiv setSeeResizebleDiv={fileShowClose}>
-        <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg min-w-full">
-          <div className='w-full p-4'>
-            <div>
-              <div className="flex w-full justify-between items-center mb-4">
-                <div className="flex items-center pl-5 space-x-2">
-                  <input
-                    type="text"
-                    value={selectedFile?.title}
-                    readOnly={true}
-                    // onChange={setNewSubTaskTitle}
-                    className="border-none outline-none bg-transparent focus:outline-none focus:border-none focus:ring-0 bg-[#f9f9f9]"
+      <div
+        onContextMenu={(e) => handleContextMenu(e)}
+        className="flex-grow">
+        <div className="mx-auto max-w-full">
+          <div className="flex">
+            <div className="w-full flex-1 overflow-x-auto mb-8 overflow-hidden rounded-lg sm:px-6 lg:px-8 mt-5">
+              <div className="flex justify-center px-4 py-6 sm:px-6 lg:px-8">
+                {showFileIcon ? (
+                  <FileIcon files={files} handleClick={handleClick} selectedFile={selectedFile} />
+                ) : (
+                  <FolderIcon
+                    folders={folders}
+                    onDoubleClick={handleFolderDoubleClick}
+                    handleSingleClick={handleFolderSingleClick}
                   />
-                </div>
+                )}
+              </div>
+            </div>
 
-                {/* {!isEditingSubTask &&
+          </div>
+        </div>
+        {contextMenu && (
+          <CustomContextMenu
+            x={contextMenu.mouseX}
+            y={contextMenu.mouseY}
+            onClose={handleClose}
+            selectedFolder={contextMenu.folder}
+          />
+        )}
+
+
+      </div>
+      {seeResizebleDiv && (
+        showFileIcon ?
+          (
+
+            <ResizableDiv setSeeResizebleDiv={fileShowClose}>
+              <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg min-w-full">
+                <div className='w-full p-4'>
+                  <div>
+                    <div className="flex w-full justify-between items-center mb-4">
+                      <div className="flex items-center pl-5 space-x-2">
+                        <input
+                          type="text"
+                          value={selectedFile?.title}
+                          readOnly={true}
+                          // onChange={setNewSubTaskTitle}
+                          className="border-none outline-none bg-transparent focus:outline-none focus:border-none focus:ring-0 bg-[#f9f9f9]"
+                        />
+                      </div>
+
+                      {/* {!isEditingSubTask &&
                   <button onClick={startEdit} className="bg-yellow-400 text-white text-base items-center px-4 py-2 rounded flex space-x-2"> <FaRegEdit /> <p>Edit</p></button>
                 } */}
-              </div>
-            </div>
-            <div className="space-y-5">
-              <div className="relative flex items-center space-x-2">
-                <span className="text-gray-600 w-28">Folder</span>
-                <div className="flex ">
-                  <button className="flex mr-2 focus:outline-none "
-                  // onClick={handleDropdownTaskListToggle}
-                  // aria-expanded={isDropdownTaskList}
-                  >
-                    <span className="text-gray-400 flex">
-                      <FaTasks className="text-blue-500 text-xl" />
-                    </span>
-                    
-                  </button>
-                </div>
-              </div>
+                    </div>
+                  </div>
+                  <div className="space-y-5">
+                    <div className="relative flex items-center space-x-2">
+                      <span className="text-gray-600 w-28">Folder</span>
+                      <div className="flex ">
+                        <button onClick={handleRedirectToWorkspace} className="flex mr-2">
+                          <span className="text-gray-400 flex">
+                            <FaFolder className="text-yellow-400 text-xl" />
+                            <p className="px-3">{folder?.title}</p>
+                          </span>
+                        </button>
+                        <button
+                          onClick={handleDropdownFolderToggle}
+                          aria-expanded={isDropdownFolder}
+                          className="focus:outline-none "
+                        >
+                          {isEditing &&
+                            <svg
+                              className={`w-2.5 h-2.5 transition-transform duration-300 ${isDropdownFolder ? 'rotate-180' : ''}`}
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 10 6"
+                            >
+                              <path
+                                stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="m1 1 4 4 4-4"
+                              />
+                            </svg>
+                          }
+                        </button>
+                        {isDropdownFolder && (
+                          <div
+                            ref={dropdownFolderRef}
+                            className="absolute z-50 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow top-full"
+                          >
+                            <ul className="py-2 text-sm p-2 space-y-1">
+                              {folderList.map((folder) => (
+                                <li key={folder.uuid}>
+                                  <button className="flex" onClick={(() => chooseFolder(folder))}>
+                                    <FaFolder className="text-yellow-400 text-xl" />
+                                    <p className="px-3">{folder.title}</p>
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-600 w-28">owner</span>
-                <UserSearchDropDown value={owner} formData={selectedSubTask} setFormData={setNewSubTask}  isEditing={isEditingSubTask} qkey={"owner"} />
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-600 w-28">Created At</span>
-                <div className="py-2 px-3 text-sm text-gray-700 bg-gray-100 rounded">
-                  {formatDateSub(selectedFile.created_at)}
-                </div>
-              </div>
-              {/* {isEditingSubTask &&
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-600 w-28">owner</span>
+                      <UserSearchDropDown value={owner} formData={selectedFile} isEditing={false} qkey={"owner"} />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-600 w-28">Created At</span>
+                      <div className="py-2 px-3 text-sm text-gray-700 bg-gray-100 rounded">
+                        {formatDateSub(selectedFile.created_at)}
+                      </div>
+                    </div>
+                    {/* {isEditingSubTask &&
                 <div className="flex justify-end space-x-4 mt-4 p-5">
                   <button
                     onClick={cancelEdit}
@@ -427,187 +484,187 @@ const WorkPlace = () => {
                   </button>
                 </div>
               } */}
+                  </div>
+                </div>
+
+              </div>
+            </ResizableDiv>
+          )
+          :
+          (
+            <ResizableDiv setSeeResizebleDiv={folderShowClose}>
+              <div>
+
+              </div>
+              <div className="text-[#252525] p-4">
+                <FileIcon files={files} handleClick={clockhandler} selectedFile={selectedFile} listView={true} />
+              </div>
+
+              <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
+                <table className="w-full text-sm text-left rtl:text-right">
+                  <caption className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-[#252525]">
+                    <TextEditor isEditing={false} />
+                  </caption>
+
+                  <thead className="w-full text-xs uppercase text-[#252525]">
+                    <tr>
+                      <th scope="col" className="px-6 py-3">
+                        Property
+                      </th>
+                      <th scope="col" className="px-6 py-3">
+                        Value
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      data?.map((item) => {
+                        if (!item.visible || item.accessor === 'id') return;
+                        return (
+                          <tr key={uuidv4()} className="w-full border border-gray-300 hover:bg-gray-200">
+                            <th scope="row" className="px-6 py-4 font-medium text-[#252525] border border-gray-300">
+                              {
+                                item?.label
+                              }
+                            </th>
+                            <td className="px-6 py-4 border border-gray-300" colSpan={2}>
+                              {item?.value}
+                            </td>
+                          </tr>
+                        )
+                      })
+
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </ResizableDiv>
+          )
+
+      )}
+
+      <ModalWindow
+        isOpen={isModalOpen}
+        onClose={() => dispatch(setIsModalOpen(false))}
+        title={showFileIcon ? "File Upload" : "Folder Create"}
+      >
+        {showFileIcon ? (
+          <form className="max-w-md mx-auto" onSubmit={handleSubmitFile}>
+            <div className="relative z-0 w-full mb-5 group">
+              <input
+                type="text"
+                name="title"
+                value={fileFormData.title || ''}
+                onChange={handleChangeFileForm}
+                required
+                id="floating_title"
+                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                placeholder=" "
+              />
+              <label
+                htmlFor="floating_title"
+                className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+              >
+                Title
+              </label>
             </div>
-          </div>
 
-        </div>
-          </ResizableDiv>
-        )
-        :
-        (
-          <ResizableDiv setSeeResizebleDiv={folderShowClose}>
-            <div>
-              
+            <div className="relative z-0 w-full mb-5 group">
+              <input
+                type="file"
+                id="doc_file"
+                className="sr-only flex"
+                onChange={handleChangeFileForm}
+              />
+              <label
+                htmlFor="doc_file"
+                className="text-sm text-gray-400 border py-1 border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 focus:outline-none flex items-center justify-center"
+              >
+                <span>{fileFormData.file ? fileFormData.file.name : 'Choose File'}</span>
+              </label>
             </div>
-            <div className="text-[#252525] p-4">
-              <FileIcon files={files} handleClick={clockhandler} selectedFile={selectedFile} listView={true} />
+          </form>
+        ) : (
+          <form className="max-w-md mx-auto" onSubmit={handleSubmitFolder}>
+            <div className='mb-4'>
+              <span className='text-sm text-gray-400'>Enter customer and case to generate title for folder</span>
+            </div>
+            <div className="relative z-0 w-full mb-5 group">
+              <input
+                type="text"
+                name="customer"
+                value={folderFormData.customer || ''}
+                onChange={handleChangeFolderForm}
+                id="floating_customer"
+                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                placeholder=" "
+                required
+              />
+              <label
+                htmlFor="floating_customer"
+                className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+              >
+                Customer
+              </label>
             </div>
 
-            <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
-              <table className="w-full text-sm text-left rtl:text-right">
-                <caption className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-[#252525]">
-                  <TextEditor isEditing={false} />
-                </caption>
-
-                <thead className="w-full text-xs uppercase text-[#252525]">
-                  <tr>
-                    <th scope="col" className="px-6 py-3">
-                      Property
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                      Value
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    data?.map((item) => {
-                      if (!item.visible || item.accessor === 'id') return;
-                      return (
-                        <tr key={uuidv4()} className="w-full border border-gray-300 hover:bg-gray-200">
-                          <th scope="row" className="px-6 py-4 font-medium text-[#252525] border border-gray-300">
-                            {
-                              item?.label
-                            }
-                          </th>
-                          <td className="px-6 py-4 border border-gray-300" colSpan={2}>
-                            {item?.value}
-                          </td>
-                        </tr>
-                      )
-                    })
-
-                  }
-                </tbody>
-              </table>
+            <div className="relative z-0 w-full mb-5 group">
+              <input
+                type="text"
+                name="case"
+                value={folderFormData.case || ''}
+                onChange={handleChangeFolderForm}
+                id="floating_case"
+                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                placeholder=" "
+                required
+              />
+              <label
+                htmlFor="floating_case"
+                className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+              >
+                Case
+              </label>
             </div>
-          </ResizableDiv>
-        )
 
-    )}
+            <div className="relative z-0 w-full mb-5 group">
+              <input
+                type="text"
+                name="title"
+                value={folderFormData.title || ''}
+                onChange={handleChangeFolderForm}
+                required
+                id="floating_title"
+                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+                placeholder=" "
+              />
+              <label
+                htmlFor="floating_title"
+                className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+              >
+                Title
+              </label>
+            </div>
 
-    <ModalWindow
-    isOpen={isModalOpen}
-    onClose={() => dispatch(setIsModalOpen(false))}
-    title={showFileIcon ? "File Upload" : "Folder Create"}
-  >
-    {showFileIcon ? (
-      <form className="max-w-md mx-auto" onSubmit={handleSubmitFile}>
-        <div className="relative z-0 w-full mb-5 group">
-          <input
-            type="text"
-            name="title"
-            value={fileFormData.title || ''}
-            onChange={handleChangeFileForm}
-            required
-            id="floating_title"
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" "
-          />
-          <label
-            htmlFor="floating_title"
-            className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >
-            Title
-          </label>
-        </div>
+            <div className="w-full flex justify-end space-x-4">
+              <button
+                onClick={CancelCreating}
+                className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none  focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        )}
 
-        <div className="relative z-0 w-full mb-5 group">
-          <input
-            type="file"
-            id="doc_file"
-            className="sr-only flex"
-            onChange={handleChangeFileForm}
-          />
-          <label
-            htmlFor="doc_file"
-            className="text-sm text-gray-400 border py-1 border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 focus:outline-none flex items-center justify-center"
-          >
-            <span>{fileFormData.file ? fileFormData.file.name : 'Choose File'}</span>
-          </label>
-        </div>
-      </form>
-    ) : (
-      <form className="max-w-md mx-auto" onSubmit={handleSubmitFolder}>
-        <div className='mb-4'>
-          <span className='text-sm text-gray-400'>Enter customer and case to generate title for folder</span>
-        </div>
-        <div className="relative z-0 w-full mb-5 group">
-          <input
-            type="text"
-            name="customer"
-            value={folderFormData.customer || ''}
-            onChange={handleChangeFolderForm}
-            id="floating_customer"
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" "
-            required
-          />
-          <label
-            htmlFor="floating_customer"
-            className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >
-            Customer
-          </label>
-        </div>
-
-        <div className="relative z-0 w-full mb-5 group">
-          <input
-            type="text"
-            name="case"
-            value={folderFormData.case || ''}
-            onChange={handleChangeFolderForm}
-            id="floating_case"
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" "
-            required
-          />
-          <label
-            htmlFor="floating_case"
-            className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >
-            Case
-          </label>
-        </div>
-
-        <div className="relative z-0 w-full mb-5 group">
-          <input
-            type="text"
-            name="title"
-            value={folderFormData.title || ''}
-            onChange={handleChangeFolderForm}
-            required
-            id="floating_title"
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" "
-          />
-          <label
-            htmlFor="floating_title"
-            className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-          >
-            Title
-          </label>
-        </div>
-
-        <div className="w-full flex justify-end space-x-4">
-          <button
-            onClick={CancelCreating}
-            className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none  focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
-          >
-            Submit
-          </button>
-        </div>
-      </form>
-    )}
-
-  </ModalWindow>
-  </div>
+      </ModalWindow>
+    </div>
   );
 };
 
