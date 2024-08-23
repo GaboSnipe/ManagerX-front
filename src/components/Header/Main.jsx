@@ -2,9 +2,8 @@ import { Disclosure, DisclosureButton } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Header, MobileMenu, Navigation, UserMenu } from './components' 
 import { navigation } from "../../globalEnv"
-import { API_URL } from '../../http'
 import { useEffect } from 'react'
-import { toast, Slide, cssTransition } from 'react-toastify';
+import { toast, Slide } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux'
 import { getNotificationsThunk } from '../../features/notifications/notificationsThunk'
 import { setUnseenNotificationsCount } from '../../features/notifications/notificationsSlice'
@@ -45,15 +44,32 @@ const Main = () => {
       const randomIndex = Math.floor(Math.random() * sountArr.length);
       const audio = new Audio(`/sound/${sountArr[randomIndex]}`);
       audio.play();
-      toast(`${data.message}`, {
+
+      const toastOptions = {
         autoClose: false,
-        closeOnClick: true,  
+        closeOnClick: true,
         draggable: true,
         transition: Slide,
         pauseOnHover: true,
         hideProgressBar: true,
         containerId : "notification",
-      });
+      }
+
+      switch (data.level) {
+        case "error":
+          toast.error(`${data.message}`, toastOptions);
+          break;
+        case "success":
+          toast.success(`${data.message}`, toastOptions);
+          break;
+        case "warning":
+          toast.warning(`${data.message}`, toastOptions);
+          break;
+        default:
+          toast.info(`${data.message}`, toastOptions);
+          break;
+      }
+
       dispatch(setUnseenNotificationsCount(unseenNotificationsCount+1))
     };
 
@@ -78,7 +94,7 @@ const Main = () => {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="h-8 w-auto">
-                  <img src="/images/logo.svg" />
+                  <img alt={'logo'} src="/images/logo.svg" />
                 </div>
               </div>
               <Navigation navigation={navigation} classNames={classNames} />
