@@ -1,6 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { BellIcon } from '@heroicons/react/24/outline'
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import { getNotificationsThunk } from '../../../features/notifications/notificationsThunk';
@@ -78,48 +78,57 @@ const UserMenu = ({ user, userNavigation }) => {
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg z-10">
-            <div className="p-2">
-              {notificationsList.map((notification) => (
-                <div key={notification.uuid} className={`my-2 border-gray-300 border px-2 rounded-md` }>
-                  <div>
-                    <span className="text-gray-600 font-bold  text-sm">{notification.title}</span>
-                    <span className="text-gray-500 float-right">
-                      {timeElapsed(notification.created_at)}
-                    </span>
-                  </div>
-                  <span className="text-gray-500 mt-8">
-                      {notification.message}
-                    </span>
-                </div>
-              ))}
+            <div className='absolute block right-0 shadow-lg bg-white py-4 z-[1000] min-w-full rounded-lg w-[410px] max-h-[500px] overflow-auto mt-2'>
+              <div className="flex items-center justify-between px-4 mb-4">
+                <p className="text-xs text-blue-600 cursor-pointer">Clear all</p>
+                <p className="text-xs text-blue-600 cursor-pointer">Mark as read</p>
+              </div>
+
+              <ul className="divide-y">
+
+                {notificationsList.map((notification) => (
+                    <li key={notification.uuid} className='p-4 flex items-center hover:bg-gray-50 cursor-pointer'>
+                      <img alt={'user'} src="https://readymadeui.com/profile_2.webp" className="w-12 h-12 rounded-full shrink-0"/>
+
+                      <div className="ml-6">
+                        <h3 className="text-sm text-[#333] font-semibold">{notification.title}</h3>
+                        <p className="text-xs text-gray-500 mt-2">{notification.message}</p>
+                        <p className="text-xs text-blue-600 leading-3 mt-2"> {timeElapsed(notification.created_at)}</p>
+                      </div>
+                    </li>
+                ))}
+              </ul>
+
+              <p className="text-xs px-4 mt-6 mb-4 inline-block text-blue-600 cursor-pointer">View all
+                Notifications</p>
             </div>
-          </div>
+
         )}
 
       </div>
 
       <Menu as="div" className="relative ml-3">
         <div>
-          <MenuButton className="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-            <span className="absolute -inset-1.5" />
+          <MenuButton
+              className="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+            <span className="absolute -inset-1.5"/>
             <span className="sr-only">Open user menu</span>
-            <img alt="" src={user.imageUrl} className="h-8 w-8 rounded-full" />
+            <img alt="" src={user.imageUrl} className="h-8 w-8 rounded-full"/>
           </MenuButton>
         </div>
         <MenuItems
-          transition
-          className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
+            transition
+            className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
         >
           {userNavigation.map((item) => (
-            <MenuItem key={item.name}>
-              <NavLink
-                to={item.href}
-                className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
-              >
-                {item.name}
-              </NavLink>
-            </MenuItem>
+              <MenuItem key={item.name}>
+                <NavLink
+                    to={item.href}
+                    className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
+                >
+                  {item.name}
+                </NavLink>
+              </MenuItem>
           ))}
         </MenuItems>
       </Menu>
