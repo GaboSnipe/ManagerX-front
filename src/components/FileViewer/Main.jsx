@@ -1,24 +1,13 @@
-import { PDFViewer, ImageViewer, OfficeFileViewer } from "./components";
+import React, { useState, useEffect } from 'react';
+import DocViewer from 'react-doc-viewer';
+import FileService from '../../services/FileService';
 
-const FileViewer = ({ fileUrl }) => {
-  const fileExtension = fileUrl.split('.').pop();
+const FileViewer = ({ fileUuid }) => {
+  const [docs, setDocs] = useState([]);
 
-  switch (fileExtension) {
-    case 'pdf':
-      return <PDFViewer fileUrl={fileUrl} />;
-    case 'jpg':
-    case 'jpeg':
-    case 'png':
-    case 'gif':
-      return <ImageViewer imageUrl={fileUrl} />;
-    case 'xlsx':
-    case 'xls':
-    case 'docx':
-    case 'doc':
-      return <OfficeFileViewer fileUrl={fileUrl} />;
-    default:
-      return <iframe src={fileUrl} title="file viewer" style={{ width: '100%', height: '750px', border: 'none' }} />;
-  }
+  return (
+<></>
+  );
 };
 
 export default FileViewer;

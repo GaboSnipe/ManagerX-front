@@ -34,3 +34,14 @@ export const editTaskThunk  = createAsyncThunk(
     }
   }
 );
+export const addSubTAsk  = createAsyncThunk(
+  'subtask/add/',
+  async (formData, thunkAPI) => {
+    try {
+      const response = await TaskService.createSubTask(formData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);

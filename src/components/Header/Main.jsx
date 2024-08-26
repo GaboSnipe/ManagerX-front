@@ -2,17 +2,20 @@ import { Disclosure, DisclosureButton } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Header, MobileMenu, Navigation, UserMenu } from './components' 
 import { navigation } from "../../globalEnv"
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { toast, Slide } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux'
 import { getNotificationsThunk } from '../../features/notifications/notificationsThunk'
 import { setUnseenNotificationsCount } from '../../features/notifications/notificationsSlice'
+import { setHeaderHeight } from '../../features/workplace/workplaceSlice'
+import { ModalWindow } from "../"
 
 
 
 const Main = () => {
   const dispatch = useDispatch();
   const unseenNotificationsCount = useSelector((state) => state.notifications.unseenNotificationsCount);
+  const headerRef = useRef();
   const user = {
     name: 'Tom Cook',
     email: 'tom@example.com',
@@ -86,10 +89,14 @@ const Main = () => {
     dispatch(setUnseenNotificationsCount());
   },[])
 
+  useEffect(()=>{
+    dispatch(setHeaderHeight(headerRef?.current?.offsetHeight))
+  },[headerRef?.current?.offsetHeight])
+
   return (
-    <>
-      <Disclosure as="nav" className="bg-gray-800">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div ref={headerRef}>
+      <Disclosure as="nav" className="bg-gray-800" >
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"  >
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -115,7 +122,7 @@ const Main = () => {
         <MobileMenu navigation={navigation} user={user} userNavigation={userNavigation} classNames={classNames} />
       </Disclosure>
       <Header />
-    </>
+    </div>
   );
 }
 

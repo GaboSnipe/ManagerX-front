@@ -32,4 +32,9 @@ export default class FileService {
   static async patchFile(fileUuid, formData) {
     return $api.delete(`/api/expertise/folder/${fileUuid}/update/`, formData);
   }
+  static async downloadFile(fileUuid) {
+    return $api.get(`/api/expertise/file/${fileUuid}/download/`, {
+      responseType: 'blob'
+    });
+  }
 }

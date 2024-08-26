@@ -10,4 +10,9 @@ export { default as ExpandableTable } from "./Tasks/Main.jsx";
 export { default as Editor } from "./Editor.jsx";
 export { default as UserSearchDropDown } from "./UserSearchDropDown.jsx";
 export { default as ModalWindow } from "./ModalWindow.jsx";
+export { default as FileViewer } from "./FileViewer/Main.jsx";
+export { default as Task } from "./Task/Main.jsx";
+export { default as TextEditor } from "./TextEditor.jsx";
+export { default as SubTaskDetails } from "./SubTaskDetails.jsx";
+export { default as TaskEdit } from "./TaskEdit.jsx";
 

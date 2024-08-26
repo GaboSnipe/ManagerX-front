@@ -1,0 +1,21 @@
+.custom-scrollbar {
+    overflow: auto;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px; /* Ширина полосы прокрутки */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.5); /* Цвет и прозрачность ползунка */
+    border-radius: 4px; /* Закругленные углы ползунка */
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* Цвет трека полосы прокрутки */
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: thin; /* Тонкая полоса прокрутки для Firefox */
+    scrollbar-color: rgba(0, 0, 0, 0.5) transparent; /* Цвет ползунка и трека для Firefox */
+  }

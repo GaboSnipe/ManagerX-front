@@ -5,6 +5,7 @@ const initialState = {
   folderInfo: {},
   folderList: [],
   fileInfo: {},
+  headerHeight: null,
   fileList: [],
   showFileIcon: false,
   loading: false,
@@ -19,6 +20,9 @@ const workplaceSlice = createSlice({
   reducers: {
     setFile(state, action) {
       state.fileInfo = action.payload;
+    },
+    setHeaderHeight(state, action) {
+      state.headerHeight = action.payload;
     },
     setFileList(state, action) {
       state.fileList = action.payload;
@@ -134,5 +138,6 @@ export const {
   setSeeResizebleDiv,
   setShowFileIcon,
   setIsModalOpen,
+  setHeaderHeight,
 } = workplaceSlice.actions;
 export default workplaceSlice.reducer;
