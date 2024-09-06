@@ -6,17 +6,18 @@ import { getTaskListThunk } from '../features/task/taskThunk';
 
 const Tasks = () => {
   const dispatch = useDispatch();
-  const [tasks, setTasks] = useState([]);
+  const tasks = useSelector((state) => state.task.taskList)
   const [dynamicHeight, setDynamicHeight] = useState(null);
-  const [seeResizebleDiv, setSeeResizebleDiv] = useState(false);
+  const [seeResizebleDiv, setSeeResizebleDiv] = useState(false);  
   const [selectedSubTask, setSelectedSubTask] = useState({});
   const headerHeight = useSelector((state) => state.workplace.headerHeight);
+  const tasklss = useSelector((state) => state.task.taskList);
   const divRef = useRef();
   const [widthRem, setWidthRem] = useState(0);
   const resizableRef = useRef(null);
   const startX = useRef(0);
   const startWidth = useRef(0);
-
+  
   const screenHeight = window.innerHeight;
   const baseFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
@@ -25,7 +26,6 @@ const Tasks = () => {
     const getData = async () => {
       try {
         const response = await dispatch(getTaskListThunk()).unwrap();
-        setTasks(response);
       } catch (err) {
         console.error('Failed to get task list:', err);
       }

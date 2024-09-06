@@ -1,0 +1,63 @@
+import React, { useRef } from "react";
+import { useFileManager } from "../context";
+import CommonModal from "./CommonModal";
+
+interface INewFolderModalProps {
+  isVisible: boolean;
+  onClose: () => void;
+}
+
+const NewFolderModal = (props: INewFolderModalProps) => {
+  const { onCreateFolder } = useFileManager();
+  const folderName = useRef<any>();
+
+  const onConfirm = async (event) => {
+    event.preventDefault();
+  
+    if (
+      folderName &&
+      folderName.current &&
+      folderName.current.value &&
+      folderName.current.value.length > 0 &&
+      onCreateFolder
+    ) {
+      console.log(folderName.current.value);
+      await onCreateFolder(folderName.current.value);
+      props.onClose();
+
+    }
+  };
+  
+
+  return (
+    <CommonModal title="Create New Folder" {...props}>
+  <div>
+    <form className="rfm-new-folder-modal-form" onSubmit={onConfirm}>
+      <div>
+        <input
+          ref={folderName}
+          type="text"
+          className="rfm-new-folder-modal-input"
+          placeholder="Folder Name"
+          required
+        />
+      </div>
+      <button
+        disabled={
+          folderName &&
+          folderName.current &&
+          folderName.current.value &&
+          folderName.current.value.length === 0
+        }
+        type="submit"
+        className="rfm-new-folder-modal-btn bg-blue-500"
+      >
+        Create
+      </button>
+    </form>
+  </div>
+</CommonModal>
+  );
+};
+
+export default NewFolderModal;

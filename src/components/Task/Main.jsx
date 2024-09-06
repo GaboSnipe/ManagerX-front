@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Editor from '../Editor';
 import TextEditor from '../TextEditor';
 import { useSelector } from 'react-redux';
+import TaskEdit from '../TaskEdit';
 
 
 const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
@@ -12,6 +13,8 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
     const quillRef = useRef(null);
     const [isRotated, setIsRotated] = useState(false);
     const [isEditing, setIsEditing] = useState(false)
+
+    const defaultComment = `{"ops":[{"attributes":{"color":"#bbbbbb","size":"normal"},"insert":"This task does not have a description."},{"insert":"\\n"}]}`;
 
     const toggleRotation = () => {
         setIsRotated(!isRotated);
@@ -64,6 +67,19 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
         }
     }
 
+    const getOverdueTaskStyle =(date) =>{
+        const now = new Date();
+        const [year, month, day] = date.split('-').map(Number);
+        const target = new Date(year, month - 1, day);
+        const timeDiff = target - now;
+
+        if (timeDiff < 0) {
+            return "bg-[rgba(255,127,127,0.2)]";
+        } else {
+            return "bg-white";
+        }
+    } 
+
     const selectSubTask = (subTask) => {
         setSeeResizebleDiv(true)
         setSelectedSubTask(subTask)
@@ -103,12 +119,18 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
         }
     }
 
+    const openTaskEdit = () => {
+        setIsEditing(true)
+    }
 
+    const closeAddTaskWindow = () => {
+        setIsEditing(false)
+    }
 
 
     return (
 
-        <div className="bg-[#F7F5F5] max-w-[112rem] min-w-[56rem]  rounded-md mb-8 shadow-lg mx-auto"
+        <div className={`bg-[#F7F5F5] max-w-[112rem] min-w-[56rem]  rounded-md mb-8 shadow-lg mx-auto  ${getOverdueTaskStyle(task.deadline_to)}`}
             style={{
                 boxShadow: '0 8px 15px -3px rgba(0, 0, 0, 0.4), 0 0px 4px -2px rgba(0, 0, 0, 0.4)',
             }}
@@ -214,7 +236,7 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
                         </div>
                     </>
                 </div>
-                <div className='flex'>
+                <div className='flex mt-1 content-center'>
                     {/*ASSIGNED */}
                     <div className='flex items-center text-xs text-[#727272] ml-12 space-x-1'>
                         <p className='font-roboto'>Assigned to</p>
@@ -223,14 +245,19 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
                         <img src={task?.creator?.avatar} className="w-5 h-5 rounded-full overflow-hidden" />
                     </div>
                     <div className='rounded-md border border-[#C8C2C2] ml-9'>
-                        <p className='text-xs text-[#3F3F46] px-4 py-0.5'>Edit Task</p>
+                    <button onClick={openTaskEdit} className='h-0 px-4 py-1 text-xs text-[#3F3F46] bg-transparent border-none'> Edit Task </button>
+
                     </div>
+                    {compareTime(task.deadline_from) &&
+                                        <div className={`text-white text-xs min-w-20 py-0.5 rounded-full text-center h-5 mt-1 ml-8 ${getDateStyle(task.deadline_to)}`}>
+                                            {getTimeStatus(task.deadline_to)}
+                                        </div>
+                                    }
                 </div>
             </div>
 
             {isRotated &&
                 <>
-                    {task?.comment && Object.keys(task.comment).length > 0 ? (
                         <>
                             <div className='pl-16 pr-10 pt-3'>
                                 {/* Description */}
@@ -241,18 +268,18 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
                             </div>
                             <div className='pl-12 pr-10 '>
                                 <TextEditor
-                                    defaultValue={task?.comment}
+                                    defaultValue={task?.comment.comment || defaultComment}
                                     isEditing={isEditing}
                                 />
                             </div>
                         </>
-                    ) : null}
 
 
 
                     <div className='pl-16 pb-10 pr-10 mt-10'>
-                        {task?.subtasks?.map((subtask, index) => (
-                            <div key={subtask.uuid} className='bg-white h-[1.85rem] border hover:bg-gray-100 border-[rgba(0,0,0,0.21)] rounded-md flex items-center px-2 shadow-lg mb-px w-full relative'
+                        {task.subtasks && task.subtasks.length > 0 ?  (
+                        task?.subtasks?.map((subtask, index) => (
+                            <div key={subtask.uuid} className={`h-[1.85rem] border hover:bg-gray-100 border-[rgba(0,0,0,0.21)] rounded-md flex items-center px-2 shadow-lg mb-px w-full relative   ${getOverdueTaskStyle(subtask.deadline_to)}`}
                                 style={{
                                     boxShadow: '0 8px 15px -3px rgba(0, 0, 0, 0.4), 0 0px 4px -2px rgba(0, 0, 0, 0.4)',
 
@@ -281,11 +308,11 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
                                         <img src={subtask.assign_to.avatar} className="w-4 h-4 rounded-full overflow-hidden" />
                                     </div>
                                     <div className="flex items-center mr-5">
-                                        <div className="bg-[#C2BDAD] text-white w-20 px-2.5 text-center py-0.5 rounded-full text-xs">
+                                        <div className="bg-[#C2BDAD] text-white w-24 px-2.5 text-center py-0.5 rounded-full text-xs">
                                             {subtask.deadline_from}
                                         </div>
                                         <div className="w-4 h-px bg-[#C2BDAD]" />
-                                        <div className="bg-[#C2BDAD] text-white w-20 text-center px-2.5 py-0.5 rounded-full text-xs">
+                                        <div className="bg-[#C2BDAD] text-white w-24 text-center px-2.5 py-0.5 rounded-full text-xs">
                                             {subtask.deadline_to}
                                         </div>
                                     </div>
@@ -299,12 +326,20 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
 
 
                             </div>
-                        ))}
+                        ))
+                    ):(
+                        <span className='text-gray-400 font-medium w-full text-lg'>
+                            This task does not have a Subtasks.
+                        </span>
+                    )}
 
                     </div>
                 </>
 
             }
+            {isEditing && 
+            <TaskEdit isEditing={true} closeWindow={closeAddTaskWindow} isTask={true} task={task} />
+        }
         </div>
 
     );

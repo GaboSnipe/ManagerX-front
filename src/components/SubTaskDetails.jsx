@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import 'quill/dist/quill.snow.css';
+import TaskEdit from './TaskEdit';
 
 const SubTaskDetails = ({ selectedSubTask, setIsOpen }) => {
+    const [ isEditing, setIsEditing ] = useState(false);
 
-
-
+console.log(selectedSubTask)
     const getStatusStyles = (status) => {
         switch (status) {
             case "TODO":
@@ -49,10 +50,17 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen }) => {
         }
     }
 
+    const startEdit = () => {
+        setIsEditing(true);
+    }
 
 
     const close = () => {
         setIsOpen(false);
+    }
+
+    const closeAddTaskWindow = () => {
+        setIsEditing(false)
     }
 
 
@@ -86,7 +94,7 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen }) => {
             </>
 
             <div className='rounded-md border border-[#C8C2C2] ml-3 mt-2 w-[6.5rem]'>
-                <p className='text-xs text-[#3F3F46] px-4 py-0.5'>Edit Subtask</p>
+                <button onClick={startEdit} className='text-xs text-[#3F3F46] px-4'>Edit Subtask</button>
             </div>
 
             <>  {/*DETAILS */}
@@ -185,6 +193,9 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen }) => {
                     </div>
 
                 </div>
+                {isEditing && 
+            <TaskEdit isEditing={true} closeWindow={closeAddTaskWindow} isTask={false} subTask={selectedSubTask} />
+        }
             </>
         </div>
         </>

@@ -23,9 +23,9 @@ export const addTaskThunk  = createAsyncThunk(
     }
   }
 );
-export const editTaskThunk  = createAsyncThunk(
-  'task/edit/',
-  async (uuid, formData, thunkAPI) => {
+export const editTaskThunk = createAsyncThunk(
+  'task/edit',
+  async ({ uuid, formData }, thunkAPI) => {
     try {
       const response = await TaskService.editTask(uuid, formData);
       return response.data;
@@ -34,6 +34,18 @@ export const editTaskThunk  = createAsyncThunk(
     }
   }
 );
+export const editSubTaskThunk = createAsyncThunk(
+  'subtask/edit',
+  async ({ uuid, formData }, thunkAPI) => {
+    try {
+      const response = await TaskService.editSubTask(uuid, formData);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+
 export const addSubTAsk  = createAsyncThunk(
   'subtask/add/',
   async (formData, thunkAPI) => {

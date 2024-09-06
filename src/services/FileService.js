@@ -37,4 +37,27 @@ export default class FileService {
       responseType: 'blob'
     });
   }
+  static async getSincFolderList(rcloneSettings) {
+    return $api.post(`/api/expertise/rclone/list/`, rcloneSettings);
+  }
+  static async rcMkdir(fs, remote) {
+    const formData = new FormData();
+    formData.append('fs', fs);
+    formData.append('remote', remote);
+    
+    return $api.post(`/api/expertise/rclone/mkdir/`, formData);
+  }
+  
+  static async rcUploadFile(fs, remote, file) {
+    const formData = new FormData();
+    formData.append('fs', fs);
+    formData.append('remote', remote);
+    formData.append('file', file);
+  
+    return $api.post(`/api/expertise/rclone/uploadfile/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+  }
 }

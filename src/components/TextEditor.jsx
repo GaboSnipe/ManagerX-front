@@ -5,18 +5,20 @@ import { Editor } from './';
 const TextEditor = ({ isEditing, defaultValue, setFormData }) => {
   const [readOnly, setReadOnly] = useState(isEditing);
   const quillRef = useRef(null);
-  const [adada, setasdad] = useState("");
+
+
 
   useEffect(() => {
     setReadOnly(!isEditing);
   }, [isEditing]);
 
   const handleTextChange = (contentString) => {
-    setasdad(prevData => ({
+    setFormData(prevData => ({
       ...prevData,
       comment: contentString
     }));
   };
+
 
   return (
     <section >

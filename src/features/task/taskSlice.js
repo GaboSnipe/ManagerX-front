@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getTaskListThunk, addTaskThunk, editTaskThunk } from './taskThunk';
+import { getTaskListThunk, addTaskThunk, editTaskThunk, editSubTaskThunk } from './taskThunk';
 
 const initialState = {
   taskList: [],
@@ -35,25 +35,43 @@ const taskSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-    .addCase(getTaskListThunk.fulfilled, (state, action) => {
-      state.taskList = action.payload;
-    })
-    .addCase(getTaskListThunk.rejected, (state, action) => {
-      state.taskList = [];
-      console.error('Error fetching project headers:', action.payload);
-    })
-    .addCase(addTaskThunk.fulfilled, (state, action) => {
-      state.taskList = [...taskList, action.payload];
-    })
-    .addCase(addTaskThunk.rejected, (state, action) => {
-      console.error('Error fetching project headers:', action.payload);
-    })
-    .addCase(editTaskThunk.fulfilled, (state, action) => {
-      state.taskList = [...taskList, action.payload];
-    })
-    .addCase(editTaskThunk.rejected, (state, action) => {
-      console.error('Error fetching project headers:', action.payload);
-    });
+      .addCase(getTaskListThunk.fulfilled, (state, action) => {
+        state.taskList = action.payload;
+      })
+      .addCase(getTaskListThunk.rejected, (state, action) => {
+        state.taskList = [];
+        console.error('Error fetching task list:', action.payload);
+      })
+      .addCase(addTaskThunk.fulfilled, (state, action) => {
+        state.taskList = [...state.taskList, action.payload];
+      })
+      .addCase(addTaskThunk.rejected, (state, action) => {
+        console.error('Error adding task:', action.payload);
+      })
+      .addCase(editTaskThunk.fulfilled, (state, action) => {
+        state.taskList = state.taskList.map(task =>
+          task.uuid === action.payload.uuid ? action.payload : task
+        );
+      })
+      .addCase(editTaskThunk.rejected, (state, action) => {
+        console.error('Error editing task:', action.payload);
+      })
+      .addCase(editSubTaskThunk.fulfilled, (state, action) => {
+        state.taskList = state.taskList.map(task => {
+          if (task.uuid === action.payload.task) {
+            return {
+              ...task,
+              subtasks: task.subtasks.map(subtask =>
+                subtask.uuid === action.payload.uuid ? action.payload : subtask
+              ),
+            };
+          }
+          return task;
+        });
+      })
+      .addCase(editSubTaskThunk.rejected, (state, action) => {
+        console.error('Error editing task:', action.payload);
+      });
   },
 });
 

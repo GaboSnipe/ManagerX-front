@@ -23,7 +23,7 @@ const Header = () => {
     folder: '',
   });
   const [errors, setErrors] = useState({});
-  const statuses = ['Pending', 'In Progress', 'Completed', 'On Hold', 'Canceled']; // Пример статусов
+  const statuses = ['Pending', 'In Progress', 'Completed', 'On Hold', 'Canceled'];
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
