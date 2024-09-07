@@ -213,7 +213,7 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
                                 </g>
                             </svg>
                             <div className=' text-[#727272] text-xs rounded-full ml-2 text-center  mx-2'>
-                                {task?.folder?.title}
+                                {task?.drive_folder_path.split("სამუშაო გარემო/")[1]}
                             </div>
                             <div className='h-4 w-px bg-[#D8D4D4] ' />
                             <button onClick={handleClick} className='group'>

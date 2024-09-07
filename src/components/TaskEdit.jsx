@@ -69,7 +69,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
     const [userList, setUserList] = useState([]);
     const [summary, setSummary] = useState("");
     const [folderList, setFolderList] = useState([]);
-    const [folderFormData, setFolderFormData] = useState({ status: 'TODO' });
+    const [patchName, setPatchName] = useState("");
     const [taskList, setTaskList] = useState([]);
     const [selectedOption, setSelectedOption] = useState({
         value: "Sub Task", label: "Sub Task", icon: <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -79,16 +79,22 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
 
     const statusList = ["TODO", "INPROGRESS", "DONE", "REJECTED", "UNCERTAIN"];
 
+console.log(selectedFolder)
+
     useEffect(()=>{
         if(isEditing){
             if(isTask) {
+
+                const name = task.drive_folder_path.split("სამუშაო გარემო/")[1];
                 setSummary(task?.title)
                 setComment(task?.comment.comment)
                 setSelectedUser(task?.assign_to)
                 setSelectedStatu(task?.status)
                 setSelectedDataFrom(task?.deadline_from)
                 setSelectedDataTo(task?.deadline_to)
-                setSelectedFolder(task?.folder)
+                setSelectedFolder({Name: name,
+                                    Patch: task.drive_folder_path
+                })
                 setSelectedOption( {
                     value: "Task", label: "Task", icon: <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4.66667 3.95654H12.25M4.66667 7.91306H12.25M4.66667 11.8696H12.25M1.75 3.95654H1.75583M1.75 7.91306H1.75583M1.75 11.8696H1.75583" stroke="#009951" strokeLinecap="round" strokeLinejoin="round" />
@@ -181,11 +187,15 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
 
 
     const fetchFolderList = async () => {
-        try {
-            const response = await FileService.getFolderList();
-            setFolderList(response.data);
-        } catch (error) {
-            console.error(error);
+        const defaultSettings = {
+            "fs": "GoogleDrive:",
+            "remote":  "სამუშაო გარემო",
+        }
+        try{
+            const response = await FileService.getSincFolderList(defaultSettings);
+            setFolderList(response.data.list)
+        }catch (e) {
+            console.error(e)
         }
     };
 
@@ -270,7 +280,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                         deadline_from: formatDDate(selectedDataFrom),
                         deadline_to: formatDDate(selectedDataTo),
                         assign_to: selectedUser.pk,
-                        folder: selectedFolder.uuid
+                        drive_folder_path: selectedFolder.Path
                     };
                     dispatch(editTaskThunk({ uuid: task.uuid, formData: formData }));
                     closeWindow();
@@ -296,7 +306,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                     deadline_from: formatDDate(selectedDataFrom),
                     deadline_to: formatDDate(selectedDataTo),
                     assign_to: selectedUser.pk,
-                    folder: selectedFolder.uuid
+                    drive_folder_path: selectedFolder.Path
                 };
                 dispatch(addTaskThunk(formData));
                 closeWindow();
@@ -342,20 +352,25 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
     }
 
     const CancelCreating = () => {
-        setFolderFormData({ status: 'TODO' })
+        setPatchName('')
         setIsModalOpen(false);
 
     }
 
 
+    const createFolder = async (folderName) => {
+        FileService.rcMkdir("GoogleDrive:", folderName);
+      };
+
+
     const handleSubmitFolder = (event) => {
         event.preventDefault();
         try {
-            dispatch(addFolderThunk(folderFormData));
+            createFolder(`სამუშაო გარემო/${patchName}`)
             toast.success("Folder Created", {
                 containerId: "error"
             })
-            setFolderFormData({ status: 'TODO' })
+            setPatchName("")
             setIsModalOpen(false);
         } catch (err) {
             console.error(err)
@@ -386,11 +401,6 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
         };
     }, []);
 
-
-    const handleChangeFolderForm = (event) => {
-        const { name, value } = event.target;
-        setFolderFormData({ ...folderFormData, [name]: value });
-    };
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -629,7 +639,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                                                                     </svg>
                                                                 </div>
                                                                 <span className="text-gray-500">
-                                                                    {selectedOption.label === "Task" ? selectedFolder?.title : selectedTask?.title}
+                                                                    {selectedOption.label === "Task" ? selectedFolder?.Name : selectedTask?.title}
                                                                 </span>
                                                             </div>
                                                             <svg
@@ -648,14 +658,17 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                                                             <ul className="w-80 bg-white border border-gray-300 rounded-xl shadow-lg">
                                                                 {selectedOption.label === "Task" ? (
                                                                     folderList?.map((obj) => (
+                                                                        obj.IsDir && (
                                                                         <li
-                                                                            key={obj.uuid}
+                                                                            key={obj.ID}
                                                                             onClick={() => handleFolderToClick(obj)}
                                                                             className="flex items-center p-2 cursor-pointer hover:bg-gray-100"
                                                                         >
-                                                                            <span className="text-gray-400">{obj.title}</span>
+                                                                            <span className="text-gray-400">{obj.Name}</span>
                                                                         </li>
+                                                                    )
                                                                     ))
+                                                                    
                                                                 ) : (
                                                                     taskList?.map((obj) => (
                                                                         <li
@@ -697,54 +710,13 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                 onClose={() => setIsModalOpen(false)}
                 title="Folder Create"
             >
-                <form className="max-w-md mx-auto" onSubmit={handleSubmitFolder}>
-                    <div className='mb-4'>
-                        <span className='text-sm text-gray-400'>Enter customer and case to generate title for folder</span>
-                    </div>
-                    <div className="relative z-0 w-full mb-5 group">
-                        <input
-                            type="text"
-                            name="customer"
-                            value={folderFormData.customer || ''}
-                            onChange={handleChangeFolderForm}
-                            id="floating_customer"
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                            placeholder=" "
-                            required
-                        />
-                        <label
-                            htmlFor="floating_customer"
-                            className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                        >
-                            Customer
-                        </label>
-                    </div>
-
-                    <div className="relative z-0 w-full mb-5 group">
-                        <input
-                            type="text"
-                            name="case"
-                            value={folderFormData.case || ''}
-                            onChange={handleChangeFolderForm}
-                            id="floating_case"
-                            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-                            placeholder=" "
-                            required
-                        />
-                        <label
-                            htmlFor="floating_case"
-                            className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-                        >
-                            Case
-                        </label>
-                    </div>
-
+                <form className="max-w-md mx-auto pt-4" onSubmit={handleSubmitFolder}>
                     <div className="relative z-0 w-full mb-5 group">
                         <input
                             type="text"
                             name="title"
-                            value={folderFormData.title || ''}
-                            onChange={handleChangeFolderForm}
+                            value={patchName}
+                            onChange={(e)=>setPatchName(e.target.value)}
                             required
                             id="floating_title"
                             className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
