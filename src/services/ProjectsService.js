@@ -9,6 +9,9 @@ export default class ProjectsService {
     }    
     static async getProjectHeaders (){
         return $api.get(`/api/expertise/data/custom-fields/list/`)
+    }    
+    static async createNewProject(conclusionNumber, task) {
+        return $api.post(`/api/expertise/data/create/`, { conclusionNumber, task });
     }
 }
 

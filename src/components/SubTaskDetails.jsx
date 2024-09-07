@@ -5,7 +5,6 @@ import TaskEdit from './TaskEdit';
 const SubTaskDetails = ({ selectedSubTask, setIsOpen }) => {
     const [ isEditing, setIsEditing ] = useState(false);
 
-console.log(selectedSubTask)
     const getStatusStyles = (status) => {
         switch (status) {
             case "TODO":

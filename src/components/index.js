@@ -16,4 +16,5 @@ export { default as TextEditor } from "./TextEditor.jsx";
 export { default as SubTaskDetails } from "./SubTaskDetails.jsx";
 export { default as TaskEdit } from "./TaskEdit.jsx";
 export { default as CustomFileBrowser } from "./CustomFileBrowser/index.jsx";
+export { default as ProjectEdit } from "./ProjectEdit.jsx";
 

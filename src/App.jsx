@@ -22,8 +22,8 @@ function App() {
         ))}
         <Route path="/" element={<LoginPage />} />
         <Route path="/profile" element={<UserPage />} />
-        <Route path="/task/:uuid" element={<SingleTask />} />
-        <Route path="/subtask/:uuid" element={<SingleTask />} />
+        {/* <Route path="/task/:uuid" element={<SingleTask />} /> */}
+        {/* <Route path="/subtask/:uuid" element={<SingleTask />} /> */}
         <Route path="*" element={<NotFound />} />
       </Routes> 
       <ToastContainer

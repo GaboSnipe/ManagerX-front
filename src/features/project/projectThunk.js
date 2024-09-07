@@ -45,3 +45,14 @@ export const getProjectHeadersThunk  = createAsyncThunk(
     }
   }
 );
+export const createNewProjectThunk = createAsyncThunk(
+  'document/create/project/',
+  async ({ conclusionNumber, task }, thunkAPI) => {
+    try {
+      const response = await ProjectsService.createNewProject(conclusionNumber, task);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);

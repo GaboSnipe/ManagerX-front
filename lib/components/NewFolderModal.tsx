@@ -21,7 +21,6 @@ const NewFolderModal = (props: INewFolderModalProps) => {
       folderName.current.value.length > 0 &&
       onCreateFolder
     ) {
-      console.log(folderName.current.value);
       await onCreateFolder(folderName.current.value);
       props.onClose();
 

@@ -79,7 +79,6 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
 
     const statusList = ["TODO", "INPROGRESS", "DONE", "REJECTED", "UNCERTAIN"];
 
-console.log(selectedFolder)
 
     useEffect(()=>{
         if(isEditing){
