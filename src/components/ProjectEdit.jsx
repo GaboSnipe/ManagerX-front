@@ -99,14 +99,12 @@ const ProjectEdit = ({ isEditing, closeWindow, project , onSubmit }) => {
     };
 
     const isFormValid = () => {
-        const isSummaryValid = summary.trim() !== '';
         const isTaskValid = selectedTask;
 
-        return isSummaryValid && isTaskValid;
+        return isTaskValid;
     };
     
 
-console.log(summary,selectedTask)
 
     const fetchData = () => {
         if (isFormValid()) {
@@ -118,7 +116,7 @@ console.log(summary,selectedTask)
                 dispatch(createNewProjectThunk({ uuid: task.uuid, formData: formData }));
                 closeWindow();
             } else {
-                dispatch(createNewProjectThunk({ conclusionNumber: summary, task: selectedTask.uuid }))
+                dispatch(createNewProjectThunk({ conclusionNumber: summary ? summary : "", task: selectedTask.uuid }))
                 .then(() => {
                     onSubmit();
                 })
