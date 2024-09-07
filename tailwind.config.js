@@ -4,6 +4,7 @@ module.exports = {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
     "./node_modules/flowbite/**/*.js",
+    "./lib/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     colors: {
@@ -20,6 +21,9 @@ module.exports = {
       maxHeight: {
         '48': '12rem', // Или любое значение, которое вам нужно
         '64': '16rem', // Например, можно добавить больше значений по необходимости
+      },
+      fontFamily: {
+        roboto: ['Roboto', 'sans-serif'],
       },
     },
   },

@@ -48,9 +48,9 @@ export const logoutThunk = createAsyncThunk(
   'auth/logout',
   async (_, thunkAPI) => {
     try {
-      await AuthService.logout();
-      localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      await AuthService.logout();
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data);
     }
@@ -65,7 +65,6 @@ export const checkAuth = createAsyncThunk(
       const token = localStorage.getItem('token');
       await AuthService.authCheck(token);
     } catch (error) {
-      console.log(error)
       return thunkAPI.rejectWithValue(error.response?.data || 'Unknown error');
     }
   }

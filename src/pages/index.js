@@ -6,3 +6,5 @@ export { default as LoginPage } from "./LoginPage";
 export { default as UserPage } from "./UserPage";
 export { default as SingleTask } from "./SingleTask";
 export { default as NotFound } from "./NotFound";
+export { default as Tasks2 } from "./Tasks2.jsx"
+export { default as NewWorkPlace } from "./NewWorkPlace.jsx"

@@ -10,26 +10,42 @@ import {TextEditor} from "../components/Tasks/components/index.js";
 const mandatoryHeaders = [
   { accessor: 'id', type: "integer", label: '', sortable: false, sortbyOrder: "desc", order: -1, visible: true },
   { accessor: 'conclusionNumber', type: "string", label: '#', sortable: true, sortbyOrder: "desc", order: 0, visible: true },
-  { accessor: 'title', type: "string", label: 'სახელი', sortable: true, sortbyOrder: "desc", order: 1, visible: true },
-  { accessor: 'customer', type: "string", label: 'დამკვეთი', sortable: true, sortbyOrder: "desc", order: 2, visible: true },
-  { accessor: 'case', type: "string", label: 'ქეისი', sortable: true, sortbyOrder: "desc", order: 3, visible: true },
-  { accessor: 'status', type: "string", label: 'სტატუსი', sortable: true, sortbyOrder: "desc", order: 4, visible: true },
-  { accessor: 'created_at', type: "date", label: 'შექმნის თარიღი', sortable: true, sortbyOrder: "desc", order: 998, visible: true },
-  { accessor: 'updated_at', type: "date", label: 'განახლების თარიღი', sortable: true, sortbyOrder: "desc", order: 999, visible: true },
+  { accessor: 'task.title', type: "string", label: 'სახელი', sortable: true, sortbyOrder: "desc", order: 1, visible: true },
+  { accessor: 'task.status', type: "string", label: 'სტატუსი', sortable: true, sortbyOrder: "desc", order: 2, visible: true },
+  { accessor: 'task.comment', type: "string", label: 'კომენტარი', sortable: true, sortbyOrder: "desc", order: 3, visible: false },
+  { accessor: 'task.deadline_from', type: "date", label: 'დედლაინი (-დან)', sortable: true, sortbyOrder: "desc", order: 4, visible: false },
+  { accessor: 'task.deadline_to', type: "date", label: 'დედლაინი (-მდე)', sortable: true, sortbyOrder: "desc", order: 998, visible: false },
+  { accessor: 'task.drive_folder_path', type: "string", label: 'ფოლდერის მისამართი', sortable: true, sortbyOrder: "desc", order: 999, visible: true },
   { accessor: 'uuid', type: "string", label: 'uuid', sortable: true, sortbyOrder: "desc", order: 1000, visible: false },
-  { accessor: 'comment', type: "string", label: 'comment', sortable: true, sortbyOrder: "desc", order: 1001, visible: false },
 ]
 
+function checkPathExists(obj, path) {
+  return path.split('.').reduce((acc, part) => {
+    if (acc && acc[part] !== undefined) {
+      return acc[part];
+    }
+    return undefined;
+  }, obj) !== undefined;
+}
+
+function getValueFromPath(obj, path) {
+  return path.split('.').reduce((acc, part) => {
+    if (acc && acc[part] !== undefined) {
+      return acc[part];
+    }
+    return undefined;
+  }, obj);
+}
 
 const formatedHeaders = (mandatoryHeaders, response) => {
-  var formated = [...mandatoryHeaders]
+  var formated = [...mandatoryHeaders];
 
   var i = 5;
   response.forEach(item => {
     formated.push({
-      accessor: item['name'],
+      accessor: "tableHeaders_"+item['id'],
       type: item['data_type'],
-      label: item['label'],
+      label: item['name'],
       sortable: true,
       sortbyOrder: "desc",
       order: i,
@@ -38,7 +54,7 @@ const formatedHeaders = (mandatoryHeaders, response) => {
     i += 1;
   })
 
-  return formated.sort((a, b) => a.order - b.order);;
+  return formated.sort((a, b) => a.order - b.order);
 }
 
 const formatedData = (formattedHeaders, response) => {
@@ -60,13 +76,13 @@ const formatedData = (formattedHeaders, response) => {
         visible: true
       })
 
-      if (header['accessor'] in folder) {
-        tmp.at(-1)['value'] = folder[header['accessor']]
+      if (checkPathExists(folder, header['accessor'])) {
+        tmp.at(-1)['value'] = getValueFromPath(folder, header['accessor']);
         tmp.at(-1)['visible'] = header['visible']
       } else {
         if (folder['custom_fields']) {
           folder['custom_fields'].forEach(field => {
-            if (field['field']['name'] == header['accessor']) {
+            if ("tableHeaders_"+field['field']['id'] === header['accessor']) {
               tmp.at(-1)['value'] = field['value']
             }
           })
@@ -98,6 +114,7 @@ const Projects = () => {
   const headers = formatedHeaders(mandatoryHeaders, response_headers)
   const [data, setData] = useState(formatedData(headers, response_adata));
 
+  console.log(data)
   const getData = async () => {
     try {
       await dispatch(getProjectHeadersThunk()).unwrap();

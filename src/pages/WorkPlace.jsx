@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { FaFolder, FaTasks } from 'react-icons/fa';
 import { format } from 'date-fns';
 import UserService from '../services/UserService.js';
+import FileService from '../services/FileService.js';
 
 const mandatoryHeaders = [
   { accessor: 'id', type: "integer", label: '#', sortable: false, sortbyOrder: "desc", order: 0, visible: true },
@@ -121,6 +122,7 @@ const WorkPlace = () => {
   const [formState, setFormState] = useState({ title: '', file: null });
   const dropdownFolderRef = useRef(null);
   const [seeAddFileDiv, setSeeAddFileDiv] = useState(false);
+  const [folder, setLocalFolder] = useState({});
   const [isDropdownFolder, setIsDropdownFolder] = useState(false);
   const isModalOpen = useSelector(state => state.workplace.isModalOpen);
   const [folderFormData, setFolderFormData] = useState({ status: 'TODO' });
@@ -215,7 +217,16 @@ const WorkPlace = () => {
     }
 
   }, [folderFormData.case, folderFormData.customer])
+  const handleDropdownFolderToggle = async () => {
+    try {
+      const response = await FileService.getFolderList();
+      setFolderList(response.data);
+    } catch (error) {
+      console.error(error);
+    }
 
+    setIsDropdownFolder(!isDropdownFolder);
+  };
 
   const getData = useCallback(async () => {
     try {
@@ -271,6 +282,7 @@ const WorkPlace = () => {
     setSeeAddFileDiv(false);
   };
 
+
   const handleFormChange = (e) => {
     const { name, value, files } = e.target;
     setFormState(prevState => ({
@@ -310,6 +322,23 @@ const WorkPlace = () => {
     dispatch(setSeeResizebleDiv(true));
   };
 
+  useEffect(() => {
+    const fetchFolderDetails = async () => {
+      try {
+        const response = await FileService.getFolderDetails(selectedFile?.folder);
+        setLocalFolder(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (selectedFile?.folder || seeResizebleDiv || showFileIcon) {
+      fetchFolderDetails();
+
+    }
+
+  }, [selectedFile?.folder]);
+
   const handleFolderDoubleClick = folder => {
     dispatch(getFolderDetailsThunk(folder.uuid)).unwrap();
     dispatch(setShowFileIcon(true));
@@ -327,6 +356,12 @@ const WorkPlace = () => {
     setContextMenu(null);
   };
 
+  const handleRedirectToWorkspace = () => {
+    dispatch(setSeeResizebleDiv(true));
+    dispatch(getFolderDetailsThunk(folder.uuid));
+
+  }
+
   useEffect(() => {
     const getOwner = async () => {
       try {
@@ -340,8 +375,6 @@ const WorkPlace = () => {
       getOwner();
     }
   }, [selectedFile.owner]);
-
-  console.log(owner)
 
 
 
@@ -385,66 +418,37 @@ const WorkPlace = () => {
 
             <ResizableDiv setSeeResizebleDiv={fileShowClose}>
               <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg min-w-full">
-                <div className='w-full p-4'>
-                  <div>
-                    <div className="flex w-full justify-between items-center mb-4">
-                      <div className="flex items-center pl-5 space-x-2">
+                <div className="w-full p-4">
+
+                  <div className="space-y-5">
+                    <div className="relative flex items-center space-x-2">
+                      <span className="text-gray-600 w-28">Title</span>
+                      <div className="flex">
                         <input
                           type="text"
                           value={selectedFile?.title}
-                          readOnly={true}
-                          // onChange={setNewSubTaskTitle}
-                          className="border-none outline-none bg-transparent focus:outline-none focus:border-none focus:ring-0 bg-[#f9f9f9]"
+                          readOnly
+                          className="border-none outline-none bg-transparent focus:outline-none focus:ring-0 bg-[#f9f9f9]"
                         />
                       </div>
-
-                      {/* {!isEditingSubTask &&
-                  <button onClick={startEdit} className="bg-yellow-400 text-white text-base items-center px-4 py-2 rounded flex space-x-2"> <FaRegEdit /> <p>Edit</p></button>
-                } */}
                     </div>
-                  </div>
-                  <div className="space-y-5">
+
                     <div className="relative flex items-center space-x-2">
                       <span className="text-gray-600 w-28">Folder</span>
-                      <div className="flex ">
+                      <div className="flex">
                         <button onClick={handleRedirectToWorkspace} className="flex mr-2">
                           <span className="text-gray-400 flex">
                             <FaFolder className="text-yellow-400 text-xl" />
                             <p className="px-3">{folder?.title}</p>
                           </span>
                         </button>
-                        <button
-                          onClick={handleDropdownFolderToggle}
-                          aria-expanded={isDropdownFolder}
-                          className="focus:outline-none "
-                        >
-                          {isEditing &&
-                            <svg
-                              className={`w-2.5 h-2.5 transition-transform duration-300 ${isDropdownFolder ? 'rotate-180' : ''}`}
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 10 6"
-                            >
-                              <path
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="m1 1 4 4 4-4"
-                              />
-                            </svg>
-                          }
-                        </button>
+                        <button onClick={handleDropdownFolderToggle} aria-expanded={isDropdownFolder} className="focus:outline-none"></button>
                         {isDropdownFolder && (
-                          <div
-                            ref={dropdownFolderRef}
-                            className="absolute z-50 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow top-full"
-                          >
+                          <div ref={dropdownFolderRef} className="absolute z-50 mt-2 bg-white divide-y divide-gray-100 rounded-lg shadow top-full">
                             <ul className="py-2 text-sm p-2 space-y-1">
                               {folderList.map((folder) => (
                                 <li key={folder.uuid}>
-                                  <button className="flex" onClick={(() => chooseFolder(folder))}>
+                                  <button className="flex" onClick={() => chooseFolder(folder)}>
                                     <FaFolder className="text-yellow-400 text-xl" />
                                     <p className="px-3">{folder.title}</p>
                                   </button>
@@ -457,37 +461,22 @@ const WorkPlace = () => {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-600 w-28">owner</span>
-                      <UserSearchDropDown value={owner} formData={selectedFile} isEditing={false} qkey={"owner"} />
+                      <span className="text-gray-600 w-28">Owner</span>
+                      <UserSearchDropDown value={owner} formData={selectedFile} isEditing={false} qkey="owner" />
                     </div>
+
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-600 w-28">Created At</span>
                       <div className="py-2 px-3 text-sm text-gray-700 bg-gray-100 rounded">
                         {formatDateSub(selectedFile.created_at)}
                       </div>
                     </div>
-                    {/* {isEditingSubTask &&
-                <div className="flex justify-end space-x-4 mt-4 p-5">
-                  <button
-                    onClick={cancelEdit}
-                    className="flex items-center space-x-1 text-gray-600"
-                  >
-                    <FiXCircle className="text-xl" />
-                    <span>Cancel</span>
-                  </button>
-                  <button
-                    onClick={saveChangeSubTask}
-                    className="flex items-center space-x-1 text-white bg-purple-600 px-4 py-2 rounded"
-                  >
-                    <FiCheckCircle className="text-xl" />
-                    <span>Save</span>
-                  </button>
-                </div>
-              } */}
                   </div>
-                </div>
 
+                </div>
               </div>
+
+
             </ResizableDiv>
           )
           :
@@ -582,6 +571,21 @@ const WorkPlace = () => {
               >
                 <span>{fileFormData.file ? fileFormData.file.name : 'Choose File'}</span>
               </label>
+            </div>
+
+            <div className="w-full flex justify-end space-x-4">
+              <button
+                onClick={CancelCreating}
+                className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none  focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2 text-center"
+              >
+                Submit
+              </button>
             </div>
           </form>
         ) : (
