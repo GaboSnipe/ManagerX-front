@@ -11,6 +11,7 @@ export interface IFileManagerProps {
   fs: FileSystemType;
   goUp?: () => Promise<void>;
   parrentPath?: string;
+  loading?: boolean;
   viewOnly?: boolean;
   onDoubleClick?: (file: object) => Promise<void>;
   onRefresh?: (id: string) => Promise<void>;
@@ -28,6 +29,7 @@ export const ReactFileManager = ({
   onDoubleClick,
   onRefresh,
   onUpload,
+  loading,
   onCreateFolder,
   onDelete,
   showNavbar = false,
@@ -50,6 +52,7 @@ export const ReactFileManager = ({
         onDoubleClick,
         onRefresh,
         onUpload,
+        loading,
         onCreateFolder,
         onDelete,
         uploadedFileData,

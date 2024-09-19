@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import { useSelector, useDispatch } from 'react-redux';
-import { setProjectSeeResizebleDiv, setFileInfo, setProjectList, setProjectHeaders } from '../features/project/projectSlice';
+import { setProjectSeeResizebleDiv, setFileInfo, setProject, setProjectHeaders } from '../features/project/projectSlice';
 import { Paginations, Table, ResizableDiv, FileIcon, ProjectEdit } from '../components';
 import { v4 as uuidv4 } from 'uuid';
-import { getProjectListThunk, getProjectHeadersThunk } from '../features/project/projectThunk';
+import { getProjectListThunk, getProjectHeadersThunk, createNewProjectThunk } from '../features/project/projectThunk';
 import useAuthCheck from '../utils/hooks/useAuthCheck';
-import { TextEditor } from "../components/Tasks/components/index.js";
+import Editorcopy from "../components/Editorcopy"
+import ProjectEditing from '../components/ProjectEditing';
+import ProjectsService from '../services/ProjectsService';
 
 const mandatoryHeaders = [
   { accessor: 'id', type: "integer", label: '', sortable: false, sortbyOrder: "desc", order: -1, visible: true },
@@ -111,9 +114,12 @@ const Projects = () => {
   const response_headers = useSelector((state) => state.project.projectHeaders);
   const response_adata = useSelector((state) => state.project.projectList);
   const selectedFile = useSelector((state) => state.project.fileInfo);
+  const [isEditing, setIsEditing] = useState(false)
   const [isOpenAddProjectWindow, setIsOpenAddProjectWindow] = useState(false)
   const headers = formatedHeaders(mandatoryHeaders, response_headers)
   const [data, setData] = useState(formatedData(headers, response_adata));
+  const [taskData, setTaskData] = useState({});
+  const [isEditingProject, setIsEditingProject] = useState(false);
 
   const getData = async () => {
     try {
@@ -122,6 +128,40 @@ const Projects = () => {
     } catch (err) {
       console.error('Failed to get project list:', err);
     }
+  };
+
+const onCloseProjectAdd = (reqBody) => {
+  dispatch(createNewProjectThunk(reqBody))
+    .unwrap()
+    .then((response) => {
+      const targetUuid = response.uuid;
+      dispatch(getProjectListThunk()).unwrap()
+        .then((res) => {
+          const adata = formatedData(headers, res)
+          adata.forEach((itemArray) => {
+            const uuidElement = itemArray.find((el) => el.accessor === 'uuid');
+            if (uuidElement && uuidElement.value === targetUuid) {
+              dispatch(setProject(itemArray));
+              setIsEditingProject(true);
+            } else {
+            }
+          });
+        })
+        .catch((error) => {
+          console.error('Error fetching data:', error);
+        });
+    })
+    .catch((error) => {
+      toast.error(error.message, {
+        containerId: "error"
+      });
+      console.error('Error:', error);
+    });
+};
+
+  
+  const startEdit = () => {
+    setIsEditing(true);
   };
 
   useEffect(() => {
@@ -139,7 +179,6 @@ const Projects = () => {
     dispatch(setFileInfo(file));
   };
 
-
   const openAddProjectkWindow = () => {
     setIsOpenAddProjectWindow(true);
   }
@@ -148,6 +187,11 @@ const Projects = () => {
     setIsOpenAddProjectWindow(false);
   }
 
+  const fetchProjectData = (data) => {
+    const response = ProjectsService.fillCustomFields(data);
+    setIsEditingProject(false)
+    getData();
+  }
 
   return (
     <>
@@ -212,6 +256,11 @@ const Projects = () => {
                     </button>
                     <div className="flex items-center space-x-3 w-full md:w-auto">
                       <button
+
+
+
+
+
                         id="actionsDropdownButton"
                         data-dropdown-toggle="actionsDropdown"
                         className="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200"
@@ -292,89 +341,6 @@ const Projects = () => {
                           />
                         </svg>
                       </button>
-                      <div
-                        id="filterDropdown"
-                        className="z-10 hidden w-48 p-3 bg-white rounded-lg shadow"
-                      >
-                        <h6 className="mb-3 text-sm font-medium text-gray-900">
-                          Choose brand
-                        </h6>
-                        <ul
-                          className="space-y-2 text-sm"
-                          aria-labelledby="filterDropdownButton"
-                        >
-                          <li className="flex items-center">
-                            <input
-                              id="apple"
-                              type="checkbox"
-                              defaultValue=""
-                              className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500"
-                            />
-                            <label
-                              htmlFor="apple"
-                              className="ml-2 text-sm font-medium text-gray-9000"
-                            >
-                              Apple (56)
-                            </label>
-                          </li>
-                          <li className="flex items-center">
-                            <input
-                              id="fitbit"
-                              type="checkbox"
-                              defaultValue=""
-                              className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500"
-                            />
-                            <label
-                              htmlFor="fitbit"
-                              className="ml-2 text-sm font-medium text-gray-900"
-                            >
-                              Microsoft (16)
-                            </label>
-                          </li>
-                          <li className="flex items-center">
-                            <input
-                              id="razor"
-                              type="checkbox"
-                              defaultValue=""
-                              className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500"
-                            />
-                            <label
-                              htmlFor="razor"
-                              className="ml-2 text-sm font-medium text-gray-900"
-                            >
-                              Razor (49)
-                            </label>
-                          </li>
-                          <li className="flex items-center">
-                            <input
-                              id="nikon"
-                              type="checkbox"
-                              defaultValue=""
-                              className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500"
-                            />
-                            <label
-                              htmlFor="nikon"
-                              className="ml-2 text-sm font-medium text-gray-900"
-                            >
-                              Nikon (12)
-                            </label>
-                          </li>
-                          <li className="flex items-center">
-                            <input
-                              id="benq"
-                              type="checkbox"
-                              defaultValue=""
-                              className="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500"
-                            />
-                            <label
-                              htmlFor="benq"
-                              className="ml-2 text-sm font-medium text-gray-900"
-                            >
-                              BenQ (74)
-                            </label>
-                          </li>
-                        </ul>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -390,16 +356,35 @@ const Projects = () => {
 
               {seeResizebleDiv && (
                 <ResizableDiv setSeeResizebleDiv={handleResizebleDivToggle}>
-
-                  <div className="text-[#252525] p-4">
-                    <FileIcon files={files} handleClick={handleClick} selectedFile={selectedFile} listView={true} />
+                  {selectedProject?.map((item) => {
+                    if (item.accessor === 'task.title') {
+                      return (
+                        <p key={item.accessor} className="font-extrabold not-italic font-roboto text-lg tracking-wide leading-[150%] ml-3 text-gray-700">
+                          {item.value}
+                        </p>
+                      );
+                    }
+                    return null;
+                  })}
+                  <div className='rounded-md border border-[#C8C2C2] ml-3 mt-2 max-w-32'>
+                    <button onClick={() => setIsEditingProject(true)} className='text-xs text-[#3F3F46] px-4'>Edit project</button>
                   </div>
 
 
                   <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
                     <table className="w-full text-sm text-left rtl:text-right text-[#252525]">
                       <caption className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-[#252525]">
-                        <TextEditor isEditing={false} setData={setData} />
+
+
+                        <section className="w-auto p-5 max-h-96 overflow-y-auto overflow-x-hidden">
+                          <p className="text-start text-gray-700 text-2xl mb-4">Description:</p>
+                          <div className="p-5 border border-gray-300 rounded">
+                            <Editorcopy
+                              defaultValue={selectedProject.filter((item) => item.accessor === 'task.comment')[0].value.comment}
+                              readOnly={true}
+                            />
+                          </div>
+                        </section>
                       </caption>
 
                       <thead className="w-full text-xs uppercase text-[#252525]">
@@ -430,13 +415,6 @@ const Projects = () => {
                                 <td className="px-6 py-4 border border-gray-300" colSpan={2}>
                                   {item?.value}
                                 </td>
-
-
-                                <td className="px-6 py-4 text-right border border-gray-300">
-                                  <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                    Edit
-                                  </a>
-                                </td>
                               </tr>
                             )
                           })
@@ -454,8 +432,9 @@ const Projects = () => {
       </div>
 
       {isOpenAddProjectWindow &&
-      <ProjectEdit isEditing={false} closeWindow={closeAddProjectWindow}  onSubmit={getData} />
+        <ProjectEdit isEditing={false} closeWindow={closeAddProjectWindow} onSubmit={onCloseProjectAdd} />
       }
+      {isEditingProject && <ProjectEditing isEditing={true} closeWindow={() => setIsEditingProject(false)} project={selectedProject} headers={response_headers} onSubmit={fetchProjectData} />}
     </>
   );
 };

@@ -10,6 +10,7 @@ import NewFolderIcon from "./NewFolderIcon";
 import FolderPath from "./FolderPath";
 import NewFolderModal from "./NewFolderModal";
 import NewFileModal from "./NewFileModal";
+import { Blocks } from 'react-loader-spinner'
 import UploadFileModal from "./UploadFileModal";
 
 
@@ -91,7 +92,7 @@ const columns = [
 ]
 
 const Workspace = () => {
-  const { currentFolder, fs, viewStyle, viewOnly, setCurrentFolder, setUploadedFileData, onDoubleClick, onRefresh } = useFileManager();
+  const { currentFolder, fs, viewStyle, viewOnly, setCurrentFolder, setUploadedFileData, onDoubleClick, onRefresh, loading } = useFileManager();
   const [newFolderModalVisible, setNewFolderModalVisible] =
     useState<boolean>(false);  
     const [newFileModalVisable, setNewFileModalViasble] =
@@ -198,38 +199,53 @@ const Workspace = () => {
           </>
         )}
 
-        {/* List File View */}
-        {viewStyle === ViewStyle.List && (
-        <>
-          <table className="w-full">
-            <thead>
-              {table.getHeaderGroups().map(headerGroup => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map(header => (
-                    <th className="rfm-workspace-list-th" key={header.id} onClick={header.column.getToggleSortingHandler()}>
-                      <div className="rfm-workspace-list-th-content">
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {header.column.getIsSorted() ? (header.column.getIsSorted() === 'desc' ? <SvgIcon svgType="arrow-down" className="rfm-header-sort-icon" /> : <SvgIcon svgType="arrow-up" className="rfm-header-sort-icon" />) : ''}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.map(row => (
-                <tr key={row.id} className="rfm-workspace-list-icon-row">
-                  {row.getVisibleCells().map(cell => (
-                    <td className="rfm-workspace-list-align-txt" key={cell.id} onClick={() => handleClick(row.original)} onDoubleClick={() => handleDoubleClick(row.original)}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-        )}    
+{loading ? 
+<div className="flex justify-center items-center w-full h-96">
+            <Blocks
+              height="40"
+              width="40"
+              color="#630044"
+              ariaLabel="blocks-loading"
+              wrapperStyle={{}}
+              wrapperClass="blocks-wrapper"
+              visible={true}
+            />
+          </div>
+          :
+        /* List File View */
+        viewStyle === ViewStyle.List && (
+          <>
+            <table className="w-full">
+              <thead>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map(header => (
+                      <th className="rfm-workspace-list-th" key={header.id} onClick={header.column.getToggleSortingHandler()}>
+                        <div className="rfm-workspace-list-th-content">
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {header.column.getIsSorted() ? (header.column.getIsSorted() === 'desc' ? <SvgIcon svgType="arrow-down" className="rfm-header-sort-icon" /> : <SvgIcon svgType="arrow-up" className="rfm-header-sort-icon" />) : ''}
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                ))}
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.map(row => (
+                  <tr key={row.id} className="rfm-workspace-list-icon-row">
+                    {row.getVisibleCells().map(cell => (
+                      <td className="rfm-workspace-list-align-txt" key={cell.id} onClick={() => handleClick(row.original)} onDoubleClick={() => handleDoubleClick(row.original)}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+          ) 
+  
+}
 
 
         {!viewOnly && (

@@ -1,9 +1,46 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'quill/dist/quill.snow.css';
 import TaskEdit from './TaskEdit';
+import { CommentSection } from 'react-comments-section';
+import { MultipleFileUploadBasic } from "./FileUploader"
+import { FaFile, FaDownload } from 'react-icons/fa';
+import { MdDelete } from "react-icons/md";
+import 'react-comments-section/dist/index.css';
+import FileService from '../services/FileService';
+import TaskService from '../services/TaskService';
+import { useSelector } from 'react-redux';
 
-const SubTaskDetails = ({ selectedSubTask, setIsOpen }) => {
-    const [ isEditing, setIsEditing ] = useState(false);
+const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const user = useSelector((state) => state.auth.userInfo);
+    const [comments, setComments] = useState([]);
+
+    useEffect(() => {
+        const formattedComments = selectedSubTask?.comments?.map((com) => {
+            const data = {
+                userId: com.creator.id,
+                comId: com.uuid,
+                fullName: `${com.creator.first_name} ${com.creator.last_name}`,
+                avatarUrl: com.creator.avatar,
+                text: com.content,
+                replies: com.replies ? com.replies.map((subcom) => ({
+                    userId: subcom.creator.id,
+                    comId: subcom.uuid,
+                    fullName: `${subcom.creator.first_name} ${subcom.creator.last_name}`,
+                    avatarUrl: subcom.creator.avatar,
+                    text: subcom.content,
+                })) : []
+            };
+    
+            return data;
+        });
+    
+        setComments(formattedComments);
+    }, [selectedSubTask?.comments]);
+    
+
+
 
     const getStatusStyles = (status) => {
         switch (status) {
@@ -20,17 +57,15 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen }) => {
             default:
                 return "";
         }
-    }
+    };
 
     const formatDate = (isoDate) => {
         const date = new Date(isoDate);
-    
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
-    
         return `${year}-${month}-${day}`;
-    }
+    };
 
     const getStatusLabel = (status) => {
         switch (status) {
@@ -47,56 +82,143 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen }) => {
             default:
                 return "";
         }
-    }
+    };
+
 
     const startEdit = () => {
         setIsEditing(true);
-    }
-
+    };
 
     const close = () => {
         setIsOpen(false);
-    }
+    };
+
+    const downloadBlob = (blob, filename) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    };
+
+    const handleDownload = async (fileUuid, filename) => {
+        try {
+            const blob = await FileService.downloadAttachment(fileUuid);
+            downloadBlob(blob, filename);
+        } catch (error) {
+            console.error('Error downloading file:', error);
+        }
+    };
+    const handleDelete = async (fileUuid) => {
+        try {
+            await FileService.deleteAttachment(fileUuid);
+            TaskService.getSubTask(selectedSubTask.uuid)
+                .then((res) => {
+                    setSelectedSubTask(res.data)
+                })
+        } catch (error) {
+            console.error('Error downloading file:', error);
+        }
+    };
 
     const closeAddTaskWindow = () => {
-        setIsEditing(false)
-    }
+        setIsEditing(false);
+    };
+
+    // const handleFileChange = (e) => {
+    //     setSelectedFiles([...selectedFiles, ...e.target.files]);
+    // };
+
+    // const handleDrop = (e) => {
+    //     e.preventDefault();
+    //     setSelectedFiles([...selectedFiles, ...e.dataTransfer.files]);
+    // };
+
+    // const handleDragOver = (e) => {
+    //     e.preventDefault();
+    // };
+
+    // const handleSubmit = () => {
+    //     const formData = new FormData();
+    //     selectedFiles.forEach((file) => {
+    //         formData.append("files", file);
+    //     });
+    //     fetch("/upload", {
+    //         method: "POST",
+    //         body: formData,
+    //     })
+    //         .then((response) => response.json())
+    //         .then((data) => {
+    //             // Handle the response
+    //         })
+    //         .catch((error) => {
+    //             // Handle the error
+    //         });
+    // };
+
+    const onSubmitAction = (data) => {
+        TaskService.createComment(data.text, selectedSubTask.uuid)
+        TaskService.getSubTask(selectedSubTask.uuid)
+                .then((res) => {
+                    setSelectedSubTask(res.data)
+                })
+
+    };
+
+    const customNoComment = () => <div className='no-com'>No comments, wohoooo!</div>;
+    const onReplyAction = (data) => {
+        console.log(data)
+        TaskService.createComment(data.text, selectedSubTask.uuid, data.parentOfRepliedCommentId? data.parentOfRepliedCommentId : data.repliedToCommentId)
+        TaskService.getSubTask(selectedSubTask.uuid)
+                .then((res) => {
+                    setSelectedSubTask(res.data)
+                })
+    };
+    const onDeleteAction = (data) => {
+        TaskService.deletecomment(data.comIdToDelete)
+        TaskService.getSubTask(selectedSubTask.uuid)
+                .then((res) => {
+                    setSelectedSubTask(res.data)
+                })
+    };
 
 
     return (
         <>
-        <button
-          className="m-4 absolute right-0 bg-white p-1 rounded-full hover:bg-gray-200"
-          onClick={close}
-        >
-          <svg
-            className="h-4 w-4 text-black"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-        <div className='pl-5 pt-8'>
-        
-            <>  {/*TITLE */}
+            <button
+                className="m-4 absolute right-0 bg-white p-1 rounded-full hover:bg-gray-200"
+                onClick={close}
+            >
+                <svg
+                    className="h-4 w-4 text-black"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18L18 6M6 6l12 12"
+                    />
+                </svg>
+            </button>
+            <div className='pl-5 pt-8'>
+                {/* TITLE */}
                 <p className="font-extrabold not-italic font-roboto text-lg tracking-wide leading-[150%] ml-3 text-gray-700">
                     {selectedSubTask.title}
                 </p>
-            </>
 
-            <div className='rounded-md border border-[#C8C2C2] ml-3 mt-2 w-[6.5rem]'>
-                <button onClick={startEdit} className='text-xs text-[#3F3F46] px-4'>Edit Subtask</button>
-            </div>
+                <div className='rounded-md border border-[#C8C2C2] ml-3 mt-2 w-[6.5rem]'>
+                    <button onClick={startEdit} className='text-xs text-[#3F3F46] px-4'>Edit Subtask</button>
+                </div>
 
-            <>  {/*DETAILS */}
+                {/* DETAILS */}
+                {/*DETAILS */}
                 <div className='pl-3 pr-10 pt-8'>
                     <div>
                         <p className='text-sm font-roboto not-italic tracking-wide leading-[150%]'>Details:</p>
@@ -190,13 +312,86 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen }) => {
                         </table>
 
                     </div>
-
                 </div>
-                {isEditing && 
-            <TaskEdit isEditing={true} closeWindow={closeAddTaskWindow} isTask={false} subTask={selectedSubTask} />
-        }
-            </>
-        </div>
+                {isEditing && <TaskEdit isEditing={true} closeWindow={closeAddTaskWindow} isTask={false} subTask={selectedSubTask} />}
+
+                {/* ATTACHMENTS */}
+                {/* <div className="pt-4">
+                    <div
+                        className="w-full m-2 border-2 border-gray-300 border-dotted rounded-lg"
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                    >
+                        <div className="p-6 w-full text-center flex justify-center items-center space-x-2">
+                            <svg
+                                width="14"
+                                height="16"
+                                viewBox="0 0 14 16"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="text-gray-400"
+                            >
+                                <path
+                                    d="M1.6665 7.99992V13.3333C1.6665 13.6869 1.80698 14.026 2.05703 14.2761C2.30708 14.5261 2.64622 14.6666 2.99984 14.6666H10.9998C11.3535 14.6666 11.6926 14.5261 11.9426 14.2761C12.1927 14.026 12.3332 13.6869 12.3332 13.3333V7.99992M9.6665 3.99992L6.99984 1.33325M6.99984 1.33325L4.33317 3.99992M6.99984 1.33325L6.99984 9.99992"
+                                    stroke="#B3B3B3"
+                                    strokeWidth="1.6"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                />
+                            </svg>
+                            <p className="text-gray-500">Drop files to attach, or </p>
+                            <label className="text-blue-500 font-semibold hover:underline cursor-pointer">
+                                browse
+                                <input
+                                    type="file"
+                                    multiple
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                />
+                            </label>
+                        </div>
+                    </div>
+                </div> */}
+
+                <div className="pt-4 w-full pr-4">
+                    <MultipleFileUploadBasic selectedSubTask={selectedSubTask} setSelectedSubTask={setSelectedSubTask} />
+                </div>
+
+                <div className='space-y-3 mt-6'>
+                    {selectedSubTask.attachments.map((file) => {
+                        return <div className='flex'>
+                            <FaFile className={`text-black 'text-xl'`} />
+                            <p className="truncate overflow-hidden whitespace-nowrap mx-4 w-full">{file.title}</p>
+                            <div className='text-right flex'>
+
+                                <button className='mr-4' onClick={() => handleDownload(file.uuid, file.title)}><FaDownload className={`text-gray-500 'text-xl'`} /></button>
+                                <button className='mr-4' onClick={() => handleDelete(file.uuid)}><MdDelete className={`text-red-500 'text-xl'`} /></button>
+
+
+                            </div>
+
+                        </div>
+                    })}
+                </div>
+
+
+                {/* COMMENTS */}
+                <div className="pt-4 w-full p-2 h-full pb-24 ">
+                    <CommentSection
+                        currentUser={{
+                            currentUserId: user.id,
+                            currentUserImg: user.avatar,
+                            currentUserFullName: `${user.first_name + " " + user.last_name}`
+                        }}
+                        commentData={comments}
+                        onSubmitAction={onSubmitAction}
+                        customNoComment={customNoComment}
+                        onReplyAction={onReplyAction}
+                        onDeleteAction={onDeleteAction}
+                    />
+                </div>
+
+            </div>
         </>
     );
 };

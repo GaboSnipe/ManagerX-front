@@ -12,6 +12,12 @@ export default class ProjectsService {
     }    
     static async createNewProject(conclusionNumber, task) {
         return $api.post(`/api/expertise/data/create/`, { conclusionNumber, task });
+    }  
+    static async fillCustomFields(data) {
+        return $api.post(`/api/expertise/data/create-expertise-data/`, data);
+    }
+    static async createCustomFields(data) {
+        return $api.post(`/api/expertise/data/custom-fields/`, data);
     }
 }
 

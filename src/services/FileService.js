@@ -60,4 +60,47 @@ export default class FileService {
       }
     });
   }
+
+  static async uploadAttachmentfile(file, subtaskUuid, options = {}) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('subtask', subtaskUuid);
+
+    try {
+      const response = await $api.post('/api/expertise/attachment/upload/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        signal: options.signal,
+      });
+      return response.data;
+    } catch (error) {
+      if (axios.isCancel(error)) {
+        console.log('Request canceled', error.message);
+      } else {
+        throw new Error(`Error uploading file: ${error.response?.statusText || error.message}`);
+      }
+    }
+  }
+
+  static async downloadAttachment(fileUuid) {
+    try {
+      const response = await $api.get(`/api/expertise/attachment/${fileUuid}/download/`, {
+        responseType: 'blob'
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(`Error downloading file: ${error.response?.statusText || error.message}`);
+    }
+  }
+  static async deleteAttachment(fileUuid) {
+    try {
+      const response = await $api.delete(`/api/expertise/attachment/${fileUuid}/delete/`);
+      return response.data;
+    } catch (error) {
+      throw new Error(`Error deleting attachment: ${error.response?.statusText || error.message}`);
+    }
+  }
+  
+  
 }

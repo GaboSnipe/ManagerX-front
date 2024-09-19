@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Header } from './components';
 import { navigation } from './globalEnv';
-import { LoginPage, NotFound, SingleTask, UserPage } from './pages';
+import { LoginPage, NotFound, SingleTask, SettingsPage } from './pages';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -21,7 +21,7 @@ function App() {
           <Route key={item.name} path={item.href} element={<item.component />} />
         ))}
         <Route path="/" element={<LoginPage />} />
-        <Route path="/profile" element={<UserPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
         {/* <Route path="/task/:uuid" element={<SingleTask />} /> */}
         {/* <Route path="/subtask/:uuid" element={<SingleTask />} /> */}
         <Route path="*" element={<NotFound />} />

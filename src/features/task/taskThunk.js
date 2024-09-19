@@ -1,17 +1,18 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import TaskService from '../../services/TaskService';
 
-export const getTaskListThunk  = createAsyncThunk(
+export const getTaskListThunk = createAsyncThunk(
   'task/list/',
-  async (_, thunkAPI) => {
+  async (settings, thunkAPI) => {
     try {
-      const response = await TaskService.getTaskList();
+      const response = await TaskService.getTaskList(settings);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }
   }
 );
+
 export const addTaskThunk  = createAsyncThunk(
   'task/add/',
   async (formData, thunkAPI) => {

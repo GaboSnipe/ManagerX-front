@@ -16,8 +16,8 @@ export const getProjectDetailsThunk  = createAsyncThunk(
   'document/details/',
   async ({ uuid }, thunkAPI) => {
     try {
-      const response = await ProjectsService.getProjectDetails(uuid);
-      return response.data;
+      // const response = await ProjectsService.getProjectDetails(uuid);
+      // return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }
@@ -52,7 +52,8 @@ export const createNewProjectThunk = createAsyncThunk(
       const response = await ProjectsService.createNewProject(conclusionNumber, task);
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      const errorMessage = error.response ? error.response.data.message : error.message;
+      return thunkAPI.rejectWithValue({ message: errorMessage });
     }
   }
 );

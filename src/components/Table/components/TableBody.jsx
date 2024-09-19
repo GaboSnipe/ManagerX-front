@@ -19,19 +19,13 @@ const TableBody = ({ tableData, columns }) => {
     const dispatch = useDispatch();
     const selectedRowId = useSelector((state) => state.project.selectedRowId);
 
-    const fetchData = async (uuid) => {
-        try {
-            await dispatch(getFilesListThunk({ uuid })).unwrap();
-        } catch (error) {
-            console.error('error:', error);
-        }
-    };
+
+
 
     const handleClick = (data) => {
         const uuidValue = data.find(obj => obj.accessor === 'uuid')?.value;
         dispatch(setProjectSeeResizebleDiv(true));
         dispatch(setProject(data));
-        fetchData(uuidValue);
         dispatch(setSelectedRowId(uuidValue));
     };
 

@@ -1,8 +1,8 @@
 import $api from "../http";
 
 export default class TaskService {
-    static async getTaskList() {
-        return $api.get('/api/tasks/list/')
+    static async getTaskList(settings) {
+        return $api.get(`/api/tasks/list${settings ? settings : ''}`,)
     }
     static async addTask(formData) {
         return $api.post('/api/tasks/create/', formData)
@@ -30,5 +30,23 @@ export default class TaskService {
     }
     static async createSubTask(formData) {
         return $api.post(`/api/tasks/subtasks/create/`, formData)
+    }
+
+    static async createComment(content, subtaskUuid, parentUuid = null) {
+        const data = {
+            content,
+            subtask: subtaskUuid,
+            parent: parentUuid,
+        };
+
+        try {
+            const response = await $api.post('/api/tasks/subtasks/comments/create/', data);
+            return response.data;
+        } catch (error) {
+            throw new Error(`Error creating comment: ${error.response?.statusText || error.message}`);
+        }
+    }
+    static async deletecomment(uuid) {
+        return $api.delete(`/api/tasks/subtasks/comments/${uuid}/delete/`)
     }
 }

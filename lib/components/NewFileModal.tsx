@@ -15,8 +15,9 @@ const NewFileModal = (props: INewFileModalProps) => {
   const onConfirm = async (event: React.FormEvent) => {
     event.preventDefault();
     if (selectedFile && onUpload) {
-      await onUpload(selectedFile);
+      onUpload(selectedFile);
       props.onClose();
+
     }
   };
 

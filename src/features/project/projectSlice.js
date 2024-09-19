@@ -31,7 +31,7 @@ const projectSlice = createSlice({
       state.seeResizebleDiv = action.payload;
     },
     setFileList(state, action) {
-      state.fileList = action.payload; // Set the entire payload
+      state.fileList = action.payload;
     },
     setSelectedRowId(state, action) {
       state.selectedRowId = action.payload;

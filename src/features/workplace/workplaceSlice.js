@@ -1,9 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getFolderListThunk, getFolderDetailsThunk, addFileInFolderThunk, deleteFileThunk, addFolderThunk, deleteFolderThunk } from "./workplaceThunk";
+import { getFolderListThunk, getFolderDetailsThunk, addFileInFolderThunk, deleteFileThunk, addFolderThunk, deleteFolderThunk, getRcFileList, createRcFolder, uploadRcFile } from "./workplaceThunk";
 
 const initialState = {
   folderInfo: {},
   folderList: [],
+  fileLoading: true,
   fileInfo: {},
   headerHeight: null,
   fileList: [],
@@ -125,6 +126,27 @@ const workplaceSlice = createSlice({
       .addCase(deleteFolderThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(getRcFileList.pending, (state) => {
+        state.fileLoading = true;
+      })
+      .addCase(getRcFileList.fulfilled, (state, action) => {
+        state.fileLoading = false;
+      })
+      .addCase(getRcFileList.rejected, (state, action) => {
+        state.fileLoading = true;
+      })
+      .addCase(createRcFolder.pending, (state) => {
+        state.fileLoading = true;
+      })
+      .addCase(createRcFolder.rejected, (state, action) => {
+        state.fileLoading = false;
+      })
+      .addCase(uploadRcFile.pending, (state) => {
+        state.fileLoading = true;
+      })
+      .addCase(uploadRcFile.rejected, (state, action) => {
+        state.fileLoading = false;
       });
   },
 });

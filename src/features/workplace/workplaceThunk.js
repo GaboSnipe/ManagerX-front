@@ -82,3 +82,54 @@ export const deleteFolderThunk = createAsyncThunk(
     }
   }
 );
+export const getRcFileList = createAsyncThunk(
+  'workplace/rclone/getfile',
+  async (settings, { rejectWithValue }) => {
+    try {
+      const response = await FileService.getSincFolderList(settings);
+      return response.data;
+    } catch (err) {
+      toast.error(err.message, {
+        containerId: "error"
+      });
+      if (!err.response) {
+        throw err;
+      }
+      return rejectWithValue(err.response.data || 'Failed');
+    }
+  }
+);
+
+export const createRcFolder = createAsyncThunk(
+  'workplace/rclone/createFolder',
+  async (remotePath, { rejectWithValue }) => {
+    try {
+      const result = await FileService.rcMkdir("GoogleDrive:", remotePath);
+      return result;
+    } catch (err) {
+      toast.error(err.message, {
+        containerId: "error"
+      });
+      if (!err.response) {
+        throw err;
+      }
+      return rejectWithValue(err.response.data || 'Failed');
+    }
+  }
+);
+export const uploadRcFile = createAsyncThunk(
+  'workplace/rclone/uploadRcFile',
+  async ({ remotePath, file }, { rejectWithValue }) => {
+    try {
+      await FileService.rcUploadFile("GoogleDrive:", remotePath, file);
+    } catch (err) {
+      toast.error(err.message, {
+        containerId: "error"
+      });
+      if (!err.response) {
+        throw err;
+      }
+      return rejectWithValue(err.response.data || 'Failed');
+    }
+  }
+);

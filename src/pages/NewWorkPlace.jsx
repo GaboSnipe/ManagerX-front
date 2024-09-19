@@ -3,26 +3,35 @@ import useAuthCheck from '../utils/hooks/useAuthCheck';
 import { ReactFileManager } from "../../lib";
 import "../../lib/style.css"
 import FileService from "../services/FileService"
+import { useDispatch } from 'react-redux';
+import { createRcFolder, getRcFileList, uploadRcFile } from '../features/workplace/workplaceThunk';
+import DocViewer from 'react-doc-viewer';
+import { useSelector } from 'react-redux';
 
 
 const NewWorkPlace = () => {
   const loading = useAuthCheck();
+  const dispatch = useDispatch();
   const [fileBrowserStory, setFileBrowserStory ] = useState([]);
   const [parrentPath, setParrentPath] = useState("");
+  const loadingFile = useSelector(state => state.workplace.fileLoading);
+
+
 
   const getFileBrowser = async (settings) => {
     const defaultSettings = {
-        "fs": "GoogleDrive:",
-        "remote":  "",
+      "fs": "GoogleDrive:",
+      "remote": "",
+    };
+    try {
+      const response = await dispatch(getRcFileList(settings || defaultSettings));
+      if (response.payload) {
+        setFileBrowserStory(response.payload.list);
+      }
+    } catch (e) {
+      console.error(e);
     }
-    try{
-      const response = await FileService.getSincFolderList(settings || defaultSettings);
-      setFileBrowserStory(response.data.list)
-    }catch (e) {
-      console.error(e)
-    }
-   
-  }
+  };
 
   useEffect(()=>{
 
@@ -73,7 +82,7 @@ const NewWorkPlace = () => {
 
   const createFolder = async (folderName) => {
     const remotePath = `${parrentPath}${parrentPath ? '/' : ''}${folderName}`;
-    FileService.rcMkdir("GoogleDrive:", remotePath)
+    dispatch(createRcFolder(remotePath))
       .then(() => {
         getFileBrowser({
           fs: "GoogleDrive:",
@@ -85,7 +94,7 @@ const NewWorkPlace = () => {
   
   const uploadFile = async (file) => {
     try {
-      await FileService.rcUploadFile("GoogleDrive:", parrentPath, file);
+      await dispatch(uploadRcFile({ remotePath: parrentPath, file }));
       
       getFileBrowser({
         fs: "GoogleDrive:",
@@ -94,6 +103,7 @@ const NewWorkPlace = () => {
     } catch (error) {
       console.error(error);
     }
+    
   };
   
 
@@ -102,8 +112,8 @@ const NewWorkPlace = () => {
         <div className="min-h-full">
           <div className="mx-auto px-4 py-6 sm:px-6 lg:px-8">
             <div className='border-2 border-gray-200 rounded-lg'>
+          <ReactFileManager fs={fileBrowserStory} onDoubleClick={onDoubleClick} parrentPath={parrentPath} goUp={handleGoUp} onCreateFolder={createFolder} onUpload={uploadFile}  loading={loadingFile}/> 
 
-          <ReactFileManager fs={fileBrowserStory} onDoubleClick={onDoubleClick} parrentPath={parrentPath} goUp={handleGoUp} onCreateFolder={createFolder} onUpload={uploadFile} />
           </div>
 
           </div>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import useAuthCheck from '../utils/hooks/useAuthCheck';
 import { FileViewer } from "../components";
-
+import { MultipleFileUploadBasic } from "../components/FileUploader"
 
 
 const Dashboard = () => {
@@ -15,6 +15,11 @@ const Dashboard = () => {
           <div className="p-4">
           </div>
           <a href="https://tailwindcomponents.com/component/free-tailwind-css-advance-table-component">goto</a>
+
+
+          <div className="">
+                    <MultipleFileUploadBasic/>
+                </div>
         </div>
       </div>
     </>
