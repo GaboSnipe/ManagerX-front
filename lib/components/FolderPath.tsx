@@ -33,14 +33,14 @@ const FolderPath: React.FC<FolderPathProps> = ({ setNewFolderModalVisible, setNe
           svgType="add-folder"
           className={`rfm-add-folder-icon`}
         />
-          <p>Create Folder</p>
+          <p>ფოლდერის შექმნა</p>
         </button>
         <button className="flex items-center" onClick={()=> setNewFileModalViasble(true)}>
         <SvgIcon
           svgType="upload"
           className={`rfm-upload-icon `}
         />
-          <p>Upload</p>
+          <p>ატვირთვა</p>
         </button>
         <SvgIcon
           svgType="list"

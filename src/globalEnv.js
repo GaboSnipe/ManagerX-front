@@ -1,8 +1,8 @@
 import { Dashboard, Projects, WorkPlace, NewWorkPlace,  Tasks, Tasks2 } from './pages';
 
 export const navigation = [
-  { name: 'Dashboard', href: '/dashboard', component: Dashboard, current: true },
-  { name: 'Projects', href: '/projects', component: Projects, current: false },
-  { name: 'Work Place', href: '/workplace', component: NewWorkPlace, current: false },
-  { name: 'Tasks', href: '/tasks', component: Tasks2, current: false },
+  { name: 'მთავარი', href: '/', component: Dashboard, current: true },
+  { name: 'პროექტები', href: '/projects', component: Projects, current: false },
+  { name: 'სამუშაო გარემო', href: '/workplace', component: NewWorkPlace, current: false },
+  { name: 'დავალებები', href: '/tasks', component: Tasks2, current: false },
 ];

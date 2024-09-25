@@ -11,10 +11,10 @@ import UserService from '../../../services/UserService';
 import TaskService from '../../../services/TaskService';
 
 const statuses = {
-  "TODO": "To Do",
-  "INPROGRESS": "In Progress",
-  "DONE": "Done",
-  "REJECTED": "Rejected",
+  "TODO": "შესასრულებელი",
+  "INPROGRESS": "მიმდინარე",
+  "DONE": "შესრულებული",
+  "REJECTED": "უარყოფილი",
 };
 const statusStyles = {
   "TODO": "bg-yellow-500",
@@ -271,7 +271,7 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks, setSaveS
   return (
     <tr
       key={index}
-      className={`border-t relative ${newSubTask?.uuid != null && newSubTask.uuid === selectedSubTask.uuid ? "bg-blue-100" : ""} rounded-lg`}
+      className={`border-t relative ${newSubTask?.uuid != null && newSubTask.uuid === selectedSubTask?.uuid ? "bg-blue-100" : ""} rounded-lg`}
     >
       <td className="py-2">
         <div className="flex items-center space-x-2">
@@ -403,7 +403,7 @@ const SubTasks = ({ subtask, motherRef, index, isEditing, saveSubTasks, setSaveS
               className="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
               onClick={() => handleClick(newSubTask)}
             >
-              {selectedSubTask.uuid === newSubTask.uuid && seeResizebleDiv ? "Close" : "View"}
+              {selectedSubTask?.uuid === newSubTask.uuid && seeResizebleDiv ? "Close" : "View"}
             </button>
 
           )

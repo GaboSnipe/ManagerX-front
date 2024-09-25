@@ -7,7 +7,6 @@ const TextEditor = ({ isEditing, defaultValue, setFormData }) => {
   const quillRef = useRef(null);
 
 
-
   useEffect(() => {
     setReadOnly(!isEditing);
   }, [isEditing]);

@@ -17,10 +17,10 @@ import { getFolderDetailsThunk } from "../../../features/workplace/workplaceThun
 
 
 const statuses = {
-  "TODO": "To Do",
-  "INPROGRESS": "In Progress",
-  "DONE": "Done",
-  "REJECTED": "Rejected",
+  "TODO": "შესასრულებელი",
+  "INPROGRESS": "მიმდინარე",
+  "DONE": "შესრულებული",
+  "REJECTED": "უარყოფილი",
 };
 const statusStyles = {
   "TODO": "bg-yellow-500",
@@ -189,7 +189,7 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
       <div className="flex w-full justify-between items-center mb-4">
         <p className="text-start text-gray-700 text-2xl mb-4">Details: </p>
         {!isEditing &&
-          <button onClick={handleStartEditing} className="bg-yellow-400 text-white text-base items-center px-4 py-2 rounded flex space-x-2"> <FaRegEdit /> <p>Edit</p></button>
+          <button onClick={handleStartEditing} className="bg-yellow-400 text-white text-base items-center px-4 py-2 rounded flex space-x-2"> <FaRegEdit /> <p>შეცვლა</p></button>
         }
       </div>
       <div className="p-5">
@@ -233,7 +233,7 @@ const ExpandableDetails = ({ task, isEditing, setIsEditing, formData, setFormDat
                       {Object.keys(statuses).map((statusKey) => (
                         <li key={statusKey}>
                           <button onClick={(() => changeStatus(statusKey))} className="block px-4 py-2 hover:bg-gray-100">
-                            <span className={`${statusStyles[statusKey]} text-white px-2 py-1 rounded`}>
+                            <span className={`${statusStyles[statusKey]} text-white px-2 py-1 w-32 min-w-32 rounded`}>
                               {statuses[statusKey]}
                             </span>
                           </button>

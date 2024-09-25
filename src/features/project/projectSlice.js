@@ -7,8 +7,10 @@ const initialState = {
   projectHeaders: [],
   fileList: [],
   fileInfo: {},
+  projectListLength: null,
   seeResizebleDiv: false,
   selectedRowId: null,
+  resizabledivwidth: localStorage.getItem("resizebleDivSize"),
 };
 
 const projectSlice = createSlice({
@@ -36,11 +38,15 @@ const projectSlice = createSlice({
     setSelectedRowId(state, action) {
       state.selectedRowId = action.payload;
     },
+    setresizabledivwidth(state, action) {
+      state.resizabledivwidth = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
       .addCase(getProjectListThunk.fulfilled, (state, action) => {
-        state.projectList = action.payload;
+        state.projectList = action.payload.results;
+        state.projectListLength = action.payload.count;
       })
       .addCase(getProjectListThunk.rejected, (state, action) => {
         state.projectList = [];
@@ -70,5 +76,5 @@ const projectSlice = createSlice({
   },
 });
 
-export const { setProject, setFileInfo, setProjectSeeResizebleDiv, setSelectedRowId, setProjectHeaders, setProjectList, setFileList } = projectSlice.actions;
+export const { setProject, setFileInfo, setresizabledivwidth, setProjectSeeResizebleDiv, setSelectedRowId, setProjectHeaders, setProjectList, setFileList } = projectSlice.actions;
 export default projectSlice.reducer;

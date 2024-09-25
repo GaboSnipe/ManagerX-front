@@ -25,10 +25,10 @@ const formatDeadline = (deadline) => {
   return deadlineDate.toLocaleDateString();
 };
 const statuses = {
-  "TODO": "To Do",
-  "INPROGRESS": "In Progress",
-  "DONE": "Done",
-  "REJECTED": "Rejected",
+  "TODO": "შესასრულებელი",
+  "INPROGRESS": "მიმდინარე",
+  "DONE": "შესრულებული",
+  "REJECTED": "უარყოფილი",
 };
 const statusStyles = {
   "TODO": "bg-yellow-500",
@@ -348,7 +348,7 @@ const Tasks = () => {
                   </div>
 
                   {!isEditingSubTask &&
-                    <button onClick={startEdit} className="bg-yellow-400 text-white text-base items-center px-4 py-2 rounded flex space-x-2"> <FaRegEdit /> <p>Edit</p></button>
+                    <button onClick={startEdit} className="bg-yellow-400 text-white text-base items-center px-4 py-2 rounded flex space-x-2"> <FaRegEdit /> <p>შეცვლა</p></button>
                   }
                 </div>
               </div>

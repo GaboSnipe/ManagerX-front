@@ -16,6 +16,9 @@ export default class TaskService {
     static async getSubtaskList(uuid) {
         return $api.get(`/api/tasks/subtasks/list/?task=${uuid}`);
     }
+    static async getSubtaskSettList(settings) {
+        return $api.get(`/api/tasks/subtasks/list/?${settings}`);
+    }
     static async editTask(uuid, formData) {
         return $api.patch(`/api/tasks/${uuid}/update/`, formData)
     }

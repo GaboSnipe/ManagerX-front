@@ -9,12 +9,20 @@ import 'react-comments-section/dist/index.css';
 import FileService from '../services/FileService';
 import TaskService from '../services/TaskService';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { getSubTaskThunk } from '../features/task/taskThunk';
+import Editorcopy from './Editorcopy';
 
-const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
+const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
+    const dispatch = useDispatch();
     const [isEditing, setIsEditing] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const user = useSelector((state) => state.auth.userInfo);
+    const selectedSubTask = useSelector((state) => state.task.selectedSubtask);
+
     const [comments, setComments] = useState([]);
+
+    const baseAvatarUrl = `images/defUserImg.jpg`
 
     useEffect(() => {
         const formattedComments = selectedSubTask?.comments?.map((com) => {
@@ -32,14 +40,12 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
                     text: subcom.content,
                 })) : []
             };
-    
+
             return data;
         });
-    
+
         setComments(formattedComments);
     }, [selectedSubTask?.comments]);
-    
-
 
 
     const getStatusStyles = (status) => {
@@ -70,19 +76,20 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
     const getStatusLabel = (status) => {
         switch (status) {
             case "TODO":
-                return "To Do";
+                return "შესასრულებელი";
             case "INPROGRESS":
-                return "In Progress";
+                return "მიმდინარე";
             case "DONE":
-                return "Done";
+                return "შესრულებული";
             case "REJECTED":
-                return "Rejected";
+                return "უარყოფილი";
             case "UNCERTAIN":
-                return "Uncertain";
+                return "გაურკვეველი";
             default:
                 return "";
         }
     };
+    
 
 
     const startEdit = () => {
@@ -115,10 +122,7 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
     const handleDelete = async (fileUuid) => {
         try {
             await FileService.deleteAttachment(fileUuid);
-            TaskService.getSubTask(selectedSubTask.uuid)
-                .then((res) => {
-                    setSelectedSubTask(res.data)
-                })
+            dispatch(getSubTaskThunk(selectedSubTask?.uuid))
         } catch (error) {
             console.error('Error downloading file:', error);
         }
@@ -160,29 +164,22 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
     // };
 
     const onSubmitAction = (data) => {
-        TaskService.createComment(data.text, selectedSubTask.uuid)
-        TaskService.getSubTask(selectedSubTask.uuid)
-                .then((res) => {
-                    setSelectedSubTask(res.data)
-                })
+        TaskService.createComment(data.text, selectedSubTask?.uuid)
+            dispatch(getSubTaskThunk(selectedSubTask?.uuid))
+
 
     };
 
     const customNoComment = () => <div className='no-com'>No comments, wohoooo!</div>;
     const onReplyAction = (data) => {
-        console.log(data)
-        TaskService.createComment(data.text, selectedSubTask.uuid, data.parentOfRepliedCommentId? data.parentOfRepliedCommentId : data.repliedToCommentId)
-        TaskService.getSubTask(selectedSubTask.uuid)
-                .then((res) => {
-                    setSelectedSubTask(res.data)
-                })
+        TaskService.createComment(data.text, selectedSubTask?.uuid, data.parentOfRepliedCommentId ? data.parentOfRepliedCommentId : data.repliedToCommentId)
+        dispatch(getSubTaskThunk(selectedSubTask?.uuid))
+
     };
     const onDeleteAction = (data) => {
         TaskService.deletecomment(data.comIdToDelete)
-        TaskService.getSubTask(selectedSubTask.uuid)
-                .then((res) => {
-                    setSelectedSubTask(res.data)
-                })
+        dispatch(getSubTaskThunk(selectedSubTask?.uuid))
+
     };
 
 
@@ -209,16 +206,28 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
             </button>
             <div className='pl-5 pt-8'>
                 {/* TITLE */}
-                <p className="font-extrabold not-italic font-roboto text-lg tracking-wide leading-[150%] ml-3 text-gray-700">
-                    {selectedSubTask.title}
+                <p className="font-extrabold not-italic font-roboto text-lg truncate tracking-wide leading-[150%] overflow-hidden mr-12 ml-3 text-gray-700">
+                    {selectedSubTask?.title}
                 </p>
 
                 <div className='rounded-md border border-[#C8C2C2] ml-3 mt-2 w-[6.5rem]'>
-                    <button onClick={startEdit} className='text-xs text-[#3F3F46] px-4'>Edit Subtask</button>
+                    <button onClick={startEdit} className='text-xs text-[#3F3F46] px-4'>დავალების შეცვლა</button>
                 </div>
 
+                <div className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-[#252525]">
+                  <section className="w-auto p-5 overflow-x-hidden">
+                    <p className="text-start text-gray-700 text-2xl mb-4">აღწერა:</p>
+                    <div style={{ width: resizableDivWidth - 150 }} className="p-5 border border-gray-300 rounded max-w-full">
+                      <Editorcopy
+                        defaultValue={selectedSubTask?.comment}
+                        readOnly={true}
+                      />
+                    </div>
+                  </section>
+                </div>
                 {/* DETAILS */}
                 {/*DETAILS */}
+
                 <div className='pl-3 pr-10 pt-8'>
                     <div>
                         <p className='text-sm font-roboto not-italic tracking-wide leading-[150%]'>Details:</p>
@@ -233,14 +242,14 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
                             <tbody className='text-xs font-roboto leading-[150%] not-italic text-black'>
                                 <tr className='h-9'>
                                     <td>Task:</td>
-                                    <td>{selectedSubTask.task.title}</td>
+                                    <td>{selectedSubTask?.task?.title}</td>
                                 </tr>
                                 <tr className='h-9'>
                                     <td>Status:</td>
                                     <td><>  {/*STATUS */}
                                         <div className="items-center">
-                                            <div className={`text-white text-xs w-16 min-w-16 py-0.5 rounded-full text-center ${getStatusStyles(selectedSubTask.status)}`}>
-                                                {getStatusLabel(selectedSubTask.status)}
+                                            <div className={`text-white text-xs w-32 min-w-32  py-0.5 rounded-full text-center ${getStatusStyles(selectedSubTask?.status)}`}>
+                                                {getStatusLabel(selectedSubTask?.status)}
                                             </div>
                                         </div>
                                     </></td>
@@ -251,11 +260,11 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
                                         <>  {/*DEADLINE */}
                                             <div className="flex items-center">
                                                 <div className="bg-[#C2BDAD] text-white px-2.5 py-0.5 rounded-full text-xs">
-                                                    {selectedSubTask.deadline_from}
+                                                    {selectedSubTask?.deadline_from}
                                                 </div>
                                                 <div className="w-4 h-px bg-[#C2BDAD]" />
                                                 <div className="bg-[#C2BDAD] text-white px-2.5 py-0.5 rounded-full text-xs">
-                                                    {selectedSubTask.deadline_to}
+                                                    {selectedSubTask?.deadline_to}
 
                                                 </div>
                                             </div>
@@ -268,8 +277,10 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
                                         <div className='flex'>
                                             {/*ASSIGNED */}
                                             <div className='flex items-center text-xs text-[#727272] space-x-1'>
-                                                <img src={selectedSubTask.creator.avatar} className="w-5 h-5 rounded-full overflow-hidden" />
-                                                <p className='font-roboto'>{selectedSubTask.creator.email}</p>
+                                                <div className='relative w-5 h-5 overflow-hidden rounded-full'>
+                                                <img src={selectedSubTask?.creator?.avatar ? selectedSubTask?.creator?.avatar : baseAvatarUrl} className="absolute inset-0 object-cover w-full h-full" />
+                                                </div>
+                                                <p className='font-roboto'>{selectedSubTask?.creator?.email}</p>
                                             </div>
                                         </div>
                                     </td>
@@ -280,8 +291,10 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
                                         <div className='flex'>
                                             {/*ASSIGNED */}
                                             <div className='flex items-center text-xs text-[#727272] space-x-1'>
-                                                <img src={selectedSubTask.assign_to.avatar} className="w-5 h-5 rounded-full overflow-hidden" />
-                                                <p className='font-roboto'>{selectedSubTask.assign_to.email}</p>
+                                                <div className='relative w-5 h-5 overflow-hidden rounded-full'>
+                                                    <img src={selectedSubTask?.assign_to?.avatar ? selectedSubTask?.assign_to?.avatar : baseAvatarUrl} className="absolute inset-0 object-cover w-full h-full" />
+                                                </div>
+                                                <p className='font-roboto'>{selectedSubTask?.assign_to?.email}</p>
                                             </div>
                                         </div>
                                     </td>
@@ -291,7 +304,7 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
                                     <td>
                                         <div className="flex items-center">
                                             <div className="bg-[#C2BDAD] text-white px-2.5 py-0.5 rounded-full text-xs">
-                                                {formatDate(selectedSubTask.created_at)}
+                                                {formatDate(selectedSubTask?.created_at)}
 
                                             </div>
                                         </div>
@@ -302,7 +315,7 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
                                     <td>
                                         <div className="flex items-center">
                                             <div className="bg-[#C2BDAD] text-white px-2.5 py-0.5 rounded-full text-xs">
-                                                {formatDate(selectedSubTask.updated_at)}
+                                                {formatDate(selectedSubTask?.updated_at)}
 
                                             </div>
                                         </div>
@@ -354,12 +367,12 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
                 </div> */}
 
                 <div className="pt-4 w-full pr-4">
-                    <MultipleFileUploadBasic selectedSubTask={selectedSubTask} setSelectedSubTask={setSelectedSubTask} />
+                    <MultipleFileUploadBasic />
                 </div>
 
                 <div className='space-y-3 mt-6'>
-                    {selectedSubTask.attachments.map((file) => {
-                        return <div className='flex'>
+                    {selectedSubTask?.attachments?.map((file) => {
+                        return <div key={file.uuid} className='flex'>
                             <FaFile className={`text-black 'text-xl'`} />
                             <p className="truncate overflow-hidden whitespace-nowrap mx-4 w-full">{file.title}</p>
                             <div className='text-right flex'>
@@ -380,7 +393,7 @@ const SubTaskDetails = ({ selectedSubTask, setIsOpen, setSelectedSubTask }) => {
                     <CommentSection
                         currentUser={{
                             currentUserId: user.id,
-                            currentUserImg: user.avatar,
+                            currentUserImg: user?.avatar ? user?.avatar : baseAvatarUrl,
                             currentUserFullName: `${user.first_name + " " + user.last_name}`
                         }}
                         commentData={comments}

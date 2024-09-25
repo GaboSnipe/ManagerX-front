@@ -19,7 +19,7 @@ const TextEditor = ({ isEditing, defaultValue, setFormData }) => {
 
   return (
     <section className="w-auto p-5 max-h-96 overflow-y-auto overflow-x-hidden">
-      <p className="text-start text-gray-700 text-2xl mb-4">Description:</p>
+      <p className="text-start text-gray-700 text-2xl mb-4">აღწერა:</p>
       <div className="p-5 border border-gray-300 rounded">
         <Editor
           ref={quillRef}

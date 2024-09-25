@@ -19,7 +19,7 @@ const useAuthCheck = () => {
 
   useEffect(() => {
     if (!loading && !isAuth) {
-      navigate('/');
+      navigate('/login');
     }
   }, [navigate]);
 

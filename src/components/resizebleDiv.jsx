@@ -1,9 +1,26 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { setresizabledivwidth } from '../features/project/projectSlice';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 const ResizableDiv = ({ children, setSeeResizebleDiv }) => {
   const resizableRef = useRef(null);
   const startX = useRef(0);
   const startWidth = useRef(0);
+  const dispatch = useDispatch();
+  const headerHeight = useSelector((state) => state.workplace.headerHeight);
+  const screenHeight = window.innerHeight;
+  const baseFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  const [dynamicHeight, setDynamicHeight] = useState(null);
+  const [widthRem, setWidthRem] = useState(0);
+
+
+  useEffect(() => {
+    const remValue = 2;
+    const remInPixels = remValue * baseFontSize;
+    const calculatedHeight = screenHeight - headerHeight - remInPixels;
+    setDynamicHeight(calculatedHeight);
+  }, [headerHeight]);
 
 
   const getInitialSize = () => {
@@ -17,6 +34,7 @@ const ResizableDiv = ({ children, setSeeResizebleDiv }) => {
   const [size, setSize] = useState(getInitialSize);
 
   useEffect(() => {
+    dispatch(setresizabledivwidth(size));
     localStorage.setItem('resizebleDivSize', JSON.stringify(size));
   }, [size]);
 
@@ -25,9 +43,11 @@ const ResizableDiv = ({ children, setSeeResizebleDiv }) => {
     startWidth.current = size.width;
 
     const handleMouseMove = (e) => {
-      const newWidth = Math.max(startWidth.current + (startX.current - e.clientX), 200); // 200px is the minimum width
-      setSize({ width: newWidth });
+      const newWidth = startWidth.current + (startX.current - e.clientX);
+      const constrainedWidth = Math.max(400, Math.min(newWidth, widthRem * baseFontSize));
+      setSize({ width: constrainedWidth });
     };
+
 
     const handleMouseUp = () => {
       document.removeEventListener("mousemove", handleMouseMove);
@@ -37,6 +57,21 @@ const ResizableDiv = ({ children, setSeeResizebleDiv }) => {
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
   };
+
+
+  useEffect(() => {
+    const updateWidth = () => {
+      const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const screenWidthPx = window.innerWidth;
+      const screenWidthRem = screenWidthPx / rootFontSize;
+      setWidthRem(screenWidthRem - 59);
+    };
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   useEffect(() => {
     const resizableDiv = resizableRef.current;
@@ -64,8 +99,8 @@ const ResizableDiv = ({ children, setSeeResizebleDiv }) => {
   return (
     <div
       ref={resizableRef}
-      className="bg-[#f9f9f9] relative rounded-l-lg shadow-lg"
-      style={{ width: `${size.width}px`, minWidth: '200px' }}
+      className="bg-[#f9f9f9] relative ml-auto rounded-l-md shadow-lg overflow-y-auto mt-8 custom-scrollbar h-full"
+      style={{  width: `${size.width}px`, minWidth: '400px', maxWidth: `${widthRem}rem`, height: `${dynamicHeight}px` }}
     >
       <div className='flex'>
         {/*<h2 className="text-white text-xl p-3">*/}

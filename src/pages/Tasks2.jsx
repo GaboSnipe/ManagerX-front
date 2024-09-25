@@ -3,14 +3,16 @@ import { SubTaskDetails, Task } from '../components';
 import { useDispatch, useSelector } from 'react-redux';
 import "../styles/scrollBar.css"
 import { getTaskListThunk } from '../features/task/taskThunk';
+import { setSeeResizebleDiv } from '../features/task/taskSlice';
+
 
 const Tasks = () => {
   const dispatch = useDispatch();
   const tasks = useSelector((state) => state.task.taskList);
   const userInfo = useSelector((state) => state.auth.userInfo);
   const [dynamicHeight, setDynamicHeight] = useState(null);
-  const [seeResizebleDiv, setSeeResizebleDiv] = useState(false);  
-  const [selectedSubTask, setSelectedSubTask] = useState({});
+  const seeResizebleDiv = useSelector((state) => state.task.seeResizebleDiv)
+  const selectedSubTask = useSelector((state) => state.task.selectedSubtask);
   const headerHeight = useSelector((state) => state.workplace.headerHeight);
   const divRef = useRef();
   const [widthRem, setWidthRem] = useState(0);
@@ -22,14 +24,17 @@ const Tasks = () => {
 
 
   const [params, setParams] = useState([
-    { access: "To Do", key: "TODO", isEnabled: true },
-    { access: "In Progress", key: "INPROGRESS", isEnabled: true },
-    { access: "Done", key: "DONE", isEnabled: false },
-    { access: "Rejected", key: "REJECTED", isEnabled: false },
-    { access: "Assigne to my", key: "assign_to", isEnabled: false },
-    { access: "Assigne by my", key: "creator", isEnabled: false }
+    { access: "შესასრულებელი", key: "TODO", isEnabled: true },
+    { access: "მიმდინარე", key: "INPROGRESS", isEnabled: true },
+    { access: "შესრულებული", key: "DONE", isEnabled: false },
+    { access: "უარყოფილი", key: "REJECTED", isEnabled: false },
+    { access: "გაურკვეველი", key: "UNCERTAIN", isEnabled: false },
+    { access: "დამევალა (პროექტი)", key: "assign_to", isEnabled: false },
+    { access: "დავავალე (პროექტი)", key: "creator", isEnabled: false },
+    { access: "დამევალა (დავალება)", key: "subtask_assign_to", isEnabled: false },
+    { access: "დავავალე (დავალება)", key: "subtask_assigned_by_user", isEnabled: false },
   ]);
-  const statusKeys = ["TODO", "INPROGRESS", "DONE", "REJECTED"];
+  const statusKeys = ["TODO", "INPROGRESS", "DONE", "REJECTED", "UNCERTAIN"];
 
 
   const handleStatusClick = (key) => {
@@ -46,7 +51,9 @@ useEffect(() => {
     const queryParams = {
       status: [],
       assign_to: "",
-      creator: ""
+      creator: "",
+      subAssigneToMy: "",
+      subAssigne: "",
     };
 
     params.forEach((status) => {
@@ -59,13 +66,21 @@ useEffect(() => {
       else if (status.key == "creator" && status.isEnabled) {
         queryParams.creator = userInfo.id;
       }
+      else if (status.key == "subtask_assign_to" && status.isEnabled) {
+        queryParams.subAssigneToMy = userInfo.id;
+      }
+      else if (status.key == "subtask_assigned_by_user" && status.isEnabled) {
+        queryParams.subAssigne = userInfo.id;
+      }
     });
 
     const tempstatusparams = queryParams.status.length ? `&status=${queryParams.status.join(',')}` : "";
     const assigneTo = queryParams.assign_to ? `&assign_to=${queryParams.assign_to}` : "";
     const creator = queryParams.creator ? `&creator=${queryParams.creator}` : "";
+    const subAssigneToMy = queryParams.subAssigneToMy ? `&subtask_assign_to=${queryParams.subAssigneToMy}` : "";
+    const subAssigne = queryParams.subAssigne ? `&subtask_assigned_by_user=${queryParams.subAssigne}` : "";
 
-    const query = `?ordering=-created_at${tempstatusparams}${assigneTo}${creator}`;
+    const query = `?ordering=-created_at${tempstatusparams}${assigneTo}${creator}${subAssigneToMy}${subAssigne}`;
 
     try {
       await dispatch(getTaskListThunk(query)).unwrap();
@@ -75,7 +90,11 @@ useEffect(() => {
   };
 
   getData();
-}, [params, dispatch, userInfo.id]);
+}, [params, dispatch, userInfo?.id]);
+
+const closeResizableDiv = (par) => {
+  dispatch(setSeeResizebleDiv(par))
+}
 
   
   
@@ -173,13 +192,13 @@ useEffect(() => {
       ))}
     </div>
         {tasks.map((task) => (
-          <Task key={task.uuid} task={task} setSeeResizebleDiv={setSeeResizebleDiv} setSelectedSubTask={setSelectedSubTask} />
+          <Task key={task.uuid} task={task} setSeeResizebleDiv={closeResizableDiv} />
         ))}
       </div>
       {seeResizebleDiv && (
         <div ref={resizableRef} className="relative rounded-l-md shadow-lg overflow-y-auto mt-8 custom-scrollbar h-full" style={{ height: `${dynamicHeight}px`, width: `${size.width}px`, minWidth: '400px', maxWidth: `${widthRem}rem` }}>
           <div className="bg-[#F7F5F5] w-full rounded-l-lg shadow-lg" style={{ boxShadow: '0 8px 15px -3px rgba(0, 0, 0, 0.4), 0 0px 4px -2px rgba(0, 0, 0, 0.4)' }}>
-            <SubTaskDetails selectedSubTask={selectedSubTask} setIsOpen={setSeeResizebleDiv} setSelectedSubTask={setSelectedSubTask} />
+            <SubTaskDetails resizableDivWidth={size.width} setIsOpen={closeResizableDiv} />
           </div>
         </div>
       )}

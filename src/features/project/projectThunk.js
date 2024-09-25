@@ -1,17 +1,18 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import ProjectsService from '../../services/ProjectsService';
 
-export const getProjectListThunk  = createAsyncThunk(
+export const getProjectListThunk = createAsyncThunk(
   'document/list/',
-  async (_, thunkAPI) => {
+  async ({ settings }, thunkAPI) => {
     try {
-      const response = await ProjectsService.getProjectList();
+      const response = await ProjectsService.getProjectList(settings);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }
   }
 );
+
 export const getProjectDetailsThunk  = createAsyncThunk(
   'document/details/',
   async ({ uuid }, thunkAPI) => {

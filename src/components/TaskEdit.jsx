@@ -61,7 +61,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState({})
     const [selectedFolder, setSelectedFolder] = useState({})
-    const [Comment, setComment] = useState({});
+    const [Comment, setComment] = useState(task ? task.comment : (subTask ? subTask.comment : ''));
     const [selectedTask, setSelectedTask] = useState({});
     const [selectedDataFrom, setSelectedDataFrom] = useState(new Date())
     const [selectedDataTo, setSelectedDataTo] = useState(selectedDataFrom || new Date())
@@ -79,20 +79,19 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
 
     const statusList = ["TODO", "INPROGRESS", "DONE", "REJECTED", "UNCERTAIN"];
 
-
     useEffect(()=>{
         if(isEditing){
             if(isTask) {
 
-                const name = task.drive_folder_path.split("სამუშაო გარემო/")[1];
+                const name = task?.drive_folder_path?.split("სამუშაო გარემო/")[1];
                 setSummary(task?.title)
-                setComment(task?.comment.comment)
+                setComment(task?.comment)
                 setSelectedUser(task?.assign_to)
                 setSelectedStatu(task?.status)
                 setSelectedDataFrom(task?.deadline_from)
                 setSelectedDataTo(task?.deadline_to)
                 setSelectedFolder({Name: name,
-                                    Patch: task.drive_folder_path
+                                    Patch: task?.drive_folder_path
                 })
                 setSelectedOption( {
                     value: "Task", label: "Task", icon: <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -101,7 +100,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                 })
             }else{
                 setSummary(subTask?.title)
-                setComment(subTask?.comment.comment)
+                setComment(subTask?.comment)
                 setSelectedUser(subTask?.assign_to)
                 setSelectedStatu(subTask?.status)
                 setSelectedDataFrom(subTask?.deadline_from)
@@ -148,15 +147,15 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
     const getStatusLabel = (status) => {
         switch (status) {
             case "TODO":
-                return "To Do";
+                return "შესასრულებელი";
             case "INPROGRESS":
-                return "In Progress";
+                return "მიმდინარე";
             case "DONE":
-                return "Done";
+                return "შესრულებული";
             case "REJECTED":
-                return "Rejected";
+                return "უარყოფილი";
             case "UNCERTAIN":
-                return "Uncertain";
+                return "გაურკვეველი";
             default:
                 return "";
         }
@@ -252,7 +251,17 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
         today.setHours(0, 0, 0, 0);
         const selectedDataToDate = new Date(selectedDataTo);
         selectedDataToDate.setHours(0, 0, 0, 0);
-        const isDateNowValid = selectedDataToDate >= today;
+        
+        let isDateNowValid = true;
+        if (selectedOption.label === "Task") {
+            if (selectedDataTo !== task?.deadline_to) {
+                isDateNowValid = selectedDataToDate >= today;
+            }
+        } else if (selectedOption.label === "Sub Task") {
+            if (selectedDataTo !== subTask?.deadline_to) {
+                isDateNowValid = selectedDataToDate >= today;
+            }
+        }
     
         if (!isDateNowValid) {
             toast.warning("The deadline cannot be in the past", {
@@ -262,12 +271,10 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
     
         const isOptionValid = (selectedOption.label === "Task" && Boolean(selectedFolder)) ||
                               (selectedOption.label === "Sub Task" && Boolean(selectedTask));
-    
+        
         return isSummaryValid && isStatusValid && isDatesValid && isUserValid && isOptionValid && isDateNowValid;
     };
     
-
-
     const fetchData = () => {
         if (isFormValid()) {
             if(isEditing){
@@ -275,22 +282,32 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                     const formData = {
                         title: summary,
                         status: selectedStatus,
-                        comment: Comment,
-                        deadline_from: formatDDate(selectedDataFrom),
-                        deadline_to: formatDDate(selectedDataTo),
+                        comment: Comment?.comment,
+                        ...(selectedDataFrom !== task?.deadline_from && {
+                            deadline_from: formatDDate(selectedDataFrom),
+                        }),
+                        ...(selectedDataTo !== task?.deadline_to && {
+                            deadline_to: formatDDate(selectedDataTo),
+                        }),
                         assign_to: selectedUser.pk,
                         drive_folder_path: selectedFolder.Path
                     };
+                    
                     dispatch(editTaskThunk({ uuid: task.uuid, formData: formData }));
                     closeWindow();
-                } else if (selectedOption.label === "Sub Task") {
+                }
+                 else if (selectedOption.label === "Sub Task") {
                     const formData = {
                         assign_to: selectedUser.pk,
                         title: summary,
-                        comment: Comment,
+                        comment: Comment?.comment,
                         status: selectedStatus,
-                        deadline_from: formatDDate(selectedDataFrom),
-                        deadline_to: formatDDate(selectedDataTo),
+                        ...(selectedDataFrom !== subTask?.deadline_from && {
+                            deadline_from: formatDDate(selectedDataFrom),
+                        }),
+                        ...(selectedDataTo !== subTask?.deadline_to && {
+                            deadline_to: formatDDate(selectedDataTo),
+                        }),
                         task: selectedTask.uuid
                     };
                     dispatch(editSubTaskThunk({ uuid: subTask.uuid, formData: formData }));
@@ -301,7 +318,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                 const formData = {
                     title: summary,
                     status: selectedStatus,
-                    comment: Comment,
+                    comment: Comment?.comment,
                     deadline_from: formatDDate(selectedDataFrom),
                     deadline_to: formatDDate(selectedDataTo),
                     assign_to: selectedUser.pk,
@@ -313,7 +330,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                 const formData = {
                     assign_to: selectedUser.pk,
                     title: summary,
-                    comment: Comment,
+                    comment: Comment?.comment,
                     status: selectedStatus,
                     deadline_from: formatDDate(selectedDataFrom),
                     deadline_to: formatDDate(selectedDataTo),
@@ -405,7 +422,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-[#F7F5F5] rounded-lg shadow-lg p-6 mx-4 md:mx-auto max-w-6xl w-full max-h-[80%] overflow-y-auto custom-scrollbar">
                 <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-roboto font-semibold">{isEditing ? "Edit" : "Create" }</h2>
+                    <h2 className="text-lg font-roboto font-semibold">{isEditing ? "შეცვლა" : "შექმნა" }</h2>
                     <button
                         className="text-gray-600 hover:text-gray-800 focus:outline-none"
                         onClick={closeWindow}
@@ -488,7 +505,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
 
                                             {/* Description */}
                                             <tr className="">
-                                                <td className="text-right text-base p-2">Description:</td>
+                                                <td className="text-right text-base p-2">აღწერა:</td>
                                                 <td className="p-2">
                                                     <div className="border border-gray-300 rounded-md p-2 max-w-[45rem] min-h-80 bg-white">
                                                         <TextEditor
@@ -557,12 +574,12 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                                                             className="inline-flex w-full max-w-[10rem] p-1 border border-gray-300 rounded-xl bg-white items-center"
                                                         >
                                                             <div className="items-center">
-                                                                <div className={`text-white text-xs w-20 min-w-20 py-0.5 rounded-full text-center ${getStatusStyles(selectedStatus)}`}>
+                                                                <div className={`text-white text-xs w-32 min-w-32 py-0.5 rounded-full text-center ${getStatusStyles(selectedStatus)}`}>
                                                                     {getStatusLabel(selectedStatus)}
                                                                 </div>
                                                             </div>
                                                             <svg
-                                                                className={`w-5 h-5 ml-auto mr-3 transform transition-transform duration-200 ${isOpenStatusStyle ? "rotate-180" : "rotate-0"}`}
+                                                                className={`w-3 h-3 ml-auto mr-1 transform transition-transform duration-200 ${isOpenStatusStyle ? "rotate-180" : "rotate-0"}`}
                                                                 xmlns="http://www.w3.org/2000/svg"
                                                                 fill="none"
                                                                 viewBox="0 0 24 24"
@@ -582,7 +599,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                                                                         className="flex items-center p-2 cursor-pointer hover:bg-gray-100"
                                                                     >
                                                                         <div className="items-center">
-                                                                            <div className={`text-white text-xs w-20 min-w-20 py-0.5 rounded-full text-center ${getStatusStyles(status)}`}>
+                                                                            <div className={`text-white text-xs w-32 min-w-32 py-0.5 rounded-full text-center ${getStatusStyles(status)}`}>
                                                                                 {getStatusLabel(status)}
                                                                             </div>
                                                                         </div>

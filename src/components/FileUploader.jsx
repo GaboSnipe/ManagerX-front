@@ -7,14 +7,16 @@ import React, { useEffect } from 'react';
 import { MultipleFileUpload, MultipleFileUploadMain, MultipleFileUploadStatus, MultipleFileUploadStatusItem, Modal } from '@patternfly/react-core';
 import FileService from "../services/FileService";
 import TaskService from "../services/TaskService";
+import { useSelector } from "react-redux";
 
-export const MultipleFileUploadBasic = ({ selectedSubTask, setSelectedSubTask }) => {
+export const MultipleFileUploadBasic = () => {
   const [isHorizontal, setIsHorizontal] = React.useState(false);
   const [currentFiles, setCurrentFiles] = React.useState([]);
   const [readFileData, setReadFileData] = React.useState([]);
   const [showStatus, setShowStatus] = React.useState(false);
   const [statusIcon, setStatusIcon] = React.useState('inProgress');
-  const [modalText, setModalText] = React.useState('');
+    const selectedSubTask = useSelector((state) => state.task.selectedSubtask);
+    const [modalText, setModalText] = React.useState('');
   const [uploadControllers, setUploadControllers] = React.useState({});
 
   if (!showStatus && currentFiles.length > 0) {
@@ -71,14 +73,12 @@ export const MultipleFileUploadBasic = ({ selectedSubTask, setSelectedSubTask })
         [file.name]: controller
       }));
 
-      FileService.uploadAttachmentfile(file, selectedSubTask.uuid, { signal: controller.signal })
+      FileService.uploadAttachmentfile(file, selectedSubTask?.uuid, { signal: controller.signal })
         .then(() => {
           console.log(`File ${file.name} uploaded successfully`);
           removeFiles([file.name]);
-          TaskService.getSubTask(selectedSubTask.uuid)
-          .then((res)=>{
-            setSelectedSubTask(res.data)
-          })
+          dispatch(getSubTaskThunk(selectedSubTask?.uuid))
+
           setUploadControllers(prevControllers => {
             const newControllers = { ...prevControllers };
             delete newControllers[file.name];

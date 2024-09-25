@@ -1,8 +1,8 @@
 import $api from "../http";
 
 export default class ProjectsService {
-    static async getProjectList (){
-        return $api.get('/api/expertise/data/list/')
+    static async getProjectList (settings){
+        return $api.get(`/api/expertise/data/list/?${settings ? settings : "limit=15&offset=0"}`)
     }    
     static async getProjectDetails (uuid){
         return $api.get(`/api/expertise/folder/${uuid}/details/`)

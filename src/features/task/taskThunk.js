@@ -12,6 +12,17 @@ export const getTaskListThunk = createAsyncThunk(
     }
   }
 );
+export const getSubTaskThunk = createAsyncThunk(
+  'task/subtask/details/',
+  async (uuid, thunkAPI) => {
+    try {
+      const response = await TaskService.getSubTask(uuid);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
 
 export const addTaskThunk  = createAsyncThunk(
   'task/add/',

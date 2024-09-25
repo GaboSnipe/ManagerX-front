@@ -11,10 +11,10 @@ import { nanoid } from "nanoid";
 
 
 const statuses = {
-  "TODO": "To Do",
-  "INPROGRESS": "In Progress",
-  "DONE": "Done",
-  "REJECTED": "Rejected",
+  "TODO": "შესასრულებელი",
+  "INPROGRESS": "მიმდინარე",
+  "DONE": "შესრულებული",
+  "REJECTED": "უარყოფილი",
 };
 const statusStyles = {
   "TODO": "bg-yellow-500",

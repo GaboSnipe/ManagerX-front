@@ -6,11 +6,13 @@ import Editor from '../Editor';
 import TextEditor from '../TextEditor';
 import { useSelector } from 'react-redux';
 import TaskEdit from '../TaskEdit';
+import { useDispatch } from 'react-redux';
+import { getSubTaskThunk } from '../../features/task/taskThunk';
 
-
-const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
+const Task = ({ task, setSeeResizebleDiv }) => {
     const navigate = useNavigate();
     const quillRef = useRef(null);
+    const dispatch = useDispatch();
     const [isRotated, setIsRotated] = useState(false);
     const [isEditing, setIsEditing] = useState(false)
 
@@ -67,7 +69,10 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
         }
     }
 
-    const getOverdueTaskStyle =(date) =>{
+    const baseAvatarUrl = `images/defUserImg.jpg`
+
+
+    const getOverdueTaskStyle = (date) => {
         const now = new Date();
         const [year, month, day] = date.split('-').map(Number);
         const target = new Date(year, month - 1, day);
@@ -78,11 +83,11 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
         } else {
             return "bg-white";
         }
-    } 
+    }
 
     const selectSubTask = (subTask) => {
+        dispatch(getSubTaskThunk(subTask.uuid));
         setSeeResizebleDiv(true)
-        setSelectedSubTask(subTask)
     }
 
     const getStatusStyles = (status) => {
@@ -105,15 +110,15 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
     const getStatusLabel = (status) => {
         switch (status) {
             case "TODO":
-                return "To Do";
+                return "შესასრულებელი";
             case "INPROGRESS":
-                return "In Progress";
+                return "მიმდინარე";
             case "DONE":
-                return "Done";
+                return "შესრულებული";
             case "REJECTED":
-                return "Rejected";
+                return "უარყოფილი";
             case "UNCERTAIN":
-                return "Uncertain";
+                return "გაურკვეველი";
             default:
                 return "";
         }
@@ -198,7 +203,7 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
 
                     <>  {/*STATUS */}
                         <div className="items-center ml-8">
-                            <div className={`text-white text-xs min-w-20 py-0.5 rounded-full text-center ${getStatusStyles(task?.status)}`}>
+                            <div className={`text-white text-xs  w-32 min-w-32 py-0.5 rounded-full text-center ${getStatusStyles(task?.status)}`}>
                                 {getStatusLabel(task?.status)}
                             </div>
                         </div>
@@ -213,7 +218,7 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
                                 </g>
                             </svg>
                             <div className=' text-[#727272] text-xs rounded-full ml-2 text-center  mx-2'>
-                                {task?.drive_folder_path.split("სამუშაო გარემო/")[1]}
+                                {task?.drive_folder_path?.split("სამუშაო გარემო/")[1]}
                             </div>
                             <div className='h-4 w-px bg-[#D8D4D4] ' />
                             <button onClick={handleClick} className='group'>
@@ -239,107 +244,118 @@ const Task = ({ task, setSeeResizebleDiv, setSelectedSubTask }) => {
                 <div className='flex mt-1 content-center'>
                     {/*ASSIGNED */}
                     <div className='flex items-center text-xs text-[#727272] ml-12 space-x-1'>
-                        <p className='font-roboto'>Assigned to</p>
-                        <img src={task?.assign_to?.avatar} className="w-5 h-5 rounded-full overflow-hidden" />
-                        <p className='font-roboto'>By</p>
-                        <img src={task?.creator?.avatar} className="w-5 h-5 rounded-full overflow-hidden" />
+                        <p className='font-roboto'>დაავალა</p>
+                        <div className='relative w-5 h-5 overflow-hidden rounded-full'>
+                            <img src={task?.assign_to?.avatar ? task?.assign_to?.avatar : baseAvatarUrl} className="absolute inset-0 object-cover w-full h-full" />
+                        </div>
+                        <p className='font-roboto'>-მ</p>
+                        <div className='relative w-5 h-5 overflow-hidden rounded-full'>
+                            <img src={task?.creator?.avatar ? task?.creator?.avatar : baseAvatarUrl} className="absolute inset-0 object-cover w-full h-full" />
+                        </div>
+                        <p className='font-roboto'>-ს</p>
                     </div>
                     <div className='rounded-md border border-[#C8C2C2] ml-9'>
-                    <button onClick={openTaskEdit} className='h-0 px-4 py-1 text-xs text-[#3F3F46] bg-transparent border-none'> Edit Task </button>
+                        <button onClick={openTaskEdit} className='h-0 px-4 py-1 text-xs text-[#3F3F46] bg-transparent border-none'> პროექტის შეცვლა </button>
 
                     </div>
                     {compareTime(task.deadline_from) &&
-                                        <div className={`text-white text-xs min-w-20 py-0.5 rounded-full text-center h-5 mt-1 ml-8 ${getDateStyle(task.deadline_to)}`}>
-                                            {getTimeStatus(task.deadline_to)}
-                                        </div>
-                                    }
+                        <div className={`text-white text-xs w-32 min-w-32 py-0.5 rounded-full text-center h-5 mt-1 ml-8 ${getDateStyle(task.deadline_to)}`}>
+                            {getTimeStatus(task.deadline_to)}
+                        </div>
+                    }
                 </div>
             </div>
 
             {isRotated &&
                 <>
-                        <>
-                            <div className='pl-16 pr-10 pt-3'>
-                                {/* Description */}
-                                <div>
-                                    <p className='text-sm font-roboto not-italic tracking-wide leading-[150%]'>Description:</p>
-                                </div>
-                                <div className="w-full h-px bg-[#E0E0E0]" />
+                    <>
+                        <div className='pl-16 pr-10 pt-3'>
+                            {/* Description */}
+                            <div>
+                                <p className='text-sm font-roboto not-italic tracking-wide leading-[150%]'>აღწერა:</p>
                             </div>
-                            <div className='pl-12 pr-10 '>
-                                <TextEditor
-                                    defaultValue={task?.comment.comment || defaultComment}
-                                    isEditing={isEditing}
-                                />
-                            </div>
-                        </>
+                            <div className="w-full h-px bg-[#E0E0E0]" />
+                        </div>
+                        <div className='pl-12 pr-10 '>
+                            <TextEditor
+                                defaultValue={task?.comment || defaultComment}
+                                isEditing={isEditing}
+                            />
+                        </div>
+                    </>
 
 
 
                     <div className='pl-16 pb-10 pr-10 mt-10'>
-                        {task.subtasks && task.subtasks.length > 0 ?  (
-                        task?.subtasks?.map((subtask, index) => (
-                            <div key={subtask.uuid} className={`h-[1.85rem] border hover:bg-gray-100 border-[rgba(0,0,0,0.21)] rounded-md flex items-center px-2 shadow-lg mb-px w-full relative   ${getOverdueTaskStyle(subtask.deadline_to)}`}
-                                style={{
-                                    boxShadow: '0 8px 15px -3px rgba(0, 0, 0, 0.4), 0 0px 4px -2px rgba(0, 0, 0, 0.4)',
+                        {task.subtasks && task.subtasks.length > 0 ? (
+                            task?.subtasks?.map((subtask, index) => (
+                                <div key={subtask.uuid} className={`h-[1.85rem] border relative hover:bg-gray-100 border-[rgba(0,0,0,0.21)] rounded-md flex items-center px-2 shadow-lg mb-px w-full   ${getOverdueTaskStyle(subtask.deadline_to)}`}
+                                    style={{
+                                        boxShadow: '0 8px 15px -3px rgba(0, 0, 0, 0.4), 0 0px 4px -2px rgba(0, 0, 0, 0.4)',
 
-                                    cursor: 'pointer',
-                                }}
-                                onClick={() => selectSubTask(subtask)}
-                            >
-                                <input
-                                    type="checkbox"
-                                    id={`subtask-${subtask.uuid}`}
-                                    className="mr-2 w-3 h-3 rounded border-[#C9C9C9] bg-[#C9C9C9] checked:bg-[#7993d0] checked:border-[#7993d0] focus:ring-0"
-                                />
-                                <p className="font-[600] not-italic font-roboto text-[0.65rem] tracking-wide leading-[150%]  text-black">
-                                    {subtask.title}
-                                </p>
-                                <div className='flex absolute right-0'>
-                                    {compareTime(subtask.deadline_from) &&
-                                        <div className={`text-white text-xs min-w-20 py-0.5 rounded-full text-center mr-4 ${getDateStyle(subtask.deadline_to)}`}>
-                                            {getTimeStatus(subtask.deadline_to)}
+                                        cursor: 'pointer',
+                                    }}
+                                    onClick={() => selectSubTask(subtask)}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        id={`subtask-${subtask.uuid}`}
+                                        className="mr-2 w-3 h-3 rounded border-[#C9C9C9] bg-[#C9C9C9] checked:bg-[#7993d0] checked:border-[#7993d0] focus:ring-0"
+                                    />
+                                    <p className="font-[600] not-italic font-roboto text-[0.65rem] whitespace-nowrap overflow-hidden max-w-full tracking-wide leading-[150%] text-ellipsis text-black">
+                                        {subtask.title}
+                                    </p>
+                                    <div className="flex items-center ml-auto">
+                                        {compareTime(subtask.deadline_from) &&
+                                            <div className={`text-white text-xs w-32 min-w-32 py-0.5 rounded-full text-center mr-4 ${getDateStyle(subtask.deadline_to)}`}>
+                                                {getTimeStatus(subtask.deadline_to)}
+                                            </div>
+                                        }
+                                        <div className='flex text-[0.6rem] text-[#727272] space-x-2 mr-5 items-center'>
+                                            <p className='font-roboto'>დაავალა</p>
+                                            <div className='relative w-5 h-5 overflow-hidden rounded-full'>
+                                                <img src={subtask.creator.avatar ? subtask.creator.avatar : baseAvatarUrl} className="absolute inset-0 object-cover w-full h-full" />
+                                            </div>
+                                            <p className='font-roboto'>-მ</p>
+
+                                            <div className='relative w-5 h-5 overflow-hidden rounded-full'>
+                                                <img src={subtask.assign_to.avatar ? subtask.assign_to.avatar : baseAvatarUrl} className="absolute inset-0 object-cover w-full h-full" />
+                                            </div>
+                                            <p className='font-roboto'>-ს</p>
                                         </div>
-                                    }
-                                    <div className='flex text-[0.6rem] text-[#727272] space-x-2 mr-5 items-center'>
-                                        <p className='font-roboto'>Assigned to</p>
-                                        <img src={subtask.assign_to.avatar} className="w-4 h-4 rounded-full overflow-hidden" />
-                                        <p className='font-roboto'>By</p>
-                                        <img src={subtask.assign_to.avatar} className="w-4 h-4 rounded-full overflow-hidden" />
-                                    </div>
-                                    <div className="flex items-center mr-5">
-                                        <div className="bg-[#C2BDAD] text-white w-24 px-2.5 text-center py-0.5 rounded-full text-xs">
-                                            {subtask.deadline_from}
+                                        <div className="flex items-center mr-5">
+                                            <div className="bg-[#C2BDAD] text-white w-24 px-2.5 text-center py-0.5 rounded-full text-xs">
+                                                {subtask.deadline_from}
+                                            </div>
+                                            <div className="w-4 h-px bg-[#C2BDAD]" />
+                                            <div className="bg-[#C2BDAD] text-white w-24 text-center px-2.5 py-0.5 rounded-full text-xs">
+                                                {subtask.deadline_to}
+                                            </div>
                                         </div>
-                                        <div className="w-4 h-px bg-[#C2BDAD]" />
-                                        <div className="bg-[#C2BDAD] text-white w-24 text-center px-2.5 py-0.5 rounded-full text-xs">
-                                            {subtask.deadline_to}
+                                        <div className={`text-white text-xs w-32 min-w-32 py-0.5 rounded-full text-center mr-4 ${getStatusStyles(subtask.status)}`}>
+                                            {getStatusLabel(subtask.status)}
                                         </div>
+
                                     </div>
-                                    <div className={`text-white text-xs min-w-20 py-0.5 rounded-full text-center mr-4 ${getStatusStyles(subtask.status)}`}>
-                                        {getStatusLabel(subtask.status)}
-                                    </div>
+
+
+
 
                                 </div>
-
-
-
-
-                            </div>
-                        ))
-                    ):(
-                        <span className='text-gray-400 font-medium w-full text-lg'>
-                            This task does not have a Subtasks.
-                        </span>
-                    )}
+                            ))
+                        ) : (
+                            <span className='text-gray-400 font-medium w-full text-lg'>
+                                This task does not have a Subtasks.
+                            </span>
+                        )}
 
                     </div>
                 </>
 
             }
-            {isEditing && 
-            <TaskEdit isEditing={true} closeWindow={closeAddTaskWindow} isTask={true} task={task} />
-        }
+            {isEditing &&
+                <TaskEdit isEditing={true} closeWindow={closeAddTaskWindow} isTask={true} task={task} />
+            }
         </div>
 
     );
