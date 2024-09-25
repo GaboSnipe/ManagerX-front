@@ -20,7 +20,7 @@ const Dashboard = () => {
 
   const getAssigneByMyList = async () => {
     try {
-      let settings = `status=TODO&creator=${user.id}`;
+      let settings = `status=TODO,INPROGRESS&creator=${user.id}`;
       const response = await TaskService.getSubtaskSettList(settings);
       setAssigneByMy(response.data);
     } catch (error) {
@@ -30,7 +30,7 @@ const Dashboard = () => {
 
   const getAssigneToMyList = async () => {
     try {
-      let settings = `status=TODO&assign_to=${user.id}`;
+      let settings = `status=TODO,INPROGRESS&assign_to=${user.id}`;
       const response = await TaskService.getSubtaskSettList(settings);
       setAssigneToMy(response.data);
     } catch (error) {
@@ -83,48 +83,6 @@ const Dashboard = () => {
       return "bg-[rgba(255,127,127,0.2)]";
     } else {
       return "bg-white";
-    }
-  }
-
-  const compareTime = (time) => {
-    const now = new Date();
-    const [year, month, day] = time.split('-').map(Number);
-    const target = new Date(year, month - 1, day);
-    const timeDiff = target - now;
-    return timeDiff < 0;
-  }
-
-  const getDateStyle = (date) => {
-    const now = new Date();
-    const [year, month, day] = date.split('-').map(Number);
-    const target = new Date(year, month - 1, day);
-    const timeDiff = target - now;
-
-    if (timeDiff < 0) {
-      return "bg-[#B22222]";
-    } else {
-      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-      if (daysLeft === 1) {
-        return "bg-[#FFBF00]";
-      }
-    }
-  }
-
-  const getTimeStatus = (targetDateStr) => {
-    const now = new Date();
-    const [year, month, day] = targetDateStr.split('-').map(Number);
-    const target = new Date(year, month - 1, day);
-    const timeDiff = target - now;
-
-    if (timeDiff < 0) {
-      return "Overdue";
-    } else {
-      const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-      if (daysLeft === 1) {
-        return "Due Today";
-      }
     }
   }
 
