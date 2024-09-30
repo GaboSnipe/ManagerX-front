@@ -9,7 +9,6 @@ import useAuthCheck from '../utils/hooks/useAuthCheck';
 
 const Tasks = () => {
   const dispatch = useDispatch();
-  const loading = useAuthCheck();
   const tasks = useSelector((state) => state.task.taskList);
   const userInfo = useSelector((state) => state.auth.userInfo);
   const [dynamicHeight, setDynamicHeight] = useState(null);

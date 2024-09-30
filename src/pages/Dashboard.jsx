@@ -11,7 +11,6 @@ import { setSeeResizebleDiv } from "../features/task/taskSlice";
 
 
 const Dashboard = () => {
-  const loading = useAuthCheck();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.userInfo);

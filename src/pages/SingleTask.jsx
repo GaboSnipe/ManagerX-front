@@ -5,7 +5,6 @@ import { ExpandableTable } from '../components';
 import useAuthCheck from '../utils/hooks/useAuthCheck';
 
 const SingleTask = () => {
-  const loadinsg = useAuthCheck();
   const navigate = useNavigate();
     const { uuid } = useParams();
     const [task, setTask] = useState();

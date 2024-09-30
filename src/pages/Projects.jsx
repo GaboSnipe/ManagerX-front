@@ -103,7 +103,6 @@ const formatedData = (formattedHeaders, response) => {
 
 
 const Projects = () => {
-  const loading = useAuthCheck();
   const dispatch = useDispatch();
   const files = useSelector((state) => state.project.fileList);
   const seeResizebleDiv = useSelector((state) => state.project.seeResizebleDiv);

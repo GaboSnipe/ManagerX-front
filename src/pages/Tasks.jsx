@@ -55,7 +55,6 @@ const formatDate = (date) => {
 
 const Tasks = () => {
   const dispatch = useDispatch();
-  const loading = useAuthCheck();
   const [seeAddDiv, setSeeAddDiv] = useState(false);
   const [seeDiv, setSeeDiv] = useState(false);
   const selectedSubTask = useSelector((state) => state.task.selectedSubtask);

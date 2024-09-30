@@ -18,7 +18,6 @@ import TaskEdit from '../components/TaskEdit.jsx';
 import { BackgroundImage } from '@patternfly/react-core';
 
 const SingleSubTask = () => {
-  const loadingAuth = useAuthCheck();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.userInfo);
   const { uuid } = useParams();

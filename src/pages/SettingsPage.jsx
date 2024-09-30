@@ -6,7 +6,6 @@ import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 
 const SettingsPage = () => {
-  const loading = useAuthCheck();
   const dispatch = useDispatch();
   const [customfieldName, setCustomFieldName] = useState("");
   const [selectedType, setSelectedType] = useState("");

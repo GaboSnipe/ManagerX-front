@@ -10,7 +10,6 @@ import { useSelector } from 'react-redux';
 
 
 const NewWorkPlace = () => {
-  const loading = useAuthCheck();
   const dispatch = useDispatch();
   const [fileBrowserStory, setFileBrowserStory ] = useState([]);
   const [parrentPath, setParrentPath] = useState("");
