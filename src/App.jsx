@@ -24,32 +24,32 @@ function PrivateRoute({ children, withLoader = true }) {
     verifyAuth();
   }, [dispatch]);
 
-  if (loading && withLoader) {
-    return (
-      <div className="flex justify-center items-center w-full h-96">
-        <Blocks
-          height="40"
-          width="40"
-          color="#630044"
-          ariaLabel="blocks-loading"
-          wrapperStyle={{}}
-          wrapperClass="blocks-wrapper"
-          visible={true}
-        />
-      </div>
-    );
-  }
-
-  if (!isAuthorized) {
-    return <Navigate to="/" state={{ from: location }} replace />;
-  }
-
-  return children;
+  if (!loading) {
+    if (!isAuthorized) {
+      return <Navigate to="/" state={{ from: location }} replace />;
+    }else {
+      return children;
+    }
+  } else {
+      return (
+        <div className="flex justify-center items-center w-full h-96">
+          <Blocks
+            height="40"
+            width="40"
+            color="#630044"
+            ariaLabel="blocks-loading"
+            wrapperStyle={{}}
+            wrapperClass="blocks-wrapper"
+            visible={withLoader}
+          />
+        </div>
+      );
+    }
 }
 
 function App() {
   const location = useLocation();
-  const hideHeaderRoutes = ['/', '/404'];
+  const hideHeaderRoutes = ['/', '/404']; 
 
   return (
     <>

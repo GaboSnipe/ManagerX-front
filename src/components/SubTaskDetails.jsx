@@ -214,7 +214,7 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
             </button>
             <div className='pl-5 pt-8'>
                 {/* TITLE */}
-                <p className="font-extrabold not-italic font-roboto text-lg truncate tracking-wide leading-[150%] overflow-hidden mr-12 ml-3 text-gray-700"
+                <p className="font-extrabold not-italic font-roboto text-lg truncate tracking-wide leading-[150%] overflow-hidden mr-12 ml-3 hover:text-gray-500 cursor-pointer text-gray-700"
                 title={selectedSubTask?.title}
                 onClick={() => {navigateToSingleSubTask(selectedSubTask?.uuid)}}
                 >
