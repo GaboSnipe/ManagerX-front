@@ -214,7 +214,7 @@ const Projects = () => {
 
   return (
     <>
-      <div className=' flex'>
+      <div className=' flex custom-scrollbar'>
         <div className={`min-h-full w-full custom-scrollbar overflow-y-auto`} style={{ height: `${dynamicHeight}px` }}>
           <div className="max-w-full">
             <section className="mx-auto font-mono">

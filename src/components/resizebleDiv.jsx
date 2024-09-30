@@ -64,7 +64,7 @@ const ResizableDiv = ({ children, setSeeResizebleDiv }) => {
       const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
       const screenWidthPx = window.innerWidth;
       const screenWidthRem = screenWidthPx / rootFontSize;
-      setWidthRem(screenWidthRem - 59);
+      setWidthRem(screenWidthRem - 20);
     };
 
     updateWidth();
@@ -100,7 +100,7 @@ const ResizableDiv = ({ children, setSeeResizebleDiv }) => {
     <div
       ref={resizableRef}
       className="bg-[#f9f9f9] relative ml-auto rounded-l-md shadow-lg overflow-y-auto mt-8 custom-scrollbar h-full"
-      style={{  width: `${size.width}px`, minWidth: '400px', maxWidth: `${widthRem}rem`, height: `${dynamicHeight}px` }}
+      style={{  width: `${size.width}px`, minWidth: '400px',  height: `${dynamicHeight}px` }}
     >
       <div className='flex'>
         {/*<h2 className="text-white text-xl p-3">*/}

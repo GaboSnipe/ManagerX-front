@@ -30,7 +30,7 @@ const SingleTask = () => {
 
     return (
         <div className="flex">
-        <div className="flex-1 mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex-1 mx-auto max-w-screen-2xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="sm:px-6 max-w-full">
             <div className="mt-7 w-full text-sm">
   
