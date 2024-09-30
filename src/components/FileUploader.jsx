@@ -8,8 +8,11 @@ import { MultipleFileUpload, MultipleFileUploadMain, MultipleFileUploadStatus, M
 import FileService from "../services/FileService";
 import TaskService from "../services/TaskService";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { getSubTaskThunk } from "../features/task/taskThunk";
 
 export const MultipleFileUploadBasic = () => {
+  const dispatch = useDispatch();
   const [isHorizontal, setIsHorizontal] = React.useState(false);
   const [currentFiles, setCurrentFiles] = React.useState([]);
   const [readFileData, setReadFileData] = React.useState([]);

@@ -123,10 +123,12 @@ const TableBody = ({ tableData, columns }) => {
                                     return (
                                         <td key={item.accessor} className="px-4 py-3 text-sm border">
                                             <div className="flex justify-center items-center">
-                                                {tData ? (
+                                                {tData === true ? (
                                                     <FaCheckCircle className="text-green-500 text-2xl" />
                                                 ) : (
+                                                    tData === false ? (
                                                     <FaTimesCircle className="text-red-500 text-2xl" />
+                                                    ):null
                                                 )}
                                             </div>
                                         </td>

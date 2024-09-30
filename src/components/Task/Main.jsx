@@ -69,7 +69,7 @@ const Task = ({ task, setSeeResizebleDiv }) => {
         }
     }
 
-    const baseAvatarUrl = `images/defUserImg.jpg`
+    const baseAvatarUrl = `${import.meta.env.BASE_URL}images/defUserImg.jpg`;
 
 
     const getOverdueTaskStyle = (date) => {
@@ -181,7 +181,7 @@ const Task = ({ task, setSeeResizebleDiv }) => {
 
 
                     <>  {/*TITLE */}
-                        <p className="font-extrabold not-italic font-roboto text-lg tracking-wide leading-[150%] ml-3 text-gray-700">
+                        <p className="font-extrabold not-italic font-roboto text-lg tracking-wide overflow-hidden text-ellipsis ml-3 text-gray-700" title={task?.title}>
                             {task?.title}
                         </p>
                     </>
@@ -246,11 +246,11 @@ const Task = ({ task, setSeeResizebleDiv }) => {
                     <div className='flex items-center text-xs text-[#727272] ml-12 space-x-1'>
                         <p className='font-roboto'>დაავალა</p>
                         <div className='relative w-5 h-5 overflow-hidden rounded-full'>
-                            <img src={task?.assign_to?.avatar ? task?.assign_to?.avatar : baseAvatarUrl} className="absolute inset-0 object-cover w-full h-full" />
+                            <img src={task?.assign_to?.avatar ? task?.assign_to?.avatar : baseAvatarUrl} title={task?.assign_to?.email} className="absolute inset-0 object-cover w-full h-full" />
                         </div>
                         <p className='font-roboto'>-მ</p>
                         <div className='relative w-5 h-5 overflow-hidden rounded-full'>
-                            <img src={task?.creator?.avatar ? task?.creator?.avatar : baseAvatarUrl} className="absolute inset-0 object-cover w-full h-full" />
+                            <img src={task?.creator?.avatar ? task?.creator?.avatar : baseAvatarUrl}  title={task?.creator?.email} className="absolute inset-0 object-cover w-full h-full" />
                         </div>
                         <p className='font-roboto'>-ს</p>
                     </div>
@@ -302,7 +302,7 @@ const Task = ({ task, setSeeResizebleDiv }) => {
                                         id={`subtask-${subtask.uuid}`}
                                         className="mr-2 w-3 h-3 rounded border-[#C9C9C9] bg-[#C9C9C9] checked:bg-[#7993d0] checked:border-[#7993d0] focus:ring-0"
                                     />
-                                    <p className="font-[600] not-italic font-roboto text-[0.65rem] whitespace-nowrap overflow-hidden max-w-full tracking-wide leading-[150%] text-ellipsis text-black">
+                                    <p className="font-[600] not-italic font-roboto text-[0.65rem] whitespace-nowrap overflow-hidden max-w-full tracking-wide leading-[150%] text-ellipsis text-black" title={subtask.title}>
                                         {subtask.title}
                                     </p>
                                     <div className="flex items-center ml-auto">
@@ -314,12 +314,12 @@ const Task = ({ task, setSeeResizebleDiv }) => {
                                         <div className='flex text-[0.6rem] text-[#727272] space-x-2 mr-5 items-center'>
                                             <p className='font-roboto'>დაავალა</p>
                                             <div className='relative w-5 h-5 overflow-hidden rounded-full'>
-                                                <img src={subtask.creator.avatar ? subtask.creator.avatar : baseAvatarUrl} className="absolute inset-0 object-cover w-full h-full" />
+                                                <img src={subtask.creator.avatar ? subtask.creator.avatar : baseAvatarUrl}   title={task?.creator?.email}  className="absolute inset-0 object-cover w-full h-full" />
                                             </div>
                                             <p className='font-roboto'>-მ</p>
 
                                             <div className='relative w-5 h-5 overflow-hidden rounded-full'>
-                                                <img src={subtask.assign_to.avatar ? subtask.assign_to.avatar : baseAvatarUrl} className="absolute inset-0 object-cover w-full h-full" />
+                                                <img src={subtask.assign_to.avatar ? subtask.assign_to.avatar : baseAvatarUrl}   title={task?.assign_to?.email}  className="absolute inset-0 object-cover w-full h-full" />
                                             </div>
                                             <p className='font-roboto'>-ს</p>
                                         </div>

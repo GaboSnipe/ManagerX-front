@@ -27,7 +27,7 @@ export const getCurrentNotificationThunk  = createAsyncThunk(
 );
 export const deleteCurrentNotificationThunk  = createAsyncThunk(
   'notifications/delete/',
-  async ({ uuid }, thunkAPI) => {
+  async (uuid, thunkAPI) => {
     try {
       const response = await NotificationsService.deleteCurrentNotification(uuid);
       return response.data;

@@ -63,55 +63,48 @@ const formatedHeaders = (mandatoryHeaders, response) => {
   return formated.sort((a, b) => a.order - b.order);
 }
 
-
 const formatedData = (formattedHeaders, response) => {
-  var formated = [];
-  var tmp = [];
+  let formated = [];
   let headers = [...formattedHeaders].sort((a, b) => a.order - b.order);
 
-  var i = 1;
-  response.map(folder => {
-    tmp = [];
-    headers.map(header => {
+  response.forEach((folder, index) => {
+    let tmp = headers.map(header => {
+      let value = null;
+      let visible = header.visible;
 
-      tmp.push({
-        accessor: header['accessor'],
-        type: header['type'],
-        label: header['label'],
-        value: null,
-        order: header['order'],
-        visible: true
-      })
-
-      if (checkPathExists(folder, header['accessor'])) {
-        tmp.at(-1)['value'] = getValueFromPath(folder, header['accessor']);
-        tmp.at(-1)['visible'] = header['visible']
-      } else {
-        if (folder['custom_fields']) {
-          folder['custom_fields'].forEach(field => {
-            if ("tableHeaders_" + field['field']['id'] === header['accessor']) {
-              tmp.at(-1)['value'] = field['value']
-            }
-          })
-        }
+      if (checkPathExists(folder, header.accessor)) {
+        value = getValueFromPath(folder, header.accessor);
+      } else if (folder.custom_fields) {
+        folder.custom_fields.forEach(field => {
+          if ("tableHeaders_" + field.field.id === header.accessor) {
+            value = field.value;
+          }
+        });
       }
-    })
 
-    tmp[0].value = i;
-    i += 1;
+      return {
+        accessor: header.accessor,
+        type: header.type,
+        label: header.label,
+        value: value,
+        order: header.order,
+        visible: visible
+      };
+    });
+
+    tmp[0].value = index + 1;
     formated.push(tmp);
-  })
+  });
 
+  return formated;
+};
 
-
-  return formated.sort((a, b) => a.order - b.order);
-}
 
 
 
 const Projects = () => {
-  const dispatch = useDispatch();
   const loading = useAuthCheck();
+  const dispatch = useDispatch();
   const files = useSelector((state) => state.project.fileList);
   const seeResizebleDiv = useSelector((state) => state.project.seeResizebleDiv);
   const selectedProject = useSelector((state) => state.project.projectInfo);
@@ -126,12 +119,11 @@ const Projects = () => {
   const [taskData, setTaskData] = useState({});
   const [isEditingProject, setIsEditingProject] = useState(false);
   const resizabledivwidth = useSelector((state) => state.project.resizabledivwidth);
-  const [maxresizablediwwidth, setmaxresizabledivwidth] = useState(resizabledivwidth.width || 0);
+  const [maxresizablediwwidth, setmaxresizabledivwidth] = useState(resizabledivwidth?.width || 0);
   const [dynamicHeight, setDynamicHeight] = useState(null);
   const baseFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
   const screenHeight = window.innerHeight;
   const headerHeight = useSelector((state) => state.workplace.headerHeight);
-
 
   useEffect(() => {
     const remValue = 2;
@@ -224,7 +216,7 @@ const Projects = () => {
   return (
     <>
       <div className=' flex'>
-        <div className={`min-h-full w-full custom-scrollbar overflow-y-auto`} style={{ height: `${dynamicHeight}px`}}>
+        <div className={`min-h-full w-full custom-scrollbar overflow-y-auto`} style={{ height: `${dynamicHeight}px` }}>
           <div className="max-w-full">
             <section className="mx-auto font-mono">
               <div className="flex">
@@ -374,7 +366,7 @@ const Projects = () => {
                     </div>
                   </div>
 
-                  <div className="w-full flex-1 overflow-x-auto flex items-center">
+                  <div className="w-full flex-1 overflow-x-auto custom-scrollbar flex items-center">
                     <Table columns={headers} data={data} setData={setData} />
                   </div>
 
@@ -443,10 +435,12 @@ const Projects = () => {
                           </th>
                           <td className="px-6 py-4 border border-gray-300" colSpan={2}>
                             <div className="items-center m-3">
-                              {item.value ? (
+                              {item.value === true ? (
                                 <FaCheckCircle className="text-green-500 text-2xl" />
                               ) : (
-                                <FaTimesCircle className="text-red-500 text-2xl" />
+                                item.value === false ? (
+                                  <FaTimesCircle className="text-red-500 text-2xl" />
+                                ) : null
                               )}
                             </div>
                           </td>

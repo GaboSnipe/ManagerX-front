@@ -17,11 +17,11 @@ const useAuthCheck = () => {
     checkAuthentication();
   }, [dispatch]);
 
-  useEffect(() => {
-    if (!loading && !isAuth) {
-      navigate('/login');
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   if (!loading && !isAuth) {
+  //     navigate('/');
+  //   }
+  // }, [isAuth, loading, navigate]);
 
   return loading;
 };

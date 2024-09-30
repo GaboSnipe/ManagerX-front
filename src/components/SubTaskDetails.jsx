@@ -12,9 +12,11 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import { getSubTaskThunk } from '../features/task/taskThunk';
 import Editorcopy from './Editorcopy';
+import { useNavigate } from 'react-router-dom';
 
 const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const user = useSelector((state) => state.auth.userInfo);
@@ -22,7 +24,9 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
 
     const [comments, setComments] = useState([]);
 
-    const baseAvatarUrl = `images/defUserImg.jpg`
+    const baseAvatarUrl = `${import.meta.env.BASE_URL}images/defUserImg.jpg`;
+
+
 
     useEffect(() => {
         const formattedComments = selectedSubTask?.comments?.map((com) => {
@@ -30,13 +34,13 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
                 userId: com.creator.id,
                 comId: com.uuid,
                 fullName: `${com.creator.first_name} ${com.creator.last_name}`,
-                avatarUrl: com.creator.avatar,
+                avatarUrl: `${com.creator.avatar? com.creator.avatar : baseAvatarUrl}`,
                 text: com.content,
                 replies: com.replies ? com.replies.map((subcom) => ({
                     userId: subcom.creator.id,
                     comId: subcom.uuid,
                     fullName: `${subcom.creator.first_name} ${subcom.creator.last_name}`,
-                    avatarUrl: subcom.creator.avatar,
+                    avatarUrl: `${subcom.creator.avatar? subcom.creator.avatar : baseAvatarUrl}`,
                     text: subcom.content,
                 })) : []
             };
@@ -182,6 +186,10 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
 
     };
 
+    const navigateToSingleSubTask = (uuid) => {
+        navigate(`/subtask/${uuid}`)
+      }
+
 
     return (
         <>
@@ -206,7 +214,10 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
             </button>
             <div className='pl-5 pt-8'>
                 {/* TITLE */}
-                <p className="font-extrabold not-italic font-roboto text-lg truncate tracking-wide leading-[150%] overflow-hidden mr-12 ml-3 text-gray-700">
+                <p className="font-extrabold not-italic font-roboto text-lg truncate tracking-wide leading-[150%] overflow-hidden mr-12 ml-3 text-gray-700"
+                title={selectedSubTask?.title}
+                onClick={() => {navigateToSingleSubTask(selectedSubTask?.uuid)}}
+                >
                     {selectedSubTask?.title}
                 </p>
 
@@ -326,7 +337,6 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
 
                     </div>
                 </div>
-                {isEditing && <TaskEdit isEditing={true} closeWindow={closeAddTaskWindow} isTask={false} subTask={selectedSubTask} />}
 
                 {/* ATTACHMENTS */}
                 {/* <div className="pt-4">
@@ -391,7 +401,8 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
                 {/* COMMENTS */}
                 <div className="pt-4 w-full p-2 h-full pb-24 ">
                     <CommentSection
-                        currentUser={{
+                    formStyle={{ backgroundColor: "transparent" }}
+                    currentUser={{
                             currentUserId: user.id,
                             currentUserImg: user?.avatar ? user?.avatar : baseAvatarUrl,
                             currentUserFullName: `${user.first_name + " " + user.last_name}`
@@ -405,6 +416,8 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
                 </div>
 
             </div>
+            {isEditing && <TaskEdit isEditing={true} closeWindow={closeAddTaskWindow} isTask={false} subTask={selectedSubTask} />}
+
         </>
     );
 };

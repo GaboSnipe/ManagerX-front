@@ -25,7 +25,7 @@ const CustomGoogleButton = ({ setIsSubmitting }) => {
     const onSuccess = async (response) => {
         try {
             await dispatch(googleLoginThunk({ access_token: response.access_token })).unwrap();
-            navigate('/');
+            navigate('/dashboard');
         } catch (e) {
             onError(e);
         } finally {
@@ -111,7 +111,7 @@ const LoginPage = () => {
 
         try {
             await dispatch(loginThunk({ email, password })).unwrap();
-            navigate('/');
+            navigate('/dashboard');
         } catch (err) {
             console.error('Failed to login:', err);
             setIsSubmitting(false);

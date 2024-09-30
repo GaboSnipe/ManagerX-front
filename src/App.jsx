@@ -1,7 +1,7 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Header } from './components';
 import { navigation } from './globalEnv';
-import { LoginPage, NotFound, SingleTask, SettingsPage } from './pages';
+import { LoginPage, NotFound, SingleTask, SettingsPage, NotificationsList, SingleSubTask } from './pages';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const location = useLocation();
-  const hideHeaderRoutes = ['/login', '/404'];
+  const hideHeaderRoutes = ['/', '/404'];
 
   const isHideHeaderRoute = hideHeaderRoutes.includes(location.pathname);
 
@@ -20,10 +20,11 @@ function App() {
         {navigation.map((item) => (
           <Route key={item.name} path={item.href} element={<item.component />} />
         ))}
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/notifications" element={<NotificationsList />} />
         {/* <Route path="/task/:uuid" element={<SingleTask />} /> */}
-        {/* <Route path="/subtask/:uuid" element={<SingleTask />} /> */}
+        <Route path="/subtask/:uuid" element={<SingleSubTask />} />
         <Route path="*" element={<NotFound />} />
       </Routes> 
       <ToastContainer

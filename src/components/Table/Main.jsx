@@ -5,7 +5,6 @@ import { useSortableTable } from "./useSortableTable";
 
 const Table = ({ columns, data }) => {
   const [tableData, handleSorting] = useSortableTable(data, columns);
-
   return (
     <table className="whitespace-nowrap">
       <TableHead columns={columns} handleSorting={handleSorting} />

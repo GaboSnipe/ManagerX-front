@@ -15,7 +15,7 @@ const TableHead = ({ columns, handleSorting }) => {
 
   return (
     <thead>
-      <tr className="text-sm font-semibold tracking-wide text-center text-gray-900 bg-gray-100 uppercase border-b border-gray-600">
+      <tr className="text-sm font-semibold tracking-wide text-center text-gray-900 bg-gray-100 uppercase border-b">
         {columns.map(({ label, accessor, sortable, visible }) => {
           if (!visible)
             return;

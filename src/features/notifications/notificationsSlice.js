@@ -21,6 +21,15 @@ const notificationsSlice = createSlice({
     builder
       .addCase(getNotificationsThunk.fulfilled, (state, action) => {
         state.notificationsList = action.payload;
+
+        let newNotifications = 0;
+        state.notificationsList.forEach((notification) => {
+          if (notification.unread) {
+            newNotifications++;
+          }
+        });
+
+        state.unseenNotificationsCount = newNotifications;
       })
       .addCase(getNotificationsThunk.rejected, (state, action) => {
         console.error('Error fetching notifications list:', action.payload);
