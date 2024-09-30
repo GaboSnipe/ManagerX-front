@@ -20,7 +20,7 @@ const Dashboard = () => {
 
   const getAssigneByMyList = async () => {
     try {
-      let settings = `status=TODO&creator=${user.id}`;
+      let settings = `status=TODO&creator=${user?.id}`;
       const response = await TaskService.getSubtaskSettList(settings);
       setAssigneByMy(response.data);
     } catch (error) {
@@ -30,7 +30,7 @@ const Dashboard = () => {
 
   const getAssigneToMyList = async () => {
     try {
-      let settings = `status=TODO&assign_to=${user.id}`;
+      let settings = `status=TODO&assign_to=${user?.id}`;
       const response = await TaskService.getSubtaskSettList(settings);
       setAssigneToMy(response.data);
     } catch (error) {
