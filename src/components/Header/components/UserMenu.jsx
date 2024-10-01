@@ -136,7 +136,7 @@ const UserMenu = ({ user, userNavigation }) => {
                       <MdClose />
                     </button>
   
-                    <img alt={'user'} src="https://readymadeui.com/profile_2.webp" className="w-12 h-12 rounded-full shrink-0" />
+                    <img alt={'user'} src={notification?.initiator?.avatar || baseAvatarUrl} className="w-12 h-12 rounded-full shrink-0" />
   
                     <div className="ml-6  max-w-[260px]">
                       <h3 className="text-sm text-[#333] font-semibold overflow-hidden text-nowrap whitespace-nowrap text-ellipsis" title={notification.title}>

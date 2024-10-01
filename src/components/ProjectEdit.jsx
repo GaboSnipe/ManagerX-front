@@ -81,7 +81,7 @@ const ProjectEdit = ({ isEditing, closeWindow, project, onSubmit }) => {
 
     const fetchTaskList = async () => {
         try {
-            const response = await TaskService.getTaskList();
+            const response = await TaskService.getTaskList("?exclude_created_expertise_data=true");
             setTaskList(response.data);
         } catch (error) {
             console.error(error);

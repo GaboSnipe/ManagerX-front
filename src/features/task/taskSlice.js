@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { getTaskListThunk, addTaskThunk, editTaskThunk, editSubTaskThunk, getSubTaskThunk } from './taskThunk';
+import { getTaskListThunk, addTaskThunk, editTaskThunk, editSubTaskThunk, getSubTaskThunk, addSubTAsk } from './taskThunk';
 
 const initialState = {
   taskList: [],
@@ -47,6 +47,20 @@ const taskSlice = createSlice({
       })
       .addCase(addTaskThunk.rejected, (state, action) => {
         console.error('Error adding task:', action.payload);
+      })
+      .addCase(addSubTAsk.fulfilled, (state, action) => {
+        state.taskList = state.taskList.map(task => {
+          if (task.uuid === action.payload.task) {
+            return {
+              ...task,
+              subtasks: [...task.subtasks, action.payload]
+            };
+          }
+          return task;
+        });
+      })
+      .addCase(addSubTAsk.rejected, (state, action) => {
+        console.error('Error editing task:', action.payload);
       })
       .addCase(editTaskThunk.fulfilled, (state, action) => {
         state.taskList = state.taskList.map(task =>

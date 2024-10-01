@@ -40,6 +40,10 @@ const NotificationsList = () => {
     setIsOpen(!isOpen);
   };
 
+  const baseAvatarUrl = `${import.meta.env.BASE_URL}images/defUserImg.jpg`;
+
+
+
   useEffect(() => {
     toggleMenu();
   }, []);
@@ -104,7 +108,7 @@ const NotificationsList = () => {
 
             <img
               alt='user'
-              src={notification.profile_image || 'https://readymadeui.com/profile_2.webp'}
+              src={notification?.initiator?.avatar || baseAvatarUrl}
               className="w-12 h-12 rounded-full shrink-0"
             />
 

@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import ProjectsService from '../../services/ProjectsService';
+import { toast } from 'react-toastify';
 
 export const getProjectListThunk = createAsyncThunk(
   'document/list/',
@@ -53,6 +54,9 @@ export const createNewProjectThunk = createAsyncThunk(
       const response = await ProjectsService.createNewProject(conclusionNumber, task);
       return response.data;
     } catch (error) {
+      toast.error(error?.response?.data?.task[0], {
+        containerId: "error"
+      });
       const errorMessage = error.response ? error.response.data.message : error.message;
       return thunkAPI.rejectWithValue({ message: errorMessage });
     }

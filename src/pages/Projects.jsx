@@ -145,18 +145,7 @@ const Projects = () => {
       .unwrap()
       .then((response) => {
         const targetUuid = response.uuid;
-        dispatch(getProjectListThunk()).unwrap()
-          .then((res) => {
-            const adata = formatedData(headers, res)
-            adata.forEach((itemArray) => {
-              const uuidElement = itemArray.find((el) => el.accessor === 'uuid');
-              if (uuidElement && uuidElement.value === targetUuid) {
-                dispatch(setProject(itemArray));
-                setIsEditingProject(true);
-              } else {
-              }
-            });
-          })
+        getData()
           .catch((error) => {
             console.error('Error fetching data:', error);
           });
@@ -210,6 +199,7 @@ const Projects = () => {
     getData();
   }
 
+  console.log(response_adata)
 
 
   return (
