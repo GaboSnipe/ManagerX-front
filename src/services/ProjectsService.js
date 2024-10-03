@@ -19,5 +19,8 @@ export default class ProjectsService {
     static async createCustomFields(data) {
         return $api.post(`/api/expertise/data/custom-fields/`, data);
     }
+    static async generateConclusion(formData) {
+        return $api.post(`/api/expertise/rclone/generate-conclusion/`, formData);
+    }
 }
 
