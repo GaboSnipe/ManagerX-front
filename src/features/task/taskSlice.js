@@ -36,7 +36,8 @@ const taskSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getTaskListThunk.fulfilled, (state, action) => {
-        state.taskList = action.payload;
+        state.tasksCount = action.payload.count;
+        state.taskList = action.payload.results;
       })
       .addCase(getTaskListThunk.rejected, (state, action) => {
         state.taskList = [];

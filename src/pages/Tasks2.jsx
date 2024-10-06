@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { SubTaskDetails, Task } from '../components';
+import { Paginations, SubTaskDetails, Task } from '../components';
 import { useDispatch, useSelector } from 'react-redux';
 import "../styles/scrollBar.css"
 import { getTaskListThunk } from '../features/task/taskThunk';
@@ -10,6 +10,7 @@ import useAuthCheck from '../utils/hooks/useAuthCheck';
 const Tasks = () => {
   const dispatch = useDispatch();
   const tasks = useSelector((state) => state.task.taskList);
+  const itemsCount = useSelector((state) => state.task.tasksCount);
   const userInfo = useSelector((state) => state.auth.userInfo);
   const [dynamicHeight, setDynamicHeight] = useState(null);
   const seeResizebleDiv = useSelector((state) => state.task.seeResizebleDiv)
@@ -22,6 +23,9 @@ const Tasks = () => {
   const startWidth = useRef(0);
   const screenHeight = window.innerHeight;
   const baseFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  const [paginationsParams, setPaginationsParams] = useState("limit=15&offset=0");
+
+
 
 
   const [params, setParams] = useState([
@@ -81,7 +85,7 @@ useEffect(() => {
     const subAssigneToMy = queryParams.subAssigneToMy ? `&subtask_assign_to=${queryParams.subAssigneToMy}` : "";
     const subAssigne = queryParams.subAssigne ? `&subtask_assigned_by_user=${queryParams.subAssigne}` : "";
 
-    const query = `?ordering=-created_at${tempstatusparams}${assigneTo}${creator}${subAssigneToMy}${subAssigne}`;
+    const query = `?ordering=-created_at${tempstatusparams}${assigneTo}${creator}${subAssigneToMy}${subAssigne}&${paginationsParams}`;
 
     try {
       await dispatch(getTaskListThunk(query)).unwrap();
@@ -91,7 +95,7 @@ useEffect(() => {
   };
 
   getData();
-}, [params, dispatch, userInfo?.id]);
+}, [params, dispatch, userInfo?.id, paginationsParams]);
 
 const closeResizableDiv = (par) => {
   dispatch(setSeeResizebleDiv(par))
@@ -192,9 +196,12 @@ const closeResizableDiv = (par) => {
         </button>
       ))}
     </div>
-        {tasks.map((task) => (
+        {tasks?.map((task) => (
           <Task key={task.uuid} task={task} setSeeResizebleDiv={closeResizableDiv} />
         ))}
+          <div className="flex justify-center h-24">
+            <Paginations refreshData={setPaginationsParams} itemsCount={itemsCount} />
+          </div>
       </div>
       {seeResizebleDiv && (
         <div ref={resizableRef} className="relative rounded-l-md shadow-lg overflow-y-auto mt-8 custom-scrollbar h-full" style={{ height: `${dynamicHeight}px`, width: `${size.width}px`, minWidth: '400px', maxWidth: `${widthRem}rem` }}>

@@ -3,7 +3,7 @@ import ReactPaginate from 'react-paginate';
 import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import "../styles/global.css";
 
-const Paginations = ({ items, refreshData, itemsCount }) => {
+const Paginations = ({ refreshData, itemsCount }) => {
   const [itemOffset, setItemOffset] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(15);
 

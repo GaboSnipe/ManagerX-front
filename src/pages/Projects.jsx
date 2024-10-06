@@ -467,7 +467,7 @@ const Projects = () => {
           </div>
 
           <div className="flex justify-center h-24">
-            <Paginations items={data} refreshData={getData} itemsCount={itemsCount} />
+            <Paginations refreshData={getData} itemsCount={itemsCount} />
           </div>
 
         </div>
