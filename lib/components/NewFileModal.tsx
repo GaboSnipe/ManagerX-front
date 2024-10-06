@@ -22,7 +22,7 @@ const NewFileModal = (props: INewFileModalProps) => {
   };
 
   return (
-    <CommonModal title="Upload File" {...props}>
+    <CommonModal title="ფაილის ატვირთვა" {...props}>
       <div>
         <form className="rfm-upload-file-modal-form mt-6">
           <div>
@@ -38,10 +38,10 @@ const NewFileModal = (props: INewFileModalProps) => {
             <label
               htmlFor="custom-input"
               className="block text-sm text-slate-500 mr-4 py-2 px-4 rounded-md border-0 text-sm font-semibold bg-pink-50 text-pink-700 hover:bg-pink-100 cursor-pointer">
-              Choose file
+              ფაილის არჩევა
             </label>
             <label className="text-sm text-slate-500">
-              {selectedFile ? selectedFile.name : "No file selected"}
+              {selectedFile ? selectedFile.name : "ფაილი არ არის არჩეული"}
             </label>
           </div>
           <div className="rfm-upload-file-modal-container">
@@ -51,14 +51,14 @@ const NewFileModal = (props: INewFileModalProps) => {
               className="rfm-upload-file-modal-btn rfm-upload-file-modal-btn-confirm bg-green-500"
               disabled={!selectedFile}
             >
-              Upload
+              ატვირთვა
             </button>
             <button
               onClick={props.onClose}
               type="button"
               className="bg-[rgba(210,031,040)] p-2 rounded-lg rfm-upload-file-modal-btn-cancel text-white"
             >
-              Cancel
+              გაუმება
             </button>
           </div>
         </form>

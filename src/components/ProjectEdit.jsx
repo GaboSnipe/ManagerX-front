@@ -137,7 +137,7 @@ const ProjectEdit = ({ isEditing, closeWindow, project, onSubmit }) => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-[#F7F5F5] rounded-lg shadow-lg p-6 mx-4 md:mx-auto max-w-6xl w-full max-h-[80%] overflow-y-auto custom-scrollbar">
                 <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-roboto font-semibold">{isEditing ? "Edit" : "Create"}</h2>
+                    <h2 className="text-lg font-roboto font-semibold">{isEditing ? "შეცვლა" : "შექმნა"}</h2>
                     <button
                         className="text-gray-600 hover:text-gray-800 focus:outline-none"
                         onClick={closeWindow}
@@ -168,7 +168,7 @@ const ProjectEdit = ({ isEditing, closeWindow, project, onSubmit }) => {
                                         {/* Folder/Task */}
                                         <tr className="">
                                             <td className="text-right text-base p-2 pt-3 align-text-top w-60">
-                                                <p>Task:</p>
+                                                <p>დავალება:</p>
                                             </td>
                                             <td className="p-2 relative">
                                                 <div className="flex items-center text-sm w-full">
@@ -224,13 +224,13 @@ const ProjectEdit = ({ isEditing, closeWindow, project, onSubmit }) => {
                                         onClick={fetchData}
                                         className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                                     >
-                                        Save
+                                        {isEditing ? "შენახვა" : "შექმნა"}
                                     </button>
                                 </div>
                             </div>
 
                         </div>
-                    </div>
+                    </div>  
                 </div>
             </div>
         </div>);

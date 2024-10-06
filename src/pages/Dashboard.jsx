@@ -117,7 +117,8 @@ const Dashboard = () => {
                   <div className="mb-4">
                     <span className="text-gray-800 text-xs font-bold">
 
-                      Filter: Assigned to me
+                      {/* Filter: Assigned to me */}
+                      ფილტრი: დამავალა
                     </span>
                     <div className="my-2 w-full  h-px bg-[#E0E0E0]" />
                   </div>
@@ -175,7 +176,8 @@ const Dashboard = () => {
                   <div className="mb-4">
                     <span className="text-gray-800 text-xs font-bold">
 
-                      Filter: Assigned By Me
+                      {/* Filter: Assigned By Me */}
+                      ფილტრი: დავავალე
                     </span>
                     <div className="my-2 w-full  h-px bg-[#E0E0E0]" />
                   </div>

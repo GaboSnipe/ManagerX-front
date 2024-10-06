@@ -66,7 +66,7 @@ const SettingsPage = () => {
             onChange={(e) => setSelectedType(e.target.value)}
             className="border border-gray-300 rounded-md p-2"
           >
-            <option value="">Select data type</option>
+            <option value=""></option>
             {typeList.map((type) => (
               <option key={type} value={type}>
                 {type}

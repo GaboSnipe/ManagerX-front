@@ -221,8 +221,8 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
                     {selectedSubTask?.title}
                 </p>
 
-                <div className='rounded-md border border-[#C8C2C2] ml-3 mt-2 w-[6.5rem]'>
-                    <button onClick={startEdit} className='text-xs text-[#3F3F46] px-4'>დავალების შეცვლა</button>
+            <div className='rounded-md border border-[#C8C2C2] ml-3 mt-2 px-4 inline-block'>
+                    <button onClick={startEdit} className='text-xs text-[#3F3F46]'>დავალების რედაქტირება</button>
                 </div>
 
                 <div className="w-full p-5 text-lg font-semibold text-left rtl:text-right text-[#252525]">
@@ -241,7 +241,7 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
 
                 <div className='pl-3 pr-10 pt-8'>
                     <div>
-                        <p className='text-sm font-roboto not-italic tracking-wide leading-[150%]'>Details:</p>
+                        <p className='text-sm font-roboto not-italic tracking-wide leading-[150%]'>დეტალები:</p>
                     </div>
                     <div className="w-full h-px bg-[#E0E0E0]" />
                     <div className="pt-4">
@@ -252,11 +252,11 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
                             </colgroup>
                             <tbody className='text-xs font-roboto leading-[150%] not-italic text-black'>
                                 <tr className='h-9'>
-                                    <td>Task:</td>
+                                    <td>დავალება:</td>
                                     <td>{selectedSubTask?.task?.title}</td>
                                 </tr>
                                 <tr className='h-9'>
-                                    <td>Status:</td>
+                                    <td>სტატუსი:</td>
                                     <td><>  {/*STATUS */}
                                         <div className="items-center">
                                             <div className={`text-white text-xs w-32 min-w-32  py-0.5 rounded-full text-center ${getStatusStyles(selectedSubTask?.status)}`}>
@@ -266,7 +266,7 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
                                     </></td>
                                 </tr>
                                 <tr className='h-9'>
-                                    <td>Deadline:</td>
+                                    <td>შესტულების ვადა:</td>
                                     <td>
                                         <>  {/*DEADLINE */}
                                             <div className="flex items-center">
@@ -283,7 +283,7 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
                                     </td>
                                 </tr>
                                 <tr className='h-9'>
-                                    <td>Reporter:</td>
+                                    <td>დამვალებელი:</td>
                                     <td>
                                         <div className='flex'>
                                             {/*ASSIGNED */}
@@ -297,7 +297,7 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
                                     </td>
                                 </tr>
                                 <tr className='h-9'>
-                                    <td>Assignee:</td>
+                                    <td>შემსტულებელი:</td>
                                     <td>
                                         <div className='flex'>
                                             {/*ASSIGNED */}
@@ -311,7 +311,7 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
                                     </td>
                                 </tr>
                                 <tr className='h-9'>
-                                    <td>Created At:</td>
+                                    <td>შექმნილია:</td>
                                     <td>
                                         <div className="flex items-center">
                                             <div className="bg-[#C2BDAD] text-white px-2.5 py-0.5 rounded-full text-xs">
@@ -322,7 +322,7 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
                                     </td>
                                 </tr>
                                 <tr className='h-9'>
-                                    <td>Updated At:</td>
+                                    <td>განახლებულია:</td>
                                     <td>
                                         <div className="flex items-center">
                                             <div className="bg-[#C2BDAD] text-white px-2.5 py-0.5 rounded-full text-xs">

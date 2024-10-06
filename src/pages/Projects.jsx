@@ -139,6 +139,8 @@ const Projects = () => {
     try {
       const response = await TaskService.getTaskList("?exclude_generated_conclusion=true");
       setTaskList(response.data);
+      setSelectedTask({});
+      setSummary("");
     } catch (error) {
       console.error(error);
     }
@@ -147,6 +149,28 @@ const Projects = () => {
   useEffect(() => {
     fetchTaskList();
   }, []);
+
+  useEffect(() => {
+    let taskUuid;
+    let taskTitle;
+
+    if (selectedProject && selectedProject.length > 0) {
+      selectedProject.forEach((project) => {
+        if (project.accessor === "task.title") {
+          taskTitle = project.value;
+        }
+        if (project.accessor === "task.uuid") {
+          taskUuid = project.value;
+        }
+        if (taskUuid && taskTitle) {
+          return;
+        }
+      });
+    }
+
+    setSelectedTask({ uuid: taskUuid, title: taskTitle });
+  }, [selectedProject]);
+
 
 
   useEffect(() => {
@@ -261,7 +285,7 @@ const Projects = () => {
   const handleTaskToClick = (option) => {
     setSelectedTask(option);
     setIsOpenTaskList(false);
-};
+  };
 
 
 
@@ -334,7 +358,7 @@ const Projects = () => {
               </form>
             </div>
             <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-              <button
+              {/* <button
                 onClick={openAddProjectkWindow}
                 type="button"
                 className="flex items-center justify-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2"
@@ -352,8 +376,8 @@ const Projects = () => {
                     d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                   />
                 </svg>
-                Add product
-              </button>
+                პროექტის შექმნა
+              </button> */}
               <div className="flex items-center space-x-3 w-full md:w-auto">
                 <div className='relative'>
                   <button
@@ -377,7 +401,7 @@ const Projects = () => {
                         d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                       />
                     </svg>
-                    Actions
+                    მოქმედებები
                   </button>
 
                   {isOpenActionMenu && (
@@ -389,7 +413,7 @@ const Projects = () => {
                     >
                       <div className="py-1" role="none">
                         <button onClick={openGenerateTable} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full">
-                          generate
+                          დასკვნის დაგენერირება
                         </button>
 
 
@@ -419,7 +443,7 @@ const Projects = () => {
                       clipRule="evenodd"
                     />
                   </svg>
-                  Filter
+                  ფილტრები
                   <svg
                     className="-mr-1 ml-1.5 w-5 h-5"
                     fill="currentColor"
@@ -459,9 +483,10 @@ const Projects = () => {
               }
               return null;
             })}
-            <div className='rounded-md border border-[#C8C2C2] ml-3 mt-2 max-w-32'>
-              <button onClick={() => setIsEditingProject(true)} className='text-xs text-[#3F3F46] px-4'>Edit project</button>
+            <div className='rounded-md border border-[#C8C2C2] ml-3 mt-2 px-4 inline-block'>
+              <button onClick={() => setIsEditingProject(true)} className='text-xs text-[#3F3F46]'>პროექტის რედაქტირება</button>
             </div>
+
 
 
             <div className="relative overflow-x-auto w-full shadow-md sm:rounded-lg">
@@ -541,7 +566,7 @@ const Projects = () => {
 
           <div className="bg-[#F7F5F5] rounded-lg shadow-lg p-6 mx-4 md:mx-auto max-w-6xl w-full max-h-[80%] overflow-y-auto custom-scrollbar">
             <div className="flex justify-between items-center">
-              <h2 className="text-lg font-roboto font-semibold">Generate Conclusion</h2>
+              <h2 className="text-lg font-roboto font-semibold">დასკვნის დაგენერირება</h2>
               <button
                 className="text-gray-600 hover:text-gray-800 focus:outline-none"
                 onClick={closeGenerateTable}
@@ -572,7 +597,7 @@ const Projects = () => {
                         {/* Folder/Task */}
                         <tr className="">
                           <td className="text-right text-base p-2 pt-3 align-text-top w-60">
-                            <p>Task:</p>
+                            <p>დავალება:</p>
                           </td>
                           <td className="p-2 relative">
                             <div className="flex items-center text-sm w-full">
@@ -628,7 +653,7 @@ const Projects = () => {
                         onClick={fetchData}
                         className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                       >
-                        Save
+                        შექმნა
                       </button>
                     </div>
                   </div>

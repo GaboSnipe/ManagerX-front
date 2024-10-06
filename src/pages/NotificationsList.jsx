@@ -69,13 +69,13 @@ const NotificationsList = () => {
     const days = Math.floor(hours / 24);
 
     if (days > 0) {
-      return `${days} d ago`;
+      return `${days} დღის წინ`;
     } else if (hours > 0) {
-      return `${hours} h ago`;
+      return `${hours} საათის წინ`;
     } else if (minutes > 0) {
-      return `${minutes} min ago`;
+      return `${minutes} წუთის წინ`;
     } else {
-      return `${seconds} sec ago`;
+      return `${seconds} წამის წინ`;
     }
   }
 
@@ -86,14 +86,14 @@ const NotificationsList = () => {
   >
     <div className="flex items-center px-4 mb-4">
       <button onClick={deleteAllNotifications} className="text-xs text-blue-600 ml-4">
-        Clear all
+        ყველას წაშლა
       </button>
     </div>
 
     <ul className="divide-y">
       {notificationsList.length < 1 ? (
         <p className="text-sm font-bold text-ellipsis text-gray-400 text-center mb-4 mt-8">
-          notifications are empty
+          შეტყობინებები ცარიელია
         </p>
       ) : (
         notificationsList.map((notification) => (

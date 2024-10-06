@@ -534,7 +534,7 @@ const WorkPlace = () => {
       <ModalWindow
         isOpen={isModalOpen}
         onClose={() => dispatch(setIsModalOpen(false))}
-        title={showFileIcon ? "File Upload" : "Folder Create"}
+        title={showFileIcon ? "ფაილის ატვირთვა" : "ფოლდერის შექმნა"}
       >
         {showFileIcon ? (
           <form className="max-w-md mx-auto" onSubmit={handleSubmitFile}>

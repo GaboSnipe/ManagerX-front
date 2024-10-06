@@ -17,8 +17,8 @@ const Main = () => {
     const user = useSelector((state) => state.auth.userInfo);
 
     const userNavigation = [
-        { name: 'Settings', href: '/settings' },
-        { name: 'Sign out', href: '/' },
+        { name: 'პარამეტრები', href: '/settings' },
+        { name: 'გამოსვლა', href: '/' },
     ];
 
     function classNames(...classes) {

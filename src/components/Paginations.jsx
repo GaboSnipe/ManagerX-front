@@ -18,8 +18,8 @@ const Paginations = ({ items, refreshData, itemsCount }) => {
 
   return (
     <ReactPaginate
-      previousLabel={<><ArrowLeftIcon strokeWidth={2} className="h-4 w-4" /> Previous</>}
-      nextLabel={<> Next<ArrowRightIcon strokeWidth={2} className="h-4 w-4" /></>}
+      previousLabel={<><ArrowLeftIcon strokeWidth={2} className="h-4 w-4" /> უკან</>}
+      nextLabel={<> წინ<ArrowRightIcon strokeWidth={2} className="h-4 w-4" /></>}
       breakLabel="..."
       pageCount={pageCount}
       pageRangeDisplayed={4}

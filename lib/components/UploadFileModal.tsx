@@ -17,10 +17,11 @@ const UploadFileModal = (props: IUploadFileModalProps) => {
   };
 
   return (
-    <CommonModal title="Upload file" {...props}>
+    <CommonModal title="ფაილის ატვირთვა" {...props}>
       <div>
         <h4 className="rfm-upload-file-modal-title">
-          Are you sure you want to upload the file?
+          {/* Are you sure you want to upload the file? */}
+          დარწმუნებული ხარ რომ გსურს ფაილის ატვირთვა?
         </h4>
         <div className="rfm-upload-file-modal-container">
           <button
@@ -28,7 +29,7 @@ const UploadFileModal = (props: IUploadFileModalProps) => {
             type="submit"
             className="bg-green-500 rfm-upload-file-modal-btn rfm-upload-file-modal-btn-confirm"
           >
-            Upload
+            ატვირთვა
           </button>
           <button
             onClick={props.onClose}
@@ -36,7 +37,7 @@ const UploadFileModal = (props: IUploadFileModalProps) => {
             className="bg-[rgba(210,031,040)] p-2 rounded-lg rfm-upload-file-modal-btn-cancel text-white"
             
           >
-            Cancel
+            გაუქმება
           </button>
         </div>
       </div>

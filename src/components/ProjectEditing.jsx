@@ -46,7 +46,7 @@ const ProjectEditing = ({ isEditing, closeWindow, project, headers, onSubmit }) 
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-[#F7F5F5] rounded-lg shadow-lg p-6 mx-4 md:mx-auto max-w-6xl w-full max-h-[80%] overflow-y-auto custom-scrollbar">
                 <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-roboto font-semibold">Edit</h2>
+                    <h2 className="text-lg font-roboto font-semibold">შეცვლა</h2>
                     <button
                         className="text-gray-600 hover:text-gray-800 focus:outline-none"
                         onClick={closeWindow}
@@ -62,7 +62,7 @@ const ProjectEditing = ({ isEditing, closeWindow, project, headers, onSubmit }) 
               <tbody>
                 {headers.map((obj) => (
                   <tr key={obj.id} className='w-full'>
-                    <td className="text-right text-base p-2">{obj.name}</td>
+                    <td className="text-right text-base p-2 max-w-24">{obj.name}</td>
                     <td className="p-2">
                       {obj.data_type === 'string' && (
                         <input
@@ -125,7 +125,7 @@ const ProjectEditing = ({ isEditing, closeWindow, project, headers, onSubmit }) 
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                 onClick={handleSubmit}
               >
-                Save
+                შენახვა
               </button>
             </div>
           </div>

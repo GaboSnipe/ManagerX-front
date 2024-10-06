@@ -29,7 +29,7 @@ const NewFolderModal = (props: INewFolderModalProps) => {
   
 
   return (
-    <CommonModal title="Create New Folder" {...props}>
+    <CommonModal title="ახალი ფოლდერის შექმნა" {...props}>
   <div>
     <form className="rfm-new-folder-modal-form" onSubmit={onConfirm}>
       <div>
@@ -37,7 +37,7 @@ const NewFolderModal = (props: INewFolderModalProps) => {
           ref={folderName}
           type="text"
           className="rfm-new-folder-modal-input"
-          placeholder="Folder Name"
+          placeholder="ფოლდერის შექმნა"
           required
         />
       </div>
@@ -51,7 +51,7 @@ const NewFolderModal = (props: INewFolderModalProps) => {
         type="submit"
         className="rfm-new-folder-modal-btn bg-blue-500"
       >
-        Create
+        შექმნა
       </button>
     </form>
   </div>

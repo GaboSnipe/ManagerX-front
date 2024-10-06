@@ -60,13 +60,13 @@ const UserMenu = ({ user, userNavigation }) => {
     const days = Math.floor(hours / 24);
 
     if (days > 0) {
-      return `${days} d ago`;
+      return `${days} დღის წინ`;
     } else if (hours > 0) {
-      return `${hours} h ago`;
+      return `${hours} საათის წინ`;
     } else if (minutes > 0) {
-      return `${minutes} min ago`;
+      return `${minutes} წუთის წინ`;
     } else {
-      return `${seconds} sec ago`;
+      return `${seconds} წამის წინ`;
     }
   }
   const baseAvatarUrl = `${import.meta.env.BASE_URL}images/defUserImg.jpg`;
@@ -119,14 +119,14 @@ const UserMenu = ({ user, userNavigation }) => {
           <div className='absolute block right-0 shadow-lg bg-white py-4 z-[1000] min-w-full rounded-lg w-[410px] max-w-[410px] max-h-[500px] overflow-auto mt-2 custom-scrollbar'>
             <div className="flex items-center px-4 mb-4">
               
-              <button onClick={deleteAllNotifications} className="text-xs text-blue-600 ml-4">Clear all</button>
-              <button onClick={navigateToNotificationsPage} className="text-xs text-blue-600 mr-4 ml-auto">View all Notifications</button>
+              <button onClick={deleteAllNotifications} className="text-xs text-blue-600 ml-4">ყველას ჭაშლა</button>
+              <button onClick={navigateToNotificationsPage} className="text-xs text-blue-600 mr-4 ml-auto">ყველას ნახვა</button>
 
             </div>
 
             <ul className="divide-y">
               {notificationsList.length < 1 ? (
-                <p className="text-sm font-bold text-ellipsis text-gray-400 text-center mb-4 mt-8">notifications are empty</p>
+                <p className="text-sm font-bold text-ellipsis text-gray-400 text-center mb-4 mt-8">შეტყობინებები ცარიელია</p>
               ):
               (
                 notificationsList.map((notification) => (

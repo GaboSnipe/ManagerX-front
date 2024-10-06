@@ -491,7 +491,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                                         <tbody>
                                             {/* Summary */}
                                             <tr className="">
-                                                <td className="text-right text-base p-2">Summary:</td>
+                                                <td className="text-right text-base p-2">სათაური</td>
                                                 <td className="p-2">
                                                     <input
                                                         value={summary}
@@ -519,7 +519,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
 
                                             {/* Assignee */}
                                             <tr className="">
-                                                <td className="text-right text-base p-2 pt-3 align-text-top">Assignee:</td>
+                                                <td className="text-right text-base p-2 pt-3 align-text-top">შემსრულებელი:</td>
                                                 <td className="p-2 relative">
                                                     <div className="flex items-center">
                                                         <button
@@ -566,7 +566,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
 
                                             {/* Status */}
                                             <tr className="">
-                                                <td className="text-right text-base p-2">Status:</td>
+                                                <td className="text-right text-base p-2">სტატუსი:</td>
                                                 <td className="p-2 relative">
                                                     <div className="flex items-center text-sm w-full">
                                                         <button
@@ -613,7 +613,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
 
                                             {/* Dates */}
                                             <tr className="">
-                                                <td className="text-right text-base p-2">Dates:</td>
+                                                <td className="text-right text-base p-2">თარიღები:</td>
                                                 <td className="p-2">
                                                     <div className="flex items-center text-sm w-full">
                                                         <div className="flex items-center">
@@ -640,7 +640,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                                             {/* Folder/Task */}
                                             <tr className="">
                                                 <td className="text-right text-base p-2 pt-3 align-text-top">
-                                                    <p>{selectedOption.label === "Task" ? "Folder:" : "Task:"}</p>
+                                                    <p>{selectedOption.label === "Task" ? "ფოლდერი:" : "დავალება:"}</p>
                                                 </td>
                                                 <td className="p-2 relative">
                                                     <div className="flex items-center text-sm w-full">
@@ -699,7 +699,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                                                             </ul>
                                                         </div>
                                                     )}
-                                                    {selectedOption.label === "Task" && <button type="button" onClick={createNewFolderHandle} className="text-blue-500 text-xs font-medium">Create New Folder</button>}
+                                                    {selectedOption.label === "Task" && <button type="button" onClick={createNewFolderHandle} className="text-blue-500 text-xs font-medium">create new folder</button>}
                                                 </td>
                                             </tr>
                                         </tbody>

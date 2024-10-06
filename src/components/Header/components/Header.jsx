@@ -88,38 +88,6 @@ const Header = () => {
       case '/workplace':
         return (
           <>
-            <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex space-x-2">
-
-              {showFileIcon ? (
-                <>
-
-                  <button
-                    onClick={backButton}
-                    className="bg-gray-600 rounded-lg p-2 focus:bg-gray-500 text-white flex items-center"
-                  >
-
-                    <FaArrowLeft className="mr-2" />
-                    Back
-                  </button>
-
-                  <button
-                    onClick={addFileInFolder}
-
-                    className="bg-gray-600 rounded-lg p-2 focus:bg-gray-500 text-white"
-                  >
-                    Add File
-                  </button>
-                </>
-              ) : (
-
-                <button
-                  onClick={addFolder}
-                  className="bg-gray-600 rounded-lg p-2 focus:bg-gray-500 text-white"
-                >
-                  Add Folder
-                </button>
-              )}
-            </div>
 
           </>
         );
@@ -199,7 +167,7 @@ const Header = () => {
                         d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
                       />
                     </svg>
-                    Actions
+                    მოქმედებები
                   </button>
                   <div
                     id="actionsDropdown"
