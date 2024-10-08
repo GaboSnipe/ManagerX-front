@@ -136,12 +136,11 @@ const Projects = () => {
 
 
 
+
   const fetchTaskList = async () => {
     try {
       const response = await TaskService.getTaskList("?exclude_generated_conclusion=true");
       setTaskList(response.data);
-      setSelectedTask({});
-      setSummary("");
     } catch (error) {
       console.error(error);
     }
@@ -184,7 +183,7 @@ const Projects = () => {
   const getData = async (settings) => {
     try {
       await dispatch(getProjectHeadersThunk()).unwrap();
-      await dispatch(getProjectListThunk({ ...settings, ...paginationParams })).unwrap();
+      await dispatch(getProjectListThunk({settings:`${settings ? settings : ""}${paginationParams}`})).unwrap();
 
     } catch (err) {
       console.error('Failed to get project list:', err);
@@ -200,6 +199,8 @@ const Projects = () => {
   const fetchGenerateCOnclusion = (data) => {
     const response = ProjectsService.generateConclusion(data);
     setIsEditingProject(false)
+    setSummary("");
+    setSelectedTask({});
     getData();
   }
 
@@ -296,7 +297,6 @@ const Projects = () => {
     fetchTaskList()
   }
 
-  console.log(selectedProject)
 
 
   useEffect(() => {
@@ -469,7 +469,7 @@ const Projects = () => {
           </div>
 
           <div className="flex justify-center h-24">
-            <Paginations refreshData={setPaginationsParams} itemsCount={itemsCount} limit={15} />
+            <Paginations refreshData={setPaginationsParams} itemsCount={itemsCount} limit={1} />
           </div>
 
         </div>

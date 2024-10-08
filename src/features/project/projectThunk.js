@@ -6,6 +6,7 @@ export const getProjectListThunk = createAsyncThunk(
   'document/list/',
   async ({ settings }, thunkAPI) => {
     try {
+      console.log(settings)
       const response = await ProjectsService.getProjectList(settings);
       return response.data;
     } catch (error) {

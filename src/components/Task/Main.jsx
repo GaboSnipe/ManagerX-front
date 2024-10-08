@@ -15,6 +15,15 @@ const Task = ({ task, setSeeResizebleDiv }) => {
     const dispatch = useDispatch();
     const [isRotated, setIsRotated] = useState(false);
     const [isEditing, setIsEditing] = useState(false)
+    const [isAddingTasq, setIsAddingTasq] = useState(false)
+
+    const closeIsAddingTasq = () => {
+        setIsAddingTasq(false)
+    }
+
+    const openIsAddingTasq = () => {
+        setIsAddingTasq(true)
+    }
 
     const defaultComment = `{"ops":[{"attributes":{"color":"#bbbbbb","size":"normal"},"insert":"This task does not have a description."},{"insert":"\\n"}]}`;
 
@@ -258,6 +267,10 @@ const Task = ({ task, setSeeResizebleDiv }) => {
                         <button onClick={openTaskEdit} className='h-0 px-4 py-1 text-xs text-[#3F3F46] bg-transparent border-none'> პროექტის შეცვლა </button>
 
                     </div>
+                    <div className='rounded-md border border-[#C8C2C2] ml-9'>
+                        <button onClick={openIsAddingTasq} className='h-0 px-4 py-1 text-xs text-[#3F3F46] bg-transparent border-none'> დავალების დამატება </button>
+
+                    </div>
                     {compareTime(task.deadline_from) &&
                         <div className={`text-white text-xs w-32 min-w-32 py-0.5 rounded-full text-center h-5 mt-1 ml-8 ${getDateStyle(task.deadline_to)}`}>
                             {getTimeStatus(task.deadline_to)}
@@ -352,6 +365,10 @@ const Task = ({ task, setSeeResizebleDiv }) => {
                     </div>
                 </>
 
+            }
+            {isAddingTasq &&
+                <TaskEdit isEditing={false} closeWindow={closeIsAddingTasq} isTask={false} task={task}/>
+            
             }
             {isEditing &&
                 <TaskEdit isEditing={true} closeWindow={closeAddTaskWindow} isTask={true} task={task} />

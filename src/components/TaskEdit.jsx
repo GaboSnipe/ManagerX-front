@@ -77,6 +77,12 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
         </svg>
     });
 
+    useEffect(() =>{
+        if(!isTask && !isEditing){
+            setSelectedTask(task)
+        }
+    },[])
+
     const statusList = ["TODO", "INPROGRESS", "DONE", "REJECTED", "UNCERTAIN"];
 
     useEffect(()=>{

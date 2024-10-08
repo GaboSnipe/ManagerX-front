@@ -78,7 +78,6 @@ export const MultipleFileUploadBasic = () => {
 
       FileService.uploadAttachmentfile(file, selectedSubTask?.uuid, { signal: controller.signal })
         .then(() => {
-          console.log(`File ${file.name} uploaded successfully`);
           removeFiles([file.name]);
           dispatch(getSubTaskThunk(selectedSubTask?.uuid))
 
@@ -90,7 +89,6 @@ export const MultipleFileUploadBasic = () => {
         })
         .catch((error) => {
           if (error.name === 'AbortError') {
-            console.log(`Upload for ${file.name} aborted`);
           } else {
             toast.error(error, {
               containerId: "error"

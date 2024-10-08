@@ -49,60 +49,60 @@ const Tasks = () => {
       )
     );
   };
-  
 
-useEffect(() => {
-  const getData = async () => {
-    const queryParams = {
-      status: [],
-      assign_to: "",
-      creator: "",
-      subAssigneToMy: "",
-      subAssigne: "",
+
+  useEffect(() => {
+    const getData = async () => {
+      const queryParams = {
+        status: [],
+        assign_to: "",
+        creator: "",
+        subAssigneToMy: "",
+        subAssigne: "",
+      };
+
+      params.forEach((status) => {
+        if (statusKeys.includes(status.key) && status.isEnabled) {
+          queryParams.status.push(status.key);
+        }
+        else if (status.key == "assign_to" && status.isEnabled) {
+          queryParams.assign_to = userInfo.id;
+        }
+        else if (status.key == "creator" && status.isEnabled) {
+          queryParams.creator = userInfo.id;
+        }
+        else if (status.key == "subtask_assign_to" && status.isEnabled) {
+          queryParams.subAssigneToMy = userInfo.id;
+        }
+        else if (status.key == "subtask_assigned_by_user" && status.isEnabled) {
+          queryParams.subAssigne = userInfo.id;
+        }
+      });
+
+      const tempstatusparams = queryParams.status.length ? `&status=${queryParams.status.join(',')}` : "";
+      const assigneTo = queryParams.assign_to ? `&assign_to=${queryParams.assign_to}` : "";
+      const creator = queryParams.creator ? `&creator=${queryParams.creator}` : "";
+      const subAssigneToMy = queryParams.subAssigneToMy ? `&subtask_assign_to=${queryParams.subAssigneToMy}` : "";
+      const subAssigne = queryParams.subAssigne ? `&subtask_assigned_by_user=${queryParams.subAssigne}` : "";
+
+      const query = `?ordering=-created_at${tempstatusparams}${assigneTo}${creator}${subAssigneToMy}${subAssigne}&${paginationsParams}`;
+
+      try {
+        await dispatch(getTaskListThunk(query)).unwrap();
+      } catch (err) {
+        console.error('Failed to get task list:', err);
+      }
     };
 
-    params.forEach((status) => {
-      if (statusKeys.includes(status.key) && status.isEnabled) {
-        queryParams.status.push(status.key);
-      }
-      else if (status.key == "assign_to" && status.isEnabled) {
-        queryParams.assign_to = userInfo.id;
-      }
-      else if (status.key == "creator" && status.isEnabled) {
-        queryParams.creator = userInfo.id;
-      }
-      else if (status.key == "subtask_assign_to" && status.isEnabled) {
-        queryParams.subAssigneToMy = userInfo.id;
-      }
-      else if (status.key == "subtask_assigned_by_user" && status.isEnabled) {
-        queryParams.subAssigne = userInfo.id;
-      }
-    });
+    getData();
+  }, [params, dispatch, userInfo?.id, paginationsParams]);
 
-    const tempstatusparams = queryParams.status.length ? `&status=${queryParams.status.join(',')}` : "";
-    const assigneTo = queryParams.assign_to ? `&assign_to=${queryParams.assign_to}` : "";
-    const creator = queryParams.creator ? `&creator=${queryParams.creator}` : "";
-    const subAssigneToMy = queryParams.subAssigneToMy ? `&subtask_assign_to=${queryParams.subAssigneToMy}` : "";
-    const subAssigne = queryParams.subAssigne ? `&subtask_assigned_by_user=${queryParams.subAssigne}` : "";
+  const closeResizableDiv = (par) => {
+    dispatch(setSeeResizebleDiv(par))
+  }
 
-    const query = `?ordering=-created_at${tempstatusparams}${assigneTo}${creator}${subAssigneToMy}${subAssigne}&${paginationsParams}`;
 
-    try {
-      await dispatch(getTaskListThunk(query)).unwrap();
-    } catch (err) {
-      console.error('Failed to get task list:', err);
-    }
-  };
 
-  getData();
-}, [params, dispatch, userInfo?.id, paginationsParams]);
-
-const closeResizableDiv = (par) => {
-  dispatch(setSeeResizebleDiv(par))
-}
-
-  
-  
 
   const getInitialSize = () => {
     const savedSize = localStorage.getItem('resizebleDivSize');
@@ -162,7 +162,7 @@ const closeResizableDiv = (par) => {
   }, [size, resizableRef.current, seeResizebleDiv]);
 
   useEffect(() => {
-    const remValue = 2;
+    const remValue = 3;
     const remInPixels = remValue * baseFontSize;
     const calculatedHeight = screenHeight - headerHeight - remInPixels;
     setDynamicHeight(calculatedHeight);
@@ -185,23 +185,23 @@ const closeResizableDiv = (par) => {
   return (
     <div className="flex">
       <div className="flex-1 overflow-y-auto mt-8 custom-scrollbar px-2" ref={divRef} style={{ height: `${dynamicHeight}px` }}>
-      <div className="flex flex-wrap gap-2 p-4">
-      {params.map((status) => (
-        <button
-          key={status.key}
-          onClick={() => handleStatusClick(status.key)}
-          className={`px-4 py-2 rounded-md border ${status.isEnabled ? 'bg-black text-white' : 'bg-gray-200 text-black'}`}
-        >
-          {status.access}
-        </button>
-      ))}
-    </div>
+        <div className="flex flex-wrap gap-2 p-4">
+          {params.map((status) => (
+            <button
+              key={status.key}
+              onClick={() => handleStatusClick(status.key)}
+              className={`px-4 py-2 rounded-md border ${status.isEnabled ? 'bg-black text-white' : 'bg-gray-200 text-black'}`}
+            >
+              {status.access}
+            </button>
+          ))}
+        </div>
         {tasks?.map((task) => (
           <Task key={task.uuid} task={task} setSeeResizebleDiv={closeResizableDiv} />
         ))}
-          <div className="flex justify-center h-24">
-            <Paginations refreshData={setPaginationsParams} itemsCount={itemsCount} limit={5} />
-          </div>
+        <div className="flex justify-center h-24">
+          <Paginations refreshData={setPaginationsParams} itemsCount={itemsCount} limit={5} />
+        </div>
       </div>
       {seeResizebleDiv && (
         <div ref={resizableRef} className="relative rounded-l-md shadow-lg overflow-y-auto mt-8 custom-scrollbar h-full" style={{ height: `${dynamicHeight}px`, width: `${size.width}px`, minWidth: '400px', maxWidth: `${widthRem}rem` }}>
