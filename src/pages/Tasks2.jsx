@@ -23,7 +23,7 @@ const Tasks = () => {
   const startWidth = useRef(0);
   const screenHeight = window.innerHeight;
   const baseFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
-  const [paginationsParams, setPaginationsParams] = useState("limit=15&offset=0");
+  const [paginationsParams, setPaginationsParams] = useState("limit=5&offset=0");
 
 
 
@@ -200,7 +200,7 @@ const closeResizableDiv = (par) => {
           <Task key={task.uuid} task={task} setSeeResizebleDiv={closeResizableDiv} />
         ))}
           <div className="flex justify-center h-24">
-            <Paginations refreshData={setPaginationsParams} itemsCount={itemsCount} />
+            <Paginations refreshData={setPaginationsParams} itemsCount={itemsCount} limit={5} />
           </div>
       </div>
       {seeResizebleDiv && (

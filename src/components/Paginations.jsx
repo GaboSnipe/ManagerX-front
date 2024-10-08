@@ -3,9 +3,9 @@ import ReactPaginate from 'react-paginate';
 import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import "../styles/global.css";
 
-const Paginations = ({ refreshData, itemsCount }) => {
+const Paginations = ({ refreshData, itemsCount, limit }) => {
   const [itemOffset, setItemOffset] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(15);
+  const [itemsPerPage, setItemsPerPage] = useState(limit || 15);
 
   const handlePageClick = (event) => {
     const newOffset = (event.selected * itemsPerPage) % itemsCount;

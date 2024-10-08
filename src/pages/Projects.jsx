@@ -132,6 +132,7 @@ const Projects = () => {
   const [taskList, setTaskList] = useState([]);
   const [summary, setSummary] = useState("");
   const [selectedTask, setSelectedTask] = useState(selectedProject);
+  const [paginationParams, setPaginationsParams] = useState("limit=15&offset=0");
 
 
 
@@ -183,7 +184,8 @@ const Projects = () => {
   const getData = async (settings) => {
     try {
       await dispatch(getProjectHeadersThunk()).unwrap();
-      await dispatch(getProjectListThunk({ settings })).unwrap();
+      await dispatch(getProjectListThunk({ ...settings, ...paginationParams })).unwrap();
+
     } catch (err) {
       console.error('Failed to get project list:', err);
     }
@@ -467,7 +469,7 @@ const Projects = () => {
           </div>
 
           <div className="flex justify-center h-24">
-            <Paginations refreshData={getData} itemsCount={itemsCount} />
+            <Paginations refreshData={setPaginationsParams} itemsCount={itemsCount} limit={15} />
           </div>
 
         </div>
