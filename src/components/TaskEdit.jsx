@@ -21,12 +21,12 @@ const CustomDataInput = React.forwardRef(({ value, onClick }, ref) => (
     >
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" className="mr-2">
             {/* SVG Path */}
-<path d="M9.33333 1.16699V3.50033M4.66667 1.16699V3.50033M1.75 5.83366H12.25M2.91667 2.33366H11.0833C11.7277 2.33366 12.25 2.85599 12.25 3.50033V11.667C12.25 12.3113 11.7277 12.8337 11.0833 12.8337H2.91667C2.27233 12.8337 1.75 12.3113 1.75 11.667V3.50033C1.75 2.85599 2.27233 2.33366 2.91667 2.33366Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-<defs>
-<linearGradient id="paint0_linear_149_1772" x1="7" y1="1.16699" x2="7" y2="12.8337" gradientUnits="userSpaceOnUse">
-<stop offset="1"/>
-</linearGradient>
-</defs>
+            <path d="M9.33333 1.16699V3.50033M4.66667 1.16699V3.50033M1.75 5.83366H12.25M2.91667 2.33366H11.0833C11.7277 2.33366 12.25 2.85599 12.25 3.50033V11.667C12.25 12.3113 11.7277 12.8337 11.0833 12.8337H2.91667C2.27233 12.8337 1.75 12.3113 1.75 11.667V3.50033C1.75 2.85599 2.27233 2.33366 2.91667 2.33366Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            <defs>
+                <linearGradient id="paint0_linear_149_1772" x1="7" y1="1.16699" x2="7" y2="12.8337" gradientUnits="userSpaceOnUse">
+                    <stop offset="1" />
+                </linearGradient>
+            </defs>
 
         </svg>
         <div className="flex text-gray-500 text-xs min-w-20 py-0.5 rounded-full text-center">
@@ -77,17 +77,17 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
         </svg>
     });
 
-    useEffect(() =>{
-        if(!isTask && !isEditing){
+    useEffect(() => {
+        if (!isTask && !isEditing) {
             setSelectedTask(task)
         }
-    },[])
+    }, [])
 
     const statusList = ["TODO", "INPROGRESS", "DONE", "REJECTED", "UNCERTAIN"];
 
-    useEffect(()=>{
-        if(isEditing){
-            if(isTask) {
+    useEffect(() => {
+        if (isEditing) {
+            if (isTask) {
 
                 const name = task?.drive_folder_path?.split("სამუშაო გარემო/")[1];
                 setSummary(task?.title)
@@ -96,15 +96,16 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                 setSelectedStatu(task?.status)
                 setSelectedDataFrom(task?.deadline_from)
                 setSelectedDataTo(task?.deadline_to)
-                setSelectedFolder({Name: name,
-                                    Patch: task?.drive_folder_path
+                setSelectedFolder({
+                    Name: name,
+                    Patch: task?.drive_folder_path
                 })
-                setSelectedOption( {
+                setSelectedOption({
                     value: "Task", label: "Task", icon: <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4.66667 3.95654H12.25M4.66667 7.91306H12.25M4.66667 11.8696H12.25M1.75 3.95654H1.75583M1.75 7.91306H1.75583M1.75 11.8696H1.75583" stroke="#009951" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 })
-            }else{
+            } else {
                 setSummary(subTask?.title)
                 setComment(subTask?.comment)
                 setSelectedUser(subTask?.assign_to)
@@ -112,14 +113,14 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                 setSelectedDataFrom(subTask?.deadline_from)
                 setSelectedDataTo(subTask?.deadline_to)
                 setSelectedTask(subTask?.task)
-                setSelectedOption( {
+                setSelectedOption({
                     value: "Sub Task", label: "Sub Task", icon: <svg width="14" height="16" viewBox="0 0 14 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4.66667 3.95654H12.25M4.66667 7.91306H12.25M4.66667 11.8696H12.25M1.75 3.95654H1.75583M1.75 7.91306H1.75583M1.75 11.8696H1.75583" stroke="#009951" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+                        <path d="M4.66667 3.95654H12.25M4.66667 7.91306H12.25M4.66667 11.8696H12.25M1.75 3.95654H1.75583M1.75 7.91306H1.75583M1.75 11.8696H1.75583" stroke="#009951" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                 })
             }
         }
-    },[task, subTask])
+    }, [task, subTask])
 
 
     const getStatusStyles = (status) => {
@@ -193,12 +194,12 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
     const fetchFolderList = async () => {
         const defaultSettings = {
             "fs": "GoogleDrive:",
-            "remote":  "სამუშაო გარემო",
+            "remote": "სამუშაო გარემო",
         }
-        try{
+        try {
             const response = await FileService.getSincFolderList(defaultSettings);
             setFolderList(response.data.list)
-        }catch (e) {
+        } catch (e) {
             console.error(e)
         }
     };
@@ -206,7 +207,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
 
     const fetchTaskList = async () => {
         try {
-            const response = await TaskService.getTaskList();
+            const response = await TaskService.getTaskList("?ordering=-created_at&&status=TODO,INPROGRESS");
             setTaskList(response.data);
         } catch (error) {
             console.error(error);
@@ -250,14 +251,14 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
         const isSummaryValid = summary.trim() !== '';
         const isStatusValid = Boolean(selectedStatus);
         const isUserValid = Boolean(selectedUser);
-        
+
         const isDatesValid = formatDDate(selectedDataFrom) && formatDDate(selectedDataTo);
-        
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const selectedDataToDate = new Date(selectedDataTo);
         selectedDataToDate.setHours(0, 0, 0, 0);
-        
+
         let isDateNowValid = true;
         if (selectedOption.label === "Task") {
             if (selectedDataTo !== task?.deadline_to) {
@@ -268,22 +269,22 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                 isDateNowValid = selectedDataToDate >= today;
             }
         }
-    
+
         if (!isDateNowValid) {
             toast.warning("The deadline cannot be in the past", {
                 containerId: "error",
             });
         }
-    
+
         const isOptionValid = (selectedOption.label === "Task" && Boolean(selectedFolder)) ||
-                              (selectedOption.label === "Sub Task" && Boolean(selectedTask));
-        
+            (selectedOption.label === "Sub Task" && Boolean(selectedTask));
+
         return isSummaryValid && isStatusValid && isDatesValid && isUserValid && isOptionValid && isDateNowValid;
     };
-    
+
     const fetchData = () => {
         if (isFormValid()) {
-            if(isEditing){
+            if (isEditing) {
                 if (selectedOption.label === "Task") {
                     const formData = {
                         title: summary,
@@ -298,11 +299,11 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                         assign_to: selectedUser.pk,
                         drive_folder_path: selectedFolder.Path
                     };
-                    
+
                     dispatch(editTaskThunk({ uuid: task.uuid, formData: formData }));
                     closeWindow();
                 }
-                 else if (selectedOption.label === "Sub Task") {
+                else if (selectedOption.label === "Sub Task") {
                     const formData = {
                         assign_to: selectedUser.pk,
                         title: summary,
@@ -319,33 +320,33 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                     dispatch(editSubTaskThunk({ uuid: subTask.uuid, formData: formData }));
                     closeWindow();
                 }
-            }else {
-            if (selectedOption.label === "Task") {
-                const formData = {
-                    title: summary,
-                    status: selectedStatus,
-                    comment: Comment?.comment,
-                    deadline_from: formatDDate(selectedDataFrom),
-                    deadline_to: formatDDate(selectedDataTo),
-                    assign_to: selectedUser.pk,
-                    drive_folder_path: selectedFolder.Path
-                };
-                dispatch(addTaskThunk(formData));
-                closeWindow();
-            } else if (selectedOption.label === "Sub Task") {
-                const formData = {
-                    assign_to: selectedUser.pk,
-                    title: summary,
-                    comment: Comment?.comment,
-                    status: selectedStatus,
-                    deadline_from: formatDDate(selectedDataFrom),
-                    deadline_to: formatDDate(selectedDataTo),
-                    task: selectedTask.uuid
-                };
-                dispatch(addSubTAsk(formData));
-                closeWindow();
+            } else {
+                if (selectedOption.label === "Task") {
+                    const formData = {
+                        title: summary,
+                        status: selectedStatus,
+                        comment: Comment?.comment,
+                        deadline_from: formatDDate(selectedDataFrom),
+                        deadline_to: formatDDate(selectedDataTo),
+                        assign_to: selectedUser.pk,
+                        drive_folder_path: selectedFolder.Path
+                    };
+                    dispatch(addTaskThunk(formData));
+                    closeWindow();
+                } else if (selectedOption.label === "Sub Task") {
+                    const formData = {
+                        assign_to: selectedUser.pk,
+                        title: summary,
+                        comment: Comment?.comment,
+                        status: selectedStatus,
+                        deadline_from: formatDDate(selectedDataFrom),
+                        deadline_to: formatDDate(selectedDataTo),
+                        task: selectedTask.uuid
+                    };
+                    dispatch(addSubTAsk(formData));
+                    closeWindow();
+                }
             }
-        }
         } else {
         }
     };
@@ -382,7 +383,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
 
     const createFolder = async (folderName) => {
         FileService.rcMkdir("GoogleDrive:", folderName);
-      };
+    };
 
 
     const handleSubmitFolder = (event) => {
@@ -428,7 +429,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-[#F7F5F5] rounded-lg shadow-lg p-6 mx-4 md:mx-auto max-w-6xl w-full max-h-[80%] overflow-y-auto custom-scrollbar">
                 <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-roboto font-semibold">{isEditing ? "შეცვლა" : "შექმნა" }</h2>
+                    <h2 className="text-lg font-roboto font-semibold">{isEditing ? "შეცვლა" : "შექმნა"}</h2>
                     <button
                         className="text-gray-600 hover:text-gray-800 focus:outline-none"
                         onClick={closeWindow}
@@ -445,53 +446,53 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                         <div className="">
                             <div className="space-y-3">
                                 {/* Type */}
-                                {!isEditing && 
-                                <>
-                                <div className="relative inline-block text-left ml-32 mb-8">
-                                    <div className='flex items-center text-sm '>
-                                        <p>Type: </p>
-                                        <button
-                                            type='button'
-                                            onClick={() => setIsOpenValueType(!isOpenValueType)}
-                                            className="inline-flex ml-8 w-80 p-1 border border-gray-300 rounded-xl bg-white"
-                                        >
-                                            <div className='flex items-center space-x-2'>
-                                                <span>{selectedOption.icon}</span>
-                                                <span>{selectedOption.label}</span>
-                                            </div>
-                                            <svg
-                                                className={`w-5 h-5 ml-auto mr-3 transform transition-transform duration-200 ${isOpenValueType ? "rotate-180" : "rotate-0"
-                                                    }`}
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                            >
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    {isOpenValueType && (
-                                        <div ref={valueOpenRef} className='ml-[4.2rem] text-sm '>
-                                            <ul className="absolute z-10 mt-1 w-80 bg-white border border-gray-300 rounded-xl shadow-lg">
-                                                {options.map((option) => (
-                                                    <li
-                                                        key={option.value}
-                                                        onClick={() => handleOptionClick(option)}
-                                                        className="flex items-center p-2 cursor-pointer hover:bg-gray-100"
+                                {!isEditing &&
+                                    <>
+                                        <div className="relative inline-block text-left ml-32 mb-8">
+                                            <div className='flex items-center text-sm '>
+                                                <p>Type: </p>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => setIsOpenValueType(!isOpenValueType)}
+                                                    className="inline-flex ml-8 w-80 p-1 border border-gray-300 rounded-xl bg-white"
+                                                >
+                                                    <div className='flex items-center space-x-2'>
+                                                        <span>{selectedOption.icon}</span>
+                                                        <span>{selectedOption.label}</span>
+                                                    </div>
+                                                    <svg
+                                                        className={`w-5 h-5 ml-auto mr-3 transform transition-transform duration-200 ${isOpenValueType ? "rotate-180" : "rotate-0"
+                                                            }`}
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
                                                     >
-                                                        <span className="mr-2">{option.icon}</span>
-                                                        {option.label}
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            {isOpenValueType && (
+                                                <div ref={valueOpenRef} className='ml-[4.2rem] text-sm '>
+                                                    <ul className="absolute z-10 mt-1 w-80 bg-white border border-gray-300 rounded-xl shadow-lg">
+                                                        {options.map((option) => (
+                                                            <li
+                                                                key={option.value}
+                                                                onClick={() => handleOptionClick(option)}
+                                                                className="flex items-center p-2 cursor-pointer hover:bg-gray-100"
+                                                            >
+                                                                <span className="mr-2">{option.icon}</span>
+                                                                {option.label}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
-                                </div>
-                               
-                                <div className='w-full h-px bg-gray-200' />
-                                </>
-                            } 
+
+                                        <div className='w-full h-px bg-gray-200' />
+                                    </>
+                                }
                                 <div className='ml-20 pt-4'>
                                     <table className="w-full">
                                         <tbody>
@@ -681,16 +682,16 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                                                                 {selectedOption.label === "Task" ? (
                                                                     folderList?.map((obj) => (
                                                                         obj.IsDir && (
-                                                                        <li
-                                                                            key={obj.ID}
-                                                                            onClick={() => handleFolderToClick(obj)}
-                                                                            className="flex items-center p-2 cursor-pointer hover:bg-gray-100"
-                                                                        >
-                                                                            <span className="text-gray-400">{obj.Name}</span>
-                                                                        </li>
-                                                                    )
+                                                                            <li
+                                                                                key={obj.ID}
+                                                                                onClick={() => handleFolderToClick(obj)}
+                                                                                className="flex items-center p-2 cursor-pointer hover:bg-gray-100"
+                                                                            >
+                                                                                <span className="text-gray-400">{obj.Name}</span>
+                                                                            </li>
+                                                                        )
                                                                     ))
-                                                                    
+
                                                                 ) : (
                                                                     taskList?.map((obj) => (
                                                                         <li
@@ -738,7 +739,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                             type="text"
                             name="title"
                             value={patchName}
-                            onChange={(e)=>setPatchName(e.target.value)}
+                            onChange={(e) => setPatchName(e.target.value)}
                             required
                             id="floating_title"
                             className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-blue-600 peer"
