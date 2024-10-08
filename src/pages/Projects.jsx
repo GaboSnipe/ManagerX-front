@@ -248,7 +248,7 @@ const Projects = () => {
 
   useEffect(() => {
     getData();
-  }, [])
+  }, [paginationParams])
 
   const openActionMenu = () => {
     setIsOpenActionMunu(prevState => !prevState);
