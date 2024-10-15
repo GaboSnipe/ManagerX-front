@@ -1,6 +1,7 @@
 import axios from "axios";
 
-export const API_URL = 'http://localhost:8000';//http://192.168.100.22:8000
+export const API_URL = import.meta.env.VITE_BACKEND_API_URL;
+
 
 const excludedUrls = ['/api/accounts/auth/login/', '/api/accounts/auth/google/', '/api/accounts/auth/token/verify/'];
 

@@ -24,7 +24,7 @@ const SubTaskDetails = ({ setIsOpen , resizableDivWidth }) => {
 
     const [comments, setComments] = useState([]);
 
-    const baseAvatarUrl = `${import.meta.env.BASE_URL}images/defUserImg.jpg`;
+    const baseAvatarUrl = `${import.meta.env.VITE_BASE_URL}images/defUserImg.jpg`;
 
 
 

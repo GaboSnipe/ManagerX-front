@@ -160,7 +160,7 @@ const SingleSubTask = () => {
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-  const baseAvatarUrl = `${import.meta.env.BASE_URL}images/defUserImg.jpg`;
+  const baseAvatarUrl = `${import.meta.env.VITE_BASE_URL}images/defUserImg.jpg`;
 
 
 
