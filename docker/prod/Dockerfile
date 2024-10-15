@@ -12,6 +12,10 @@ RUN npm run build
 
 FROM nginx:latest
 
+RUN rm /etc/nginx/conf.d/*
+
+COPY ./docker/prod/nginx.conf /etc/nginx/conf.d/
+
 #COPY ./docker/prod/nginx.conf /etc/nginx/nginx.conf
 
 ## Remove default nginx index page

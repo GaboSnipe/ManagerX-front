@@ -26,7 +26,7 @@ const Main = () => {
     }
 
     useEffect(() => {
-        const url = `ws://127.0.0.1:8000/ws/notify/?token=${localStorage.getItem("token")}`;
+        const url = `ws://${import.meta.env.VITE_BACKEND_API_URL}ws/notify/?token=${localStorage.getItem("token")}`;
         const socket = new WebSocket(url);
 
         socket.onmessage = (e) => {
