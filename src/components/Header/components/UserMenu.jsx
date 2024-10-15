@@ -69,7 +69,7 @@ const UserMenu = ({ user, userNavigation }) => {
       return `${seconds} წამის წინ`;
     }
   }
-  const baseAvatarUrl = `${import.meta.env.BASE_URL}images/defUserImg.jpg`;
+  const baseAvatarUrl = `${import.meta.env.VITE_BASE_URL}images/defUserImg.jpg`;
 
   const deleteNotification = (uuid) => {
     dispatch(deleteCurrentNotificationThunk(uuid))

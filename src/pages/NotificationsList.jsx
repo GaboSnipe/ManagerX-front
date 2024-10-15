@@ -40,7 +40,7 @@ const NotificationsList = () => {
     setIsOpen(!isOpen);
   };
 
-  const baseAvatarUrl = `${import.meta.env.BASE_URL}images/defUserImg.jpg`;
+  const baseAvatarUrl = `${import.meta.env.VITE_BASE_URL}images/defUserImg.jpg`;
 
 
 
