@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Paginations, SubTaskDetails, Task } from '../components';
+import { ModalWindow, Paginations, SubTaskDetails, Task } from '../components';
 import { useDispatch, useSelector } from 'react-redux';
 import "../styles/scrollBar.css"
 import { getTaskListThunk } from '../features/task/taskThunk';
-import { setSeeResizebleDiv } from '../features/task/taskSlice';
+import { setFolderSharePersonUuid, setSharedFolderPath, setIsOpenFolderShareQuestion, setSeeResizebleDiv } from '../features/task/taskSlice';
 import useAuthCheck from '../utils/hooks/useAuthCheck';
+import FileService from '../services/FileService';
 
 
 const Tasks = () => {
@@ -16,6 +17,9 @@ const Tasks = () => {
   const seeResizebleDiv = useSelector((state) => state.task.seeResizebleDiv)
   const selectedSubTask = useSelector((state) => state.task.selectedSubtask);
   const headerHeight = useSelector((state) => state.workplace.headerHeight);
+  const isOpenFolderShareQuestion = useSelector((state) => state.task.isOpenFolderShareQuestion);
+  const folderSharePersonUuid = useSelector((state) => state.task.folderSharePersonUuid);
+  const sharedFolderPath = useSelector((state) => state.task.sharedFolderPath);
   const divRef = useRef();
   const [widthRem, setWidthRem] = useState(0);
   const resizableRef = useRef(null);
@@ -25,6 +29,16 @@ const Tasks = () => {
   const baseFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
   const [paginationsParams, setPaginationsParams] = useState("limit=5&offset=0");
 
+
+  const handleOpenModal = () => {
+    dispatch(setIsOpenFolderShareQuestion(true));
+  };
+
+  const handleCloseQuestionModal = () => {
+    dispatch(setIsOpenFolderShareQuestion(false));
+    dispatch(setFolderSharePersonUuid(null));
+    dispatch(setSharedFolderPath(null));
+  };
 
 
 
@@ -49,6 +63,18 @@ const Tasks = () => {
       )
     );
   };
+
+  const shareFolder  = () => {
+    const settings = {
+      folder_path: sharedFolderPath,
+      user_id: folderSharePersonUuid
+    }
+    FileService.shareFolder(settings)
+    handleCloseQuestionModal();
+  }  
+  const notShareFolder  = () => {
+    handleCloseQuestionModal();
+  }
 
 
   useEffect(() => {
@@ -183,34 +209,68 @@ const Tasks = () => {
   }, []);
 
   return (
-    <div className="flex">
-      <div className="flex-1 overflow-y-auto mt-8 custom-scrollbar px-2" ref={divRef} style={{ height: `${dynamicHeight}px` }}>
-        <div className="flex flex-wrap gap-2 p-4">
-          {params.map((status) => (
-            <button
-              key={status.key}
-              onClick={() => handleStatusClick(status.key)}
-              className={`px-4 py-2 rounded-md border ${status.isEnabled ? 'bg-black text-white' : 'bg-gray-200 text-black'}`}
-            >
-              {status.access}
-            </button>
+    <>
+      <div className="flex">
+        <div className="flex-1 overflow-y-auto mt-8 custom-scrollbar px-2" ref={divRef} style={{ height: `${dynamicHeight}px` }}>
+          <div className="flex flex-wrap gap-2 p-4">
+            {params.map((status) => (
+              <button
+                key={status.key}
+                onClick={() => handleStatusClick(status.key)}
+                className={`px-4 py-2 rounded-md border ${status.isEnabled ? 'bg-black text-white' : 'bg-gray-200 text-black'}`}
+              >
+                {status.access}
+              </button>
+            ))}
+          </div>
+          {tasks?.map((task) => (
+            <Task key={task.uuid} task={task} setSeeResizebleDiv={closeResizableDiv} />
           ))}
-        </div>
-        {tasks?.map((task) => (
-          <Task key={task.uuid} task={task} setSeeResizebleDiv={closeResizableDiv} />
-        ))}
-        <div className="flex justify-center h-24">
-          <Paginations refreshData={setPaginationsParams} itemsCount={itemsCount} limit={5} />
-        </div>
-      </div>
-      {seeResizebleDiv && (
-        <div ref={resizableRef} className="relative rounded-l-md shadow-lg overflow-y-auto mt-8 custom-scrollbar h-full" style={{ height: `${dynamicHeight}px`, width: `${size.width}px`, minWidth: '400px', maxWidth: `${widthRem}rem` }}>
-          <div className="bg-[#F7F5F5] w-full rounded-l-lg shadow-lg" style={{ boxShadow: '0 8px 15px -3px rgba(0, 0, 0, 0.4), 0 0px 4px -2px rgba(0, 0, 0, 0.4)' }}>
-            <SubTaskDetails resizableDivWidth={size.width} setIsOpen={closeResizableDiv} />
+          <div className="flex justify-center h-24">
+            <Paginations refreshData={setPaginationsParams} itemsCount={itemsCount} limit={5} />
           </div>
         </div>
-      )}
-    </div>
+        {seeResizebleDiv && (
+          <div ref={resizableRef} className="relative rounded-l-md shadow-lg overflow-y-auto mt-8 custom-scrollbar h-full" style={{ height: `${dynamicHeight}px`, width: `${size.width}px`, minWidth: '400px', maxWidth: `${widthRem}rem` }}>
+            <div className="bg-[#F7F5F5] w-full rounded-l-lg shadow-lg" style={{ boxShadow: '0 8px 15px -3px rgba(0, 0, 0, 0.4), 0 0px 4px -2px rgba(0, 0, 0, 0.4)' }}>
+              <SubTaskDetails resizableDivWidth={size.width} setIsOpen={closeResizableDiv} />
+            </div>
+          </div>
+        )}
+      </div>
+      <>
+        <button onClick={handleOpenModal}>Open Modal</button>
+        {isOpenFolderShareQuestion && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-[#F7F5F5] rounded-lg shadow-lg p-6 mx-4 overflow-y-auto max-w-md w-full">
+              <div className="flex justify-between items-center">
+                <button
+                  className="text-gray-600 ml-auto hover:text-gray-800 focus:outline-none"
+                  onClick={handleCloseQuestionModal}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="mt-4">
+                <span className="block text-gray-700 text-base mb-4">
+                  გსურთ გაუზიაროთ ფოლდერი?
+                </span>
+                <div className='flex justify-center space-x-4'>
+                  <button onClick={shareFolder} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200">
+                    კი
+                  </button>
+                  <button onClick={notShareFolder} className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition duration-200">
+                    არა
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        )}
+      </>
+    </>
   );
 };
 

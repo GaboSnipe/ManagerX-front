@@ -20,6 +20,10 @@ export default class FileService {
   static async addFolder(formData) {
     return $api.post('/api/expertise/folder/create/', formData);
   }
+
+  static async shareFolder(formData) {
+    return $api.post('/api/expertise/rclone/share-folder/', formData);
+  }
   static async deleteFolder(folderUuid) {
     return $api.delete(`/api/expertise/folder/${folderUuid}/delete/`);
   }

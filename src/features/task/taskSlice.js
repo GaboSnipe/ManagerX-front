@@ -8,6 +8,9 @@ const initialState = {
   seeResizebleDiv: false,
   isAddEnable: false,
   isEditingSubTask: false,
+  isOpenFolderShareQuestion: false,
+  folderSharePersonUuid: null,
+  sharedFolderPath: null,
 };
 
 const taskSlice = createSlice({
@@ -32,6 +35,15 @@ const taskSlice = createSlice({
     setSeeResizebleDiv(state, action) {
       state.seeResizebleDiv = action.payload;
     },
+    setIsOpenFolderShareQuestion(state, action) {
+      state.isOpenFolderShareQuestion = action.payload;
+    },
+    setFolderSharePersonUuid(state, action) {
+      state.folderSharePersonUuid = action.payload;
+    },
+    setSharedFolderPath(state, action) {
+      state.sharedFolderPath = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -45,6 +57,12 @@ const taskSlice = createSlice({
       })
       .addCase(addTaskThunk.fulfilled, (state, action) => {
         state.taskList = [...state.taskList, action.payload];
+        if(action.payload.drive_folder_path){
+          state.folderSharePersonUuid = action.payload.assign_to;
+          state.sharedFolderPath = action.payload.drive_folder_path;
+          state.isOpenFolderShareQuestion = true;
+        }
+        console.log(action.payload);
       })
       .addCase(addTaskThunk.rejected, (state, action) => {
         console.error('Error adding task:', action.payload);
@@ -96,5 +114,5 @@ const taskSlice = createSlice({
   },
 });
 
-export const { setTaskList, setIsAddEnable, setSelectedSubtask, setSeeResizebleDiv, setIsEditingSubTask, setSelectedSubTaskEdit } = taskSlice.actions;
+export const { setTaskList, setIsAddEnable, setSelectedSubtask, setSeeResizebleDiv, setIsEditingSubTask, setSelectedSubTaskEdit, setIsOpenFolderShareQuestion, setFolderSharePersonUuid, setSharedFolderPath } = taskSlice.actions;
 export default taskSlice.reducer;

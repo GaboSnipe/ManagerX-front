@@ -331,7 +331,7 @@ const TaskEdit = ({ isEditing, closeWindow, isTask, task, subTask }) => {
                         assign_to: selectedUser.pk,
                         drive_folder_path: selectedFolder.Path
                     };
-                    dispatch(addTaskThunk(formData));
+                    const response  = dispatch(addTaskThunk(formData));
                     closeWindow();
                 } else if (selectedOption.label === "Sub Task") {
                     const formData = {
