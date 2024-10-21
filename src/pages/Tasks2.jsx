@@ -239,7 +239,6 @@ const Tasks = () => {
         )}
       </div>
       <>
-        <button onClick={handleOpenModal}>Open Modal</button>
         {isOpenFolderShareQuestion && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-[#F7F5F5] rounded-lg shadow-lg p-6 mx-4 overflow-y-auto max-w-md w-full">
