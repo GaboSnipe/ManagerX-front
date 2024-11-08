@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Header } from './components';
 import { navigation } from './globalEnv';
-import { LoginPage, NotFound, SingleTask, SettingsPage, NotificationsList, SingleSubTask } from './pages';
+import { LoginPage, NotFound, SingleTask, SettingsPage, NotificationsList, SingleSubTask, NotesPage } from './pages';
 import { ToastContainer } from 'react-toastify';
 import { Blocks } from 'react-loader-spinner';
 import 'react-toastify/dist/ReactToastify.css';
@@ -27,29 +27,29 @@ function PrivateRoute({ children, withLoader = true }) {
   if (!loading) {
     if (!isAuthorized) {
       return <Navigate to="/" state={{ from: location }} replace />;
-    }else {
+    } else {
       return children;
     }
   } else {
-      return (
-        <div className="flex justify-center items-center w-full h-96">
-          <Blocks
-            height="40"
-            width="40"
-            color="#630044"
-            ariaLabel="blocks-loading"
-            wrapperStyle={{}}
-            wrapperClass="blocks-wrapper"
-            visible={withLoader}
-          />
-        </div>
-      );
-    }
+    return (
+      <div className="flex justify-center items-center w-full h-96">
+        <Blocks
+          height="40"
+          width="40"
+          color="#630044"
+          ariaLabel="blocks-loading"
+          wrapperStyle={{}}
+          wrapperClass="blocks-wrapper"
+          visible={withLoader}
+        />
+      </div>
+    );
+  }
 }
 
 function App() {
   const location = useLocation();
-  const hideHeaderRoutes = ['/', '/404']; 
+  const hideHeaderRoutes = ['/', '/404'];
 
   return (
     <>
@@ -85,6 +85,12 @@ function App() {
         <Route path="/subtask/:uuid" element={
           <PrivateRoute>
             <SingleSubTask />
+          </PrivateRoute>
+        } />
+
+        <Route path="/notes" element={
+          <PrivateRoute>
+            <NotesPage />
           </PrivateRoute>
         } />
 

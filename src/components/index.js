@@ -17,4 +17,5 @@ export { default as SubTaskDetails } from "./SubTaskDetails.jsx";
 export { default as TaskEdit } from "./TaskEdit.jsx";
 export { default as CustomFileBrowser } from "./CustomFileBrowser/index.jsx";
 export { default as ProjectEdit } from "./ProjectEdit.jsx";
+export { default as NotesListComponent } from "./Notes/NotesListComponent.jsx";
 
