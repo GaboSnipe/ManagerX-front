@@ -11,6 +11,7 @@ import Editorcopy from "../components/Editorcopy"
 import ProjectEditing from '../components/ProjectEditing';
 import ProjectsService from '../services/ProjectsService';
 import TaskService from '../services/TaskService';
+import { editTaskThunk } from '../features/task/taskThunk';
 
 const mandatoryHeaders = [
   { accessor: 'id', type: "integer", label: '', sortable: false, sortbyOrder: "desc", order: -1, visible: true },
@@ -133,7 +134,7 @@ const Projects = () => {
   const [summary, setSummary] = useState("");
   const [selectedTask, setSelectedTask] = useState(selectedProject);
   const [paginationParams, setPaginationsParams] = useState("limit=15&offset=0");
-
+  const [checked, setChecked] = useState(false);
 
 
 
@@ -183,7 +184,7 @@ const Projects = () => {
   const getData = async (settings) => {
     try {
       await dispatch(getProjectHeadersThunk()).unwrap();
-      await dispatch(getProjectListThunk({settings:`${settings ? settings : ""}${paginationParams}`})).unwrap();
+      await dispatch(getProjectListThunk({ settings: `${settings ? settings : ""}${paginationParams}` })).unwrap();
 
     } catch (err) {
       console.error('Failed to get project list:', err);
@@ -201,16 +202,21 @@ const Projects = () => {
     setIsEditingProject(false)
     setSummary("");
     setSelectedTask({});
+    setChecked(false);
     getData();
   }
 
   const fetchData = () => {
     if (isFormValid()) {
+      if(checked){
+        dispatch(editTaskThunk({ uuid: selectedTask.uuid, formData: {status: "DONE"}}))
+      }
       const reqBody = { conclusionNumber: summary ? summary : "", task: selectedTask.uuid };
       fetchGenerateCOnclusion(reqBody);
       closeGenerateTable();
     }
   }
+  console.log(selectedTask)
 
   const onCloseProjectAdd = (reqBody) => {
     dispatch(createNewProjectThunk(reqBody))
@@ -646,6 +652,48 @@ const Projects = () => {
                             )}
                           </td>
                         </tr>
+
+                        {/*lalala*/}
+                        {selectedTask && selectedTask != {} && selectedTask.uuid &&
+                          <tr>
+                            <td className="text-right text-base p-2 pt-3 align-text-top w-60">
+                              <p>დავალება:</p>
+                            </td>
+                            <td className="p-2 relative">
+                              <div className="flex items-center text-sm w-full">
+                                <label className="relative flex items-center cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={checked}
+                                    onChange={() => setChecked(!checked)}
+                                    className="hidden"
+                                  />
+                                  <div
+                                    className={`w-6 h-6 border-2 rounded-md transition-all duration-300 ${checked ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'
+                                      }`}
+                                  >
+                                    {checked && (
+                                      <svg
+                                        className="w-4 h-4 text-white mx-auto"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth="2"
+                                          d="M5 13l4 4L19 7"
+                                        />
+                                      </svg>
+                                    )}
+                                  </div>
+                                </label>
+                              </div>
+                            </td>
+                          </tr>
+                        }
                       </tbody>
                     </table>
 

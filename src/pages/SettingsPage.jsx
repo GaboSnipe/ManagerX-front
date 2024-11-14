@@ -12,7 +12,11 @@ const SettingsPage = () => {
   const [customfieldName, setCustomFieldName] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const response_headers = useSelector((state) => state.project.projectHeaders);
-  const typeList = ["string", "url", "date", "boolean", "integer", "float"];
+  const typeList = [
+    { key: "string", value: "text" },
+    { key: "date", value: "iis" },
+    { key: "boolean", value: "aae" },
+  ];
   const [isEditing, setIsEditing] = useState(false);
   const [changedNames, setChangedNames] = useState({});
 
@@ -38,7 +42,7 @@ const SettingsPage = () => {
   const changeItemName = (id, newName) => {
     setChangedNames((prev) => ({
       ...prev,
-      [id]: newName, 
+      [id]: newName,
     }));
   };
 
@@ -68,18 +72,21 @@ const SettingsPage = () => {
           >
             <option value=""></option>
             {typeList.map((type) => (
-              <option key={type} value={type}>
-                {type}
+              <option key={type.key} value={type.key}>
+                {type.value}
               </option>
             ))}
+
           </select>
 
           <button
             onClick={createCustomFields}
-            className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+            disabled={!customfieldName || !selectedType}
+            className={`p-2 rounded-md ${customfieldName && selectedType ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'}`}
           >
             Create Custom Field
           </button>
+
         </div>
       </div>
       <div className='space-y-1 max-w-screen-2xl px-8 min-w-96 mx-auto mt-8'>
