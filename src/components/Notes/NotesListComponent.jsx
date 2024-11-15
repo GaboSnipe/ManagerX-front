@@ -12,7 +12,7 @@ const NotesListComponent = ({ notesList }) => {
           <NoteNode key={note.id} note={note} setSelectedNote={setSelectedNote} isSelected={selectedNote?.id === note?.id} />
         ))}
       </div>
-      <div className="w-full h-full p-4 rounded-lg ">
+      <div className="w-full p-4 rounded-lg ">
         <NoteEditor selectedNote={selectedNote} />
         <div className="flex justify-center">
           {selectedNote &&
