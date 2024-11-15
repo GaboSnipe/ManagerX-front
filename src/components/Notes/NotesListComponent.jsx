@@ -12,13 +12,9 @@ const NotesListComponent = ({ notesList }) => {
           <NoteNode key={note.id} note={note} setSelectedNote={setSelectedNote} isSelected={selectedNote?.id === note?.id} />
         ))}
       </div>
-      <div className="w-full h-full p-4 rounded-lg ">
+      <div className="w-full p-4 rounded-lg ">
         <NoteEditor selectedNote={selectedNote} />
-        <div className="flex justify-center">
-          <button className='bg-gray-200 m-2 w-24 rounded-sm text-gray-500 hover:bg-gray-300 hover:text-gray-600 transition duration-300'>
-            save
-          </button>
-        </div>
+        
       </div>
     </div>
   );
