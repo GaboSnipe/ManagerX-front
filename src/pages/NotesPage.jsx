@@ -1,14 +1,42 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { NotesListComponent } from '../components';
+import TaskService from '../services/TaskService';
 
 const NotesPage = () => {
-const [notesList, setNotesList] = useState([{id: 1, title: "title#1", content: "quilleditortext"},{id: 2, title: "title#2", content: "quilleditortext"},{id: 3, title: "title#3", content: "quilleditortext"}]);
+  const [isAddingNewNote, setIsAddingNewNote] = useState(false);
+  const [notesList, setNotesList] = useState([]);
 
-    return (
-    <div className=''>
-        <NotesListComponent notesList={notesList}/>
+  const fetchNotes = async () => {
+    try {
+      const result = await TaskService.getNotesList();
+      setNotesList(result.data);
+    } catch (error) {
+      console.error('err:', error);
+    }
+  };
+
+
+  useEffect(() => {
+    
+    fetchNotes();
+  }, []);
+
+  const addNewNote = async (newNote) => {
+    try {
+      await TaskService.createNewNote(newNote);
+      setIsAddingNewNote(false);
+      fetchNotes();
+    } catch (error) {
+      setError('err.');
+      console.error('err:', error);
+    } 
+  }
+
+  return (
+    <div className="">
+      <NotesListComponent notesList={notesList} addNewNote={addNewNote} isAddingNewNote={isAddingNewNote} setIsAddingNewNote={setIsAddingNewNote} />
     </div>
-  )
-}
+  );
+};
 
 export default NotesPage;
