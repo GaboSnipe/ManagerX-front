@@ -22,5 +22,8 @@ export default class ProjectsService {
     static async generateConclusion(formData) {
         return $api.post(`/api/expertise/rclone/generate-conclusion/`, formData);
     }
+    static async editCustomFields({id, newDate}) {
+        return $api.patch(`/api/expertise/data/custom-fields/${id}/edit/`, {name: newDate});
+    }
 }
 
