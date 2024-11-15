@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import useAuthCheck from '../utils/hooks/useAuthCheck';
 import ProjectsService from '../services/ProjectsService';
 import { getProjectHeadersThunk } from '../features/project/projectThunk';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { CiEdit } from "react-icons/ci";
-import { useSelector } from 'react-redux';
 import { IoCheckmarkDoneCircle } from "react-icons/io5";
 
 const SettingsPage = () => {
@@ -17,7 +16,7 @@ const SettingsPage = () => {
     { key: "date", value: "iis" },
     { key: "boolean", value: "aae" },
   ];
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState({});
   const [changedNames, setChangedNames] = useState({});
 
   useEffect(() => {
@@ -46,16 +45,25 @@ const SettingsPage = () => {
     }));
   };
 
-  const applyChanges = () => {
-    setIsEditing(false);
-    setChangedNames({});
+  const toggleEditing = (id) => {
+    setIsEditing((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const applyChanges = async (item) => {
+    console.log(changedNames[item.id]);
+    await ProjectsService.editCustomFields({id: item.id, newDate: changedNames[item.id]})
+    toggleEditing(item.id);
+    dispatch(getProjectHeadersThunk()).unwrap();
+
   };
 
   return (
     <>
       <div className="h-full w-full flex items-center justify-center bg-[#fcfcfc] relative">
         <div className="content flex gap-5 p-4 bg-white shadow-lg rounded-md">
-          {/* Input field for custom field name */}
           <input
             type="text"
             value={customfieldName}
@@ -63,8 +71,6 @@ const SettingsPage = () => {
             placeholder="Enter custom field name"
             className="border border-gray-300 rounded-md p-2"
           />
-
-          {/* Dropdown for selecting data type */}
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
@@ -76,9 +82,7 @@ const SettingsPage = () => {
                 {type.value}
               </option>
             ))}
-
           </select>
-
           <button
             onClick={createCustomFields}
             disabled={!customfieldName || !selectedType}
@@ -86,7 +90,6 @@ const SettingsPage = () => {
           >
             Create Custom Field
           </button>
-
         </div>
       </div>
       <div className='space-y-1 max-w-screen-2xl px-8 min-w-96 mx-auto mt-8'>
@@ -97,28 +100,22 @@ const SettingsPage = () => {
             role="article"
             aria-label={item.name}
           >
-
             <input
               className='text-gray-500 ml-4 bg-transparent border-none cursor-default mr-2'
               value={changedNames[item.id] || item.name}
               onChange={(e) => changeItemName(item.id, e.target.value)}
-              disabled={!isEditing}
+              disabled={!isEditing[item.id]}
             />
-            {isEditing ?
+            {isEditing[item.id] ?
               (
-                <>
-
-                  <button onClick={applyChanges}>
-                    <IoCheckmarkDoneCircle className='text-green-400 text-xl font-extrabold ml-8' />
-                  </button>
-                </>
+                <button onClick={() => applyChanges(item)}>
+                  <IoCheckmarkDoneCircle className='text-green-400 text-xl font-extrabold ml-8' />
+                </button>
               ) :
               (
-                <>
-                  <button onClick={() => setIsEditing(true)}>
-                    <CiEdit className='text-orange-400 text-xl font-extrabold ml-8' />
-                  </button>
-                </>
+                <button onClick={() => toggleEditing(item.id)}>
+                  <CiEdit className='text-orange-400 text-xl font-extrabold ml-8' />
+                </button>
               )
             }
             <p className='text-gray-500 ml-auto mr-8'>{` type : ${item.data_type}`}</p>
