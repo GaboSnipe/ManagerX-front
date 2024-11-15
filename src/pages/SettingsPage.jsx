@@ -53,7 +53,6 @@ const SettingsPage = () => {
   };
 
   const applyChanges = async (item) => {
-    console.log(changedNames[item.id]);
     await ProjectsService.editCustomFields({id: item.id, newDate: changedNames[item.id]})
     toggleEditing(item.id);
     dispatch(getProjectHeadersThunk()).unwrap();

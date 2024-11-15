@@ -18,6 +18,7 @@ const Main = () => {
 
     const userNavigation = [
         { name: 'პარამეტრები', href: '/settings' },
+        { name: 'notes', href: '/notes' },
         { name: 'გამოსვლა', href: '/' },
     ];
 

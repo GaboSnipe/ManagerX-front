@@ -62,7 +62,6 @@ const taskSlice = createSlice({
           state.sharedFolderPath = action.payload.drive_folder_path;
           state.isOpenFolderShareQuestion = true;
         }
-        console.log(action.payload);
       })
       .addCase(addTaskThunk.rejected, (state, action) => {
         console.error('Error adding task:', action.payload);
