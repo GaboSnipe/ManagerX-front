@@ -52,6 +52,9 @@ export default class TaskService {
     static async deletecomment(uuid) {
         return $api.delete(`/api/tasks/subtasks/comments/${uuid}/delete/`)
     }
+    static async createNewNote(newNote) {
+        return $api.post(`/api/tasks/notes/create/`, newNote)
+    }
     static async getNotesList( ) {
         return $api.get(`/api/tasks/notes/list/`)
     }
@@ -62,6 +65,6 @@ export default class TaskService {
         return $api.get(`/api/tasks/notes/${uuid}/delete/`)
     }
     static async updateCurrentNote({uuid, newTitle, newContent}) {
-        return $api.get(`/api/tasks/notes/${uuid}/update/`, {title: newTitle, content: newContent})
+        return $api.patch(`/api/tasks/notes/${uuid}/update/`, {title: newTitle, content: newContent})
     }
 }
