@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import useAuthCheck from '../utils/hooks/useAuthCheck';
 import ProjectsService from '../services/ProjectsService';
 import { getProjectHeadersThunk } from '../features/project/projectThunk';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { CiEdit } from "react-icons/ci";
-import { useSelector } from 'react-redux';
 import { IoCheckmarkDoneCircle } from "react-icons/io5";
 
 const SettingsPage = () => {
@@ -12,8 +11,12 @@ const SettingsPage = () => {
   const [customfieldName, setCustomFieldName] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const response_headers = useSelector((state) => state.project.projectHeaders);
-  const typeList = ["string", "url", "date", "boolean", "integer", "float"];
-  const [isEditing, setIsEditing] = useState(false);
+  const typeList = [
+    { key: "string", value: "text" },
+    { key: "date", value: "iis" },
+    { key: "boolean", value: "aae" },
+  ];
+  const [isEditing, setIsEditing] = useState({});
   const [changedNames, setChangedNames] = useState({});
 
   useEffect(() => {
@@ -38,20 +41,28 @@ const SettingsPage = () => {
   const changeItemName = (id, newName) => {
     setChangedNames((prev) => ({
       ...prev,
-      [id]: newName, 
+      [id]: newName,
     }));
   };
 
-  const applyChanges = () => {
-    setIsEditing(false);
-    setChangedNames({});
+  const toggleEditing = (id) => {
+    setIsEditing((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const applyChanges = async (item) => {
+    await ProjectsService.editCustomFields({id: item.id, newDate: changedNames[item.id]})
+    toggleEditing(item.id);
+    dispatch(getProjectHeadersThunk()).unwrap();
+
   };
 
   return (
     <>
       <div className="h-full w-full flex items-center justify-center bg-[#fcfcfc] relative">
         <div className="content flex gap-5 p-4 bg-white shadow-lg rounded-md">
-          {/* Input field for custom field name */}
           <input
             type="text"
             value={customfieldName}
@@ -59,8 +70,6 @@ const SettingsPage = () => {
             placeholder="Enter custom field name"
             className="border border-gray-300 rounded-md p-2"
           />
-
-          {/* Dropdown for selecting data type */}
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
@@ -68,15 +77,15 @@ const SettingsPage = () => {
           >
             <option value=""></option>
             {typeList.map((type) => (
-              <option key={type} value={type}>
-                {type}
+              <option key={type.key} value={type.key}>
+                {type.value}
               </option>
             ))}
           </select>
-
           <button
             onClick={createCustomFields}
-            className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+            disabled={!customfieldName || !selectedType}
+            className={`p-2 rounded-md ${customfieldName && selectedType ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'}`}
           >
             Create Custom Field
           </button>
@@ -90,28 +99,22 @@ const SettingsPage = () => {
             role="article"
             aria-label={item.name}
           >
-
             <input
               className='text-gray-500 ml-4 bg-transparent border-none cursor-default mr-2'
               value={changedNames[item.id] || item.name}
               onChange={(e) => changeItemName(item.id, e.target.value)}
-              disabled={!isEditing}
+              disabled={!isEditing[item.id]}
             />
-            {isEditing ?
+            {isEditing[item.id] ?
               (
-                <>
-
-                  <button onClick={applyChanges}>
-                    <IoCheckmarkDoneCircle className='text-green-400 text-xl font-extrabold ml-8' />
-                  </button>
-                </>
+                <button onClick={() => applyChanges(item)}>
+                  <IoCheckmarkDoneCircle className='text-green-400 text-xl font-extrabold ml-8' />
+                </button>
               ) :
               (
-                <>
-                  <button onClick={() => setIsEditing(true)}>
-                    <CiEdit className='text-orange-400 text-xl font-extrabold ml-8' />
-                  </button>
-                </>
+                <button onClick={() => toggleEditing(item.id)}>
+                  <CiEdit className='text-orange-400 text-xl font-extrabold ml-8' />
+                </button>
               )
             }
             <p className='text-gray-500 ml-auto mr-8'>{` type : ${item.data_type}`}</p>

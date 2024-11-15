@@ -216,7 +216,6 @@ const Projects = () => {
       closeGenerateTable();
     }
   }
-  console.log(selectedTask)
 
   const onCloseProjectAdd = (reqBody) => {
     dispatch(createNewProjectThunk(reqBody))
