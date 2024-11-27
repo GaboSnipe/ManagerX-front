@@ -31,13 +31,12 @@ $api.interceptors.response.use(
             
             try {
                 const response = await axios.post(
-                    `${API_URL}/api/accounts/auth/token/refresh/`,
+                    `${API_URL}api/accounts/auth/token/refresh/`,
                     {},
                     { withCredentials: true }
                 );
                 const newToken = response.data.access;
                 localStorage.setItem("token", newToken)
-
                 return $api(originalRequest);
             } catch (err) {
                 if (err.response.status === 401) {

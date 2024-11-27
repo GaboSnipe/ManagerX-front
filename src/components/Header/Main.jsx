@@ -9,9 +9,11 @@ import { getNotificationsThunk } from '../../features/notifications/notification
 import { setUnseenNotificationsCount } from '../../features/notifications/notificationsSlice';
 import { setHeaderHeight } from '../../features/workplace/workplaceSlice';
 import { ModalWindow } from "../";
+import { useNavigate } from 'react-router-dom';
 
 const Main = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const unseenNotificationsCount = useSelector((state) => state.notifications.unseenNotificationsCount);
     const headerRef = useRef();
     const user = useSelector((state) => state.auth.userInfo);
@@ -82,6 +84,10 @@ const Main = () => {
         }
     }, [headerRef]);
 
+    const navigateToDashboard = () => {
+        navigate("/dashboard")
+    }
+
     return (
         <div ref={headerRef}>
             <Disclosure as="nav" className="bg-gray-800">
@@ -89,9 +95,9 @@ const Main = () => {
                     <div className="flex h-16 items-center justify-center">
                         <div className="flex-1 flex items-center justify-between">
                             <div className="flex-shrink-0">
-                                <div className="h-8 w-auto">
+                                <button onClick={navigateToDashboard} className="h-8 w-auto cursor-pointer">
                                     <img alt="logo" src="/images/logo.svg" />
-                                </div>
+                                </button>
                             </div>
                             <div className="flex-1 flex items-center justify-center">
                                 <Navigation navigation={navigation} classNames={classNames} />

@@ -1,51 +1,98 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactQuill from 'react-quill';
-import { useSelector } from 'react-redux';
-import TaskService from '../../../services/TaskService';
 
-const NoteEditor = ({ selectedNote, isAddingNewNote, addNewNote }) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const user = useSelector((state) => state.auth.userInfo.id);
+const NoteEditor = ({ selectedNote, saveChangeNote }) => {
   const editorRef = useRef(null);
+  const [localTitle, setLocalTitle] = useState('');
+  const [localContent, setLocalContent] = useState('');
+  const [oldNote, setOldNote] = useState();
+  const [debounceTimeout, setDebounceTimeout] = useState(null); // For debouncing
 
   useEffect(() => {
-    if (selectedNote) {
-      setTitle(selectedNote.title || '');
-      setContent(selectedNote.content || '');
+    if (selectedNote?.uuid) {
+      setLocalTitle(selectedNote.title || '');
+      setLocalContent(selectedNote.content || '');
     } else {
-      setTitle('');
-      setContent('');
+      setLocalTitle('');
+      setLocalContent('');
     }
   }, [selectedNote]);
 
+  useEffect(() => {
+    if (oldNote?.uuid !== selectedNote?.uuid) {
+      saveChanges();
+      setOldNote(selectedNote);
+    }
+  }, [selectedNote]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (localContent !== selectedNote?.content || localTitle !== selectedNote?.title) {
+        saveChanges(localTitle, localContent);
+        e.returnValue = ''; // Показать предупреждение о несохраненных данных
+      }
+    };
+  
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [localTitle, localContent, selectedNote]);
+  
+
+  const saveChanges = (title, content) => {
+    if (selectedNote?.uuid) {
+      saveChangeNote({
+        uuid: selectedNote.uuid,
+        newTitle: title,
+        newContent: content,
+      });
+    }
+  };
+  
+  const debounceSaveChanges = (title, content) => {
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+    setDebounceTimeout(
+      setTimeout(() => {
+        saveChanges(title, content);
+      }, 1000)
+    );
+  };
+  
   const handleContentChange = (value) => {
-    setContent(value);
+    setLocalContent(value);
+    debounceSaveChanges(localTitle, value);
   };
-
+  
   const handleTitleChange = (e) => {
-    setTitle(e.target.value);
+    const newTitle = e.target.value;
+    setLocalTitle(newTitle);
+    debounceSaveChanges(newTitle, localContent);
   };
-
-  const saveChangeNote = () =>{
-    TaskService.updateCurrentNote({uuid:selectedNote.uuid, newTitle: title, newContent: content});
-  }
-
+  
   const renderEditor = () => (
     <ReactQuill
       ref={editorRef}
       theme="snow"
-      value={content}
-      readOnly={!isAddingNewNote && !selectedNote}
+      value={localContent}
+      readOnly={!selectedNote}
       onChange={handleContentChange}
       placeholder="Compose an epic..."
       className="flex-grow border-none focus:ring-0 focus:outline-none"
       modules={{
-        toolbar: isAddingNewNote || selectedNote
+        toolbar: selectedNote
           ? [
-              [{ header: [1, 2, false] }],
-              ['bold', 'italic', 'underline'],
-              ['image'],
+              ['bold', 'italic', 'underline', 'strike'],
+              ['link'],
+              [{ header: 1 }, { header: 2 }],
+              [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
+              [{ script: 'sub' }, { script: 'super' }],
+              [{ size: ['small', false, 'large', 'huge'] }],
+              [{ header: [1, 2, 3, 4, 5, 6, false] }],
+              [{ color: [] }, { background: [] }],
+              [{ font: [] }],
+              [{ align: [] }],
+              ['clean'],
             ]
           : [],
       }}
@@ -55,35 +102,22 @@ const NoteEditor = ({ selectedNote, isAddingNewNote, addNewNote }) => {
   return (
     <div className="w-full max-h-[40rem] h-full flex flex-col space-y-4">
       <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2">
-        {isAddingNewNote ? (
+        {selectedNote?.title ? (
           <input
             type="text"
-            value={title}
+            value={localTitle}
             onChange={handleTitleChange}
             placeholder="Enter note title"
             className="appearance-none bg-transparent border-none outline-none w-full p-0 m-0 text-inherit shadow-none"
           />
         ) : (
-          selectedNote?.title || 'Select a Note'
+          'Select a Note'
         )}
       </h2>
-      {isAddingNewNote || selectedNote ? (
+      {selectedNote.uuid ? (
         <>
           {renderEditor()}
-          <div className="mt-4 flex justify-center">
-            <button
-              onClick={() => {
-                if (isAddingNewNote) {
-                  addNewNote({ title, content, owner: user });
-                }else if(selectedNote?.uuid) {
-                  saveChangeNote();
-                }
-              }}
-              className="bg-gray-300 m-2 w-24 rounded-md mt-16 text-gray-500 hover:bg-gray-400 hover:text-gray-600 transition duration-300"
-            >
-              {isAddingNewNote ? 'Create' : 'Save'}
-            </button>
-          </div>
+          <div className="mt-4 flex justify-center"></div>
         </>
       ) : (
         <div>

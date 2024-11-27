@@ -11,6 +11,7 @@ const initialState = {
   isOpenFolderShareQuestion: false,
   folderSharePersonUuid: null,
   sharedFolderPath: null,
+  selectedNote: [],
 };
 
 const taskSlice = createSlice({
@@ -43,6 +44,9 @@ const taskSlice = createSlice({
     },
     setSharedFolderPath(state, action) {
       state.sharedFolderPath = action.payload;
+    },
+    setSelectedNoteSlice(state, action) {
+      state.selectedNote = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -113,5 +117,5 @@ const taskSlice = createSlice({
   },
 });
 
-export const { setTaskList, setIsAddEnable, setSelectedSubtask, setSeeResizebleDiv, setIsEditingSubTask, setSelectedSubTaskEdit, setIsOpenFolderShareQuestion, setFolderSharePersonUuid, setSharedFolderPath } = taskSlice.actions;
+export const { setTaskList, setIsAddEnable, setSelectedSubtask, setSeeResizebleDiv, setIsEditingSubTask, setSelectedSubTaskEdit, setIsOpenFolderShareQuestion, setFolderSharePersonUuid, setSharedFolderPath, setSelectedNoteSlice } = taskSlice.actions;
 export default taskSlice.reducer;

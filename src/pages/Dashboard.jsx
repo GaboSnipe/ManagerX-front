@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { getSubTaskThunk } from "../features/task/taskThunk";
-import { setSeeResizebleDiv } from "../features/task/taskSlice";
+import { setSeeResizebleDiv, setSelectedNoteSlice } from "../features/task/taskSlice";
 
 
 const Dashboard = () => {
@@ -16,7 +16,7 @@ const Dashboard = () => {
   const user = useSelector((state) => state.auth.userInfo);
   const [assigneToMy, setAssigneToMy] = useState();
   const [assigneByMy, setAssigneByMy] = useState();
-  const [notesList, setNotesList] = useState([{id: 1, title: "title#1", content: "quilleditortext"},{id: 2, title: "title#2", content: "quilleditortext"},{id: 3, title: "title#3", content: "quilleditortext"}]);
+  const [notesList, setNotesList] = useState([]);
 
 
   const getAssigneByMyList = async () => {
@@ -94,21 +94,37 @@ const Dashboard = () => {
   }
 
 
+  const fetchNotes = async () => {
+    try {
+      const result = await TaskService.getNotesList();
+      setNotesList(result.data);
+    } catch (error) {
+      console.error('err:', error);
+    }
+  };
+
+  const selectnote = (note) => {
+    dispatch(setSelectedNoteSlice(note));
+    navigate("/notes");
+  }
+
+
 
   useEffect(() => {
     getAssigneToMyList();
     getAssigneByMyList();
+    fetchNotes();
   }, [])
 
 
   return (
     <>
       <div className="min-h-full">
-        <div className="py-6 sm:px-6 lg:px-8 w-screen">
+        <div className="py-6 sm:px-6 lg:px-8">
           <>
             <div className="flex justify-center w-full">
 
-              <div className="relative rounded-l-md overflow-y-auto mt-8 custom-scrollbar h-full">
+              <div className="relative rounded-l-md overflow-y-auto mt-8 custom-scrollbar h-full w-full">
 
                 <div className={`bg-[#F7F5F5]  max-w-3xl p-5  rounded-md mb-8 shadow-lg`}
                   style={{
@@ -163,11 +179,70 @@ const Dashboard = () => {
 
                 </div>
 
+                {/* NOTES */}
+
+
+
+
+                <div className={`bg-[#F7F5F5]  max-w-3xl p-5  rounded-md mb-8 shadow-lg`}
+                  style={{
+                    boxShadow: '0 8px 15px -3px rgba(0, 0, 0, 0.4), 0 0px 4px -2px rgba(0, 0, 0, 0.4)',
+                  }}
+                >
+
+                  <div className="mb-4">
+                    <span className="text-gray-800 text-xs font-bold">
+                      notes
+                    </span>
+                    <div className="my-2 w-full  h-px bg-[#E0E0E0]" />
+                  </div>
+                  {notesList?.map((note, index) => (
+                    <div key={note.id} className={`h-[1.85rem] border hover:bg-gray-100 border-[rgba(0,0,0,0.21)] rounded-md flex items-center px-2 shadow-lg mb-px w-full`}
+                      style={{
+                        boxShadow: '0 8px 15px -3px rgba(0, 0, 0, 0.4), 0 0px 4px -2px rgba(0, 0, 0, 0.4)',
+
+                        cursor: 'pointer',
+                      }}
+                    onClick={() => selectnote(note)}
+                    >
+                      <input
+                        type="checkbox"
+                        id={`note-${note.id}`}
+                        className="mr-2 w-3 h-3 rounded border-[#C9C9C9] bg-[#C9C9C9] checked:bg-[#7993d0] checked:border-[#7993d0] focus:ring-0"
+                      />
+                      <p className="font-[600] min-w-16 not-italic font-roboto text-[0.65rem] overflow-hidden w-full tracking-wide leading-[150%] text-ellipsis text-black"
+                        title={note.title}
+                      >
+                        {note.title}
+                      </p>
+                      {/*                     
+      <div className="flex items-center ml-auto">
+
+        <div className="flex items-center mr-5">
+          <div className="bg-[#C2BDAD] text-white w-24 px-2.5 text-center py-0.5 rounded-full text-xs">
+            {subtask.deadline_from}
+          </div>
+          <div className="w-4 h-px bg-[#C2BDAD]" />
+          <div className="bg-[#C2BDAD] text-white w-24 text-center px-2.5 py-0.5 rounded-full text-xs">
+            {subtask.deadline_to}
+          </div>
+        </div>
+        <div className={`text-white text-xs w-32 min-w-32 py-0.5 rounded-full text-center mr-4 ${getStatusStyles(subtask.status)}`}>
+          {getStatusLabel(subtask.status)}
+        </div>
+
+      </div> */}
+                    </div>
+                  ))
+                  }
+
+                </div>
+
               </div>
 
               <div className="w-16 min-w-2 max-w-16" />
 
-              <div className="relative rounded-l-md overflow-y-auto mt-8 custom-scrollbar h-full">
+              <div className="relative rounded-l-md overflow-y-auto mt-8 custom-scrollbar h-full w-full">
 
                 <div className={`bg-[#F7F5F5]  max-w-3xl p-5  rounded-md mb-8 shadow-lg`}
                   style={{
@@ -226,66 +301,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-          {/* NOTES */}
 
-
-
-            <div className="relative rounded-l-md overflow-y-auto mt-8 custom-scrollbar h-full">
-
-              <div className={`bg-[#F7F5F5] p-5  rounded-md mb-8 shadow-lg`}
-                style={{
-                  boxShadow: '0 8px 15px -3px rgba(0, 0, 0, 0.4), 0 0px 4px -2px rgba(0, 0, 0, 0.4)',
-                }}
-              >
-
-                <div className="mb-4">
-                  <span className="text-gray-800 text-xs font-bold">
-                    notes
-                  </span>
-                  <div className="my-2 w-full  h-px bg-[#E0E0E0]" />
-                </div>
-                {notesList?.map((note, index) => (
-                  <div key={note.id} className={`h-[1.85rem] border hover:bg-gray-100 border-[rgba(0,0,0,0.21)] rounded-md flex items-center px-2 shadow-lg mb-px w-full`}
-                    style={{
-                      boxShadow: '0 8px 15px -3px rgba(0, 0, 0, 0.4), 0 0px 4px -2px rgba(0, 0, 0, 0.4)',
-
-                      cursor: 'pointer',
-                    }}
-                    // onClick={() => selectnote(note)}
-                  >
-                    <input
-                      type="checkbox"
-                      id={`note-${note.id}`}
-                      className="mr-2 w-3 h-3 rounded border-[#C9C9C9] bg-[#C9C9C9] checked:bg-[#7993d0] checked:border-[#7993d0] focus:ring-0"
-                    />
-                    <p className="font-[600] min-w-16 not-italic font-roboto text-[0.65rem] overflow-hidden w-full tracking-wide leading-[150%] text-ellipsis text-black"
-                      title={note.title}
-                    >
-                      {note.title}
-                    </p>
-{/*                     
-                    <div className="flex items-center ml-auto">
-
-                      <div className="flex items-center mr-5">
-                        <div className="bg-[#C2BDAD] text-white w-24 px-2.5 text-center py-0.5 rounded-full text-xs">
-                          {subtask.deadline_from}
-                        </div>
-                        <div className="w-4 h-px bg-[#C2BDAD]" />
-                        <div className="bg-[#C2BDAD] text-white w-24 text-center px-2.5 py-0.5 rounded-full text-xs">
-                          {subtask.deadline_to}
-                        </div>
-                      </div>
-                      <div className={`text-white text-xs w-32 min-w-32 py-0.5 rounded-full text-center mr-4 ${getStatusStyles(subtask.status)}`}>
-                        {getStatusLabel(subtask.status)}
-                      </div>
-
-                    </div> */}
-                  </div>
-                ))
-                }
-              </div>
-
-            </div>
 
           </>
         </div>

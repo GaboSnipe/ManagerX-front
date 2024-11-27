@@ -62,7 +62,7 @@ export default class TaskService {
         return $api.get(`/api/tasks/notes/${uuid}/`)
     }
     static async deleteCurrentNote(uuid) {
-        return $api.get(`/api/tasks/notes/${uuid}/delete/`)
+        return $api.get(`/api/tasks/notes/${uuid}/delete`)
     }
     static async updateCurrentNote({uuid, newTitle, newContent}) {
         return $api.patch(`/api/tasks/notes/${uuid}/update/`, {title: newTitle, content: newContent})
