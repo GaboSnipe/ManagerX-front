@@ -29,7 +29,7 @@ const Main = () => {
     }
 
     useEffect(() => {
-        const url = `${import.meta.env.VITE_NOTIFICATION_API_URL}ws/notify/?token=${localStorage.getItem("token")}`;
+        const url = `${import.meta.env.VITE_NOTIFICATION_API_URL}/ws/notify/?token=${localStorage.getItem("token")}`;
         const socket = new WebSocket(url);
 
         socket.onmessage = (e) => {
