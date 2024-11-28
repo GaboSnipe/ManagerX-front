@@ -12,9 +12,9 @@ const SettingsPage = () => {
   const [selectedType, setSelectedType] = useState("");
   const response_headers = useSelector((state) => state.project.projectHeaders);
   const typeList = [
-    { key: "string", value: "text" },
-    { key: "date", value: "iis" },
-    { key: "boolean", value: "aae" },
+    { key: "string", value: "თექსტი" },
+    { key: "date", value: "თარიღი" },
+    { key: "boolean", value: "True/False" },
   ];
   const [isEditing, setIsEditing] = useState({});
   const [changedNames, setChangedNames] = useState({});
