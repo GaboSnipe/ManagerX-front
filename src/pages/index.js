@@ -2,3 +2,12 @@ export { default as Dashboard } from "./Dashboard";
 export { default as Projects } from "./Projects";
 export { default as WorkPlace } from "./WorkPlace";
 export { default as Tasks } from "./Tasks";
+export { default as LoginPage } from "./LoginPage";
+export { default as SettingsPage } from "./SettingsPage.jsx";
+export { default as SingleTask } from "./SingleTask";
+export { default as SingleSubTask } from "./SingleSubTask.jsx";
+export { default as NotFound } from "./NotFound";
+export { default as Tasks2 } from "./Tasks2.jsx"
+export { default as NewWorkPlace } from "./NewWorkPlace.jsx"
+export { default as NotificationsList } from "./NotificationsList.jsx"
+export { default as NotesPage } from "./NotesPage.jsx"

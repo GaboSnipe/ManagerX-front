@@ -1,1 +1,21 @@
 export { default as Header } from "./Header/Main.jsx";
+export { default as Paginations } from "./Paginations.jsx";
+export { default as Table } from "./Table/Main.jsx";
+export { default as ResizableDiv } from "./resizebleDiv.jsx";
+export { default as FolderIcon } from "./Files/FolderIcon.jsx";
+export { default as FileIcon } from "./Files/FileIcon.jsx";
+export { default as Logo } from "./Logo/Logo.jsx";
+export { default as FullLogo } from "./Logo/FullLogo.jsx";
+export { default as ExpandableTable } from "./Tasks/Main.jsx";
+export { default as Editor } from "./Editor.jsx";
+export { default as UserSearchDropDown } from "./UserSearchDropDown.jsx";
+export { default as ModalWindow } from "./ModalWindow.jsx";
+export { default as FileViewer } from "./FileViewer/Main.jsx";
+export { default as Task } from "./Task/Main.jsx";
+export { default as TextEditor } from "./TextEditor.jsx";
+export { default as SubTaskDetails } from "./SubTaskDetails.jsx";
+export { default as TaskEdit } from "./TaskEdit.jsx";
+export { default as CustomFileBrowser } from "./CustomFileBrowser/index.jsx";
+export { default as ProjectEdit } from "./ProjectEdit.jsx";
+export { default as NotesListComponent } from "./Notes/NotesListComponent.jsx";
+

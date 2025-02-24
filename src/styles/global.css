@@ -1,0 +1,59 @@
+.unselectable {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera, and Firefox */
+  }
+  .transition-all {
+    transition: max-height 0.5s ease-in-out;
+  }
+
+.controls {
+    display: flex;
+    border: 1px solid #ccc;
+    border-top: 0;
+    padding: 10px;
+}
+
+.controls-right {
+    margin-left: auto;
+}
+
+.state {
+    margin: 10px 0;
+    font-family: monospace;
+}
+
+.state-title {
+    color: #999;
+    text-transform: uppercase;
+}
+
+.ql-container.ql-snow {
+    border: none;
+}
+
+
+.ql-toolbar.ql-snow {
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    box-sizing: border-box;
+    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    padding: 8px;
+}
+
+
+.google-button {
+    background-color: #4285F4; /* Цвет фона */
+    color: white; /* Цвет текста */
+    border: none; /* Убираем границу */
+    border-radius: 4px; /* Скругление углов */
+    padding: 10px 20px; /* Отступы */
+    font-size: 16px; /* Размер шрифта */
+    cursor: pointer; /* Курсор при наведении */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Тень */
+  }
+  
