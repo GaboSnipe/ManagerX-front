@@ -1,0 +1,44 @@
+name: Continuous Integration-Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  docker_build:
+    runs-on: ubuntu-22.04
+    name: Docker Image Build
+    steps:
+      - uses: actions/checkout@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./docker/prod/Dockerfile
+          push: true
+          tags: dimitrigulua/managerx-front:latest
+
+
+  deploy:
+    runs-on: ubuntu-22.04
+    name: Continuous Deployment
+    needs: [docker_build]
+    steps:
+      - name: Deploy using ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          script: | 
+            cd /opt/projects/ManagerX-front; git checkout main; docker stop ManagerX-UI;docker rm ManagerX-UI;docker pull dimitrigulua/managerx-front:latest;docker compose up ManagerX-UI -d
