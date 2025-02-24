@@ -27,10 +27,10 @@ jobs:
           file: ./docker/prod/Dockerfile
           push: true
           build-args: |
-            "VITE_BACKEND_API_URL=${{ secrets.VITE_BACKEND_API_URL }}" |
-            "VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}" |
-            "VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}" |
-            "VITE_NOTIFICATION_API_URL=${{ secrets.VITE_NOTIFICATION_API_URL }}"
+            VITE_BACKEND_API_URL=${{ secrets.VITE_BACKEND_API_URL }}
+            VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}
+            VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+            VITE_NOTIFICATION_API_URL=${{ secrets.VITE_NOTIFICATION_API_URL }}
           tags: dimitrigulua/managerx-front:latest
 
 #
