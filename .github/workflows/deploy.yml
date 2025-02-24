@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   docker_build:
@@ -27,18 +28,18 @@ jobs:
           push: true
           tags: dimitrigulua/managerx-front:latest
 
-
-  deploy:
-    runs-on: ubuntu-22.04
-    name: Continuous Deployment
-    needs: [docker_build]
-    steps:
-      - name: Deploy using ssh
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: 22
-          script: | 
-            cd /opt/projects/ManagerX-front; git checkout main; docker stop ManagerX-UI;docker rm ManagerX-UI;docker pull dimitrigulua/managerx-front:latest;docker compose up ManagerX-UI -d
+#
+#  deploy:
+#    runs-on: ubuntu-22.04
+#    name: Continuous Deployment
+#    needs: [docker_build]
+#    steps:
+#      - name: Deploy using ssh
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.SSH_HOST }}
+#          username: ${{ secrets.SSH_USERNAME }}
+#          password: ${{ secrets.SSH_PASSWORD }}
+#          port: 22
+#          script: |
+#            cd /opt/projects/ManagerX-front; git checkout main; docker stop ManagerX-UI;docker rm ManagerX-UI;docker pull dimitrigulua/managerx-front:latest;docker compose up ManagerX-UI -d
