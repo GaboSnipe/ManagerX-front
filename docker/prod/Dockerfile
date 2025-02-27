@@ -2,8 +2,8 @@ FROM node:20-alpine3.19 AS builder
 
 ENV VITE_GOOGLE_CLIENT_ID 171035734754-vq56jhru1ua2etb52sn87b6ajnuna9ul.apps.googleusercontent.com
 ENV VITE_BASE_URL https://tbilisiexpertisemanagerx.ge/
-ENV VITE_BACKEND_API_URL https://tbilisiexpertisemanagerx.ge/api
-ENV VITE_NOTIFICATION_API_URL wss://tbilisiexpertisemanagerx.ge/ws
+ENV VITE_BACKEND_API_URL https://tbilisiexpertisemanagerx.ge:8000
+ENV VITE_NOTIFICATION_API_URL wss://tbilisiexpertisemanagerx.ge:8000
 
 WORKDIR /app
 
